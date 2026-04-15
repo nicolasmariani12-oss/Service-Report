@@ -156,6 +156,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .lightbox img{max-width:100%;max-height:90vh;border-radius:var(--r-lg);object-fit:contain;}
 .lightbox-close{position:fixed;top:var(--sp4);right:var(--sp4);color:#fff;font-size:28px;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border-radius:var(--r-md);}
 .lightbox-caption{position:fixed;bottom:var(--sp6);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;padding:var(--sp2) var(--sp5);border-radius:var(--r-full);font-size:var(--text-sm);backdrop-filter:blur(8px);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+
+label.btn-secondary { font-family: 'Inter', sans-serif !important; }
 </style>
 </head>
 <body>
@@ -174,6 +176,16 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     </button>
   </div>
 </header>
+<div class="draft-bar">
+  <span>📋 Bozza</span>
+  <button class="btn-secondary" onclick="saveDraft()" style="font-size:var(--text-xs);padding:var(--sp2) var(--sp4);min-height:36px;font-family:var(--font-body);">
+    💾 Salva bozza
+  </button>
+  <label for="draftInput" class="btn-secondary" style="font-size:var(--text-xs);padding:var(--sp2) var(--sp4);min-height:36px;font-family:var(--font-body);cursor:pointer;display:inline-flex;align-items:center;">
+    📂 Carica bozza
+  </label>
+</div>
+
 
 <main class="app-main">
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:16.6%"></div></div>
@@ -196,12 +208,13 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="form-card">
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>Dati Ordine e Cliente</div>
       <div class="form-grid">
-        <div class="form-group"><label>Numero Attività / Activity Number</label><input type="text" id="f_ordine" placeholder="es. ACT-2025-001"></div>
-        <div class="form-group"><label>Data Intervento / Date</label><input type="date" id="f_data"></div>
-        <div class="form-group"><label>Numero Cliente / Customer ID</label><input type="text" id="f_numcliente" placeholder="es. 241956"></div>
-        <div class="form-group"><label>Nome Cliente / Customer Name</label><input type="text" id="f_cliente" placeholder="es. Rossi Costruzioni Srl"></div>
+        <div class="form-group"><label>Numero Attività</label><input type="text" id="f_ordine" placeholder="es. ACT-2025-001"></div>
+        <div class="form-group"><label>Data Intervento</label><input type="date" id="f_data"></div>
+        <div class="form-group"><label>Data Fine Intervento</label><input type="date" id="f_data_fine"></div>
+        <div class="form-group"><label>Numero Cliente</label><input type="text" id="f_numcliente" placeholder="es. 241956"></div>
+        <div class="form-group"><label>Nome Cliente</label><input type="text" id="f_cliente" placeholder="es. Rossi Costruzioni Srl"></div>
         <div class="form-group full">
-  <label>Indirizzo Cantiere / Site Address</label>
+  <label>Indirizzo Cantiere</label>
   <input type="text" id="f_indirizzo" placeholder="Via / Cantiere / Comune" oninput="onAddrInput()">
 </div>
 <div class="form-group full">
@@ -235,8 +248,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <input type="file" accept="image/*" id="mapsImgGal" style="display:none" onchange="handleMapsImg(this)">
   </div>
 </div>
-        <div class="form-group"><label>Tipo Ordine / Order Type</label><select id="f_tipoordine"><option value="">Seleziona...</option><option>Intervento in Garanzia</option><option>Intervento a Pagamento</option><option>Ispezione / Service</option><option>Riparazione</option></select></div>
-        <div class="form-group"><label>Cliente presente in loco? / On site?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="clientepresente" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="clientepresente" value="No"> No</label></div></div>
+        <div class="form-group"><label>Tipo Ordine</label><select id="f_tipoordine"><option value="">Seleziona...</option><option>Intervento in Garanzia</option><option>Intervento a Pagamento</option><option>Ispezione</option><option>Riparazione</option></select></div>
+        <div class="form-group"><label>Cliente presente in loco??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="clientepresente" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="clientepresente" value="No"> No</label></div></div>
       </div>
     </div>
     <div class="form-nav"><span></span><button class="btn-primary" onclick="goStep(1)">Avanti →</button></div>
@@ -245,14 +258,14 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- STEP 2 -->
   <div class="step-panel" id="step-1">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>Dati Macchina / Machine Data</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>Dati Macchina</div>
       <div class="form-grid cols-3">
-        <div class="form-group"><label>Costruttore / Manufacturer</label><input type="text" id="f_costruttore" value="Eurocomach"></div>
+        <div class="form-group"><label>Costruttore</label><input type="text" id="f_costruttore" value="Eurocomach"></div>
         <div class="form-group"><label>Tipo / Modello</label><input type="text" id="f_modello" placeholder="es. X24D"></div>
-        <div class="form-group"><label>Numero di Serie / Serial Number</label><input type="text" id="f_seriale" placeholder="es. MM00052"></div>
-        <div class="form-group"><label>Anno di Fabbricazione / Year</label><input type="number" id="f_anno" placeholder="es. 2025" min="1990" max="2030"></div>
-        <div class="form-group"><label>Ore di Lavoro / Working Hours</label><input type="number" id="f_ore" placeholder="es. 44" min="0"></div>
-        <div class="form-group"><label>Contaore presente? / Hour meter?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="contaore" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="contaore" value="No"> No</label></div></div>
+        <div class="form-group"><label>Numero di Serie</label><input type="text" id="f_seriale" placeholder="es. MM00052"></div>
+        <div class="form-group"><label>Anno di Fabbricazione</label><input type="number" id="f_anno" placeholder="es. 2025" min="1990" max="2030"></div>
+        <div class="form-group"><label>Ore di Lavoro</label><input type="number" id="f_ore" placeholder="es. 44" min="0"></div>
+        <div class="form-group"><label>Contaore presente??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="contaore" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="contaore" value="No"> No</label></div></div>
       </div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(0)">← Indietro</button><button class="btn-primary" onclick="goStep(2)">Avanti →</button></div>
@@ -261,29 +274,29 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- STEP 3 -->
   <div class="step-panel" id="step-2">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Dati Intervento / Work Order Details</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Dati Intervento</div>
       <div class="form-grid">
-        <div class="form-group full"><label>Problema Segnalato / Reported Issue</label><textarea id="f_problema" placeholder="Descrivi il problema riportato dal cliente..."></textarea></div>
-        <div class="form-group"><label>Codice Errore / Error Code</label><input type="text" id="f_codiceerrore" placeholder="es. 259"></div>
-        <div class="form-group"><label>Caso di Garanzia? / Warranty Claim?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="garanzia" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="garanzia" value="No"> No</label></div></div>
-        <div class="form-group"><label>Tipo di Lavori / Work Type</label><select id="f_tipolavoro"><option>Riparazione e Ispezione / Service</option><option>Solo Ispezione / Inspection only</option><option>Solo Riparazione / Repair only</option><option>Sostituzione Componente / Part Replacement</option><option>Diagnosi / Diagnosis</option></select></div>
-        <div class="form-group"><label>Luogo di Esecuzione / Work Location</label><select id="f_luogo"><option>Cantiere – Dal Cliente / On-site</option><option>In Officina / Workshop</option><option>In Sede / Headquarters</option></select></div>
-        <div class="form-group full"><label>Lavori Eseguiti / Work Performed</label><textarea id="f_lavori" placeholder="Elenca le operazioni eseguite..."></textarea></div>
-        <div class="form-group full"><label>Descrizione del Difetto / Fault Description</label><textarea id="f_difetto" placeholder="Componente difettoso, sintomi, causa guasto..."></textarea></div>
-        <div class="form-group"><label>Causa del Guasto / Fault Cause</label><select id="f_causa"><option value="">Seleziona...</option><option>Difetto di Materiale / Garanzia</option><option>Usura Normale / Normal Wear</option><option>Danno da Operatore / Operator Damage</option><option>Mancata Manutenzione / Lack of Maintenance</option><option>Corpo Estraneo / Foreign Object</option><option>Altro / Other</option></select></div>
-        <div class="form-group"><label>Componente Difettoso / Faulty Part</label><input type="text" id="f_fehlerteil" placeholder="es. Leva del gas"></div>
+        <div class="form-group full"><label>Problema Segnalato</label><textarea id="f_problema" placeholder="Descrivi il problema riportato dal cliente..."></textarea></div>
+        <div class="form-group"><label>Codice Errore</label><input type="text" id="f_codiceerrore" placeholder="es. 259"></div>
+        <div class="form-group"><label>Caso di Garanzia??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="garanzia" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="garanzia" value="No"> No</label></div></div>
+        <div class="form-group"><label>Tipo di Lavori</label><select id="f_tipolavoro"><option>Riparazione e Ispezione</option><option>Solo Ispezione</option><option>Solo Riparazione</option><option>Sostituzione Componente</option><option>Diagnosi</option></select></div>
+        <div class="form-group"><label>Luogo di Esecuzione</label><select id="f_luogo"><option>Cantiere – Dal Cliente / On-site</option><option>In Officina</option><option>In Sede</option></select></div>
+        <div class="form-group full"><label>Lavori Eseguiti</label><textarea id="f_lavori" placeholder="Elenca le operazioni eseguite..."></textarea></div>
+        <div class="form-group full"><label>Descrizione del Difetto</label><textarea id="f_difetto" placeholder="Componente difettoso, sintomi, causa guasto..."></textarea></div>
+        <div class="form-group"><label>Causa del Guasto</label><select id="f_causa"><option value="">Seleziona...</option><option>Difetto di Materiale</option><option>Usura Normale</option><option>Danno da Operatore</option><option>Mancata Manutenzione</option><option>Corpo Estraneo</option><option>Altro</option></select></div>
+        <div class="form-group"><label>Componente Difettoso</label><input type="text" id="f_fehlerteil" placeholder="es. Leva del gas"></div>
       </div>
-      <div class="section-divider">Tecnico Incaricato / Assigned Technician</div>
+      <div class="section-divider">Tecnico Incaricato</div>
       <div class="form-grid">
-        <div class="form-group"><label>Nome Tecnico / Technician Name</label><input type="text" id="f_tecnico" placeholder="Nome Cognome"></div>
-        <div class="form-group"><label>Matricola / Employee ID</label><input type="text" id="f_matricola" placeholder="es. S102201"></div>
+        <div class="form-group"><label>Nome Tecnico</label><input type="text" id="f_tecnico" placeholder="Nome Cognome"></div>
+        <div class="form-group"><label>Matricola</label><input type="text" id="f_matricola" placeholder="es. S102201"></div>
       </div>
-      <div class="section-divider">Collaudo Finale / Final Check</div>
+      <div class="section-divider">Collaudo Finale</div>
       <div class="form-grid">
-        <div class="form-group"><label>Collaudo Eseguito? / Test Run Done?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="probelauf" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="probelauf" value="No"> No</label></div></div>
-        <div class="form-group"><label>Esito Collaudo / Test Result</label><input type="text" id="f_esito" placeholder="es. Tutto in ordine / All OK"></div>
-        <div class="form-group"><label>Macchina ingrassata? / Lubricated?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="grasso" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="grasso" value="No"> No</label></div></div>
-        <div class="form-group"><label>Livelli fluidi verificati? / Fluids Checked?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="fluidi" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="fluidi" value="No"> No</label></div></div>
+        <div class="form-group"><label>Collaudo Eseguito??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="probelauf" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="probelauf" value="No"> No</label></div></div>
+        <div class="form-group"><label>Esito Collaudo</label><input type="text" id="f_esito" placeholder="es. Tutto in ordine"></div>
+        <div class="form-group"><label>Macchina ingrassata??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="grasso" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="grasso" value="No"> No</label></div></div>
+        <div class="form-group"><label>Livelli fluidi verificati??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="fluidi" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="fluidi" value="No"> No</label></div></div>
       </div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(1)">← Indietro</button><button class="btn-primary" onclick="goStep(3)">Avanti →</button></div>
@@ -292,13 +305,13 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- STEP 4 -->
   <div class="step-panel" id="step-3">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>Documentazione Fotografica / Photo Documentation</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>Documentazione Fotografica</div>
       <p style="font-size:var(--text-xs);color:var(--text-m);margin-bottom:var(--sp5);background:var(--primary-hl);padding:var(--sp3);border-radius:var(--r-md);border-left:3px solid var(--samp-orange);">
         💡 Tocca uno slot per scegliere <strong>Scatta Foto</strong> o <strong>Carica dal Dispositivo</strong>. Clicca su una foto per vederla a schermo intero.
       </p>
-      <div class="photo-section"><div class="photo-section-title">📷 Prima dell'Intervento / Before Work</div><div class="photo-grid" id="photoGridPre"></div></div>
-      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">🔧 Componente Difettoso / Faulty Part</div><div class="photo-grid" id="photoGridFault"></div></div>
-      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">✅ Dopo l'Intervento / After Work</div><div class="photo-grid" id="photoGridPost"></div></div>
+      <div class="photo-section"><div class="photo-section-title">📷 Prima dell'Intervento</div><div class="photo-grid" id="photoGridPre"></div></div>
+      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">🔧 Componente Difettoso</div><div class="photo-grid" id="photoGridFault"></div></div>
+      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">✅ Dopo l'Intervento</div><div class="photo-grid" id="photoGridPost"></div></div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(2)">← Indietro</button><button class="btn-primary" onclick="goStep(4)">Avanti →</button></div>
   </div>
@@ -306,9 +319,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- STEP 5 -->
   <div class="step-panel" id="step-4">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Ricambi Utilizzati / Parts Used</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Ricambi Utilizzati</div>
       <table class="parts-table">
-        <thead><tr><th>N°</th><th>Codice / Part Number</th><th>Descrizione / Description</th><th>Qtà</th><th>U.M.</th><th></th></tr></thead>
+        <thead><tr><th>N°</th><th>Codice</th><th>Descrizione</th><th>Qtà</th><th>U.M.</th><th></th></tr></thead>
         <tbody id="partsBody">
           <tr><td style="color:var(--text-m);font-size:var(--text-xs)">1</td><td><input type="text" placeholder="Codice..."></td><td><input type="text" placeholder="Descrizione..."></td><td><input type="number" placeholder="1" style="width:60px"></td><td><input type="text" placeholder="pz" style="width:50px"></td><td><button onclick="removeRow(this)" style="color:var(--error);font-size:16px;padding:2px 6px">✕</button></td></tr>
         </tbody>
@@ -316,28 +329,28 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <button class="add-row-btn" onclick="addPartRow()">+ Aggiungi riga</button>
     </div>
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Rilevazione Tempi / Time Tracking</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Rilevazione Tempi</div>
       <div class="form-grid cols-3">
-        <div class="form-group"><label>Ora Partenza / Departure</label><input type="time" id="f_partenza"></div>
-        <div class="form-group"><label>Arrivo Cantiere / Site Arrival</label><input type="time" id="f_arrivo"></div>
-        <div class="form-group"><label>Km Andata / Outbound km</label><input type="number" id="f_km_and" placeholder="es. 160" min="0"></div>
-        <div class="form-group"><label>Inizio Lavoro / Work Start</label><input type="time" id="f_iniziolavoro"></div>
-        <div class="form-group"><label>Fine Lavoro / Work End</label><input type="time" id="f_finelavoro"></div>
-        <div class="form-group"><label>Ore Totali / Total Hours</label><input type="number" id="f_orelavoro" step="0.5" placeholder="es. 2.5" min="0"></div>
-        <div class="form-group"><label>Partenza Rientro / Return Dep.</label><input type="time" id="f_partrientro"></div>
-        <div class="form-group"><label>Ora Rientro / Return Arr.</label><input type="time" id="f_rientro"></div>
-        <div class="form-group"><label>Km Ritorno / Return km</label><input type="number" id="f_km_rit" placeholder="es. 160" min="0"></div>
+        <div class="form-group"><label>Ora Partenza</label><input type="time" id="f_partenza"></div>
+        <div class="form-group"><label>Arrivo Cantiere</label><input type="time" id="f_arrivo"></div>
+        <div class="form-group"><label>Km Andata</label><input type="number" id="f_km_and" placeholder="es. 160" min="0"></div>
+        <div class="form-group"><label>Inizio Lavoro</label><input type="time" id="f_iniziolavoro"></div>
+        <div class="form-group"><label>Fine Lavoro</label><input type="time" id="f_finelavoro"></div>
+        <div class="form-group"><label>Ore Totali</label><input type="number" id="f_orelavoro" step="0.5" placeholder="es. 2.5" min="0"></div>
+        <div class="form-group"><label>Partenza Rientro.</label><input type="time" id="f_partrientro"></div>
+        <div class="form-group"><label>Ora Rientro.</label><input type="time" id="f_rientro"></div>
+        <div class="form-group"><label>Km Ritorno</label><input type="number" id="f_km_rit" placeholder="es. 160" min="0"></div>
       </div>
-      <div class="section-divider">Firme / Signatures</div>
+      <div class="section-divider">Firme</div>
       <div class="sig-grid">
         <div class="sig-block">
-          <label>✍️ Firma del Tecnico / Technician Signature</label>
+          <label>✍️ Firma del Tecnico</label>
           <canvas class="signature-pad" id="sigCanvasTec" width="800" height="120"></canvas>
           <div class="sig-actions"><button class="sig-clear" onclick="clearSig('Tec')">Cancella</button><span style="font-size:var(--text-xs);color:var(--text-m)">Mouse o dito</span></div>
           <div style="margin-top:var(--sp3)"><label style="text-transform:none;letter-spacing:0;font-weight:500">Nome tecnico:</label><input type="text" id="f_tecnico_sig" placeholder="Nome Cognome" style="margin-top:4px;"></div>
         </div>
         <div class="sig-block">
-          <label>✍️ Firma del Cliente / Customer Signature</label>
+          <label>✍️ Firma del Cliente</label>
           <canvas class="signature-pad" id="sigCanvasCli" width="800" height="120"></canvas>
           <div class="sig-actions"><button class="sig-clear" onclick="clearSig('Cli')">Cancella</button><span style="font-size:var(--text-xs);color:var(--text-m)">Mouse o dito</span></div>
           <div style="margin-top:var(--sp3)"><label style="text-transform:none;letter-spacing:0;font-weight:500">Nome cliente / rappresentante:</label><input type="text" id="f_cliente_sig" placeholder="Nome Cognome" style="margin-top:4px;"></div>
@@ -350,7 +363,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- STEP 6 -->
   <div class="step-panel" id="step-5">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>Riepilogo Report / Report Summary</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>Riepilogo Report</div>
       <div id="summaryContent"></div>
     </div>
     <div class="form-nav">
@@ -399,7 +412,32 @@ function createSlot(cat,idx,label){
 function toggleMenu(cat,idx){document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));document.getElementById('menu-'+cat+'-'+idx)?.classList.remove('hidden');}
 function closeMenu(cat,idx){document.getElementById('menu-'+cat+'-'+idx)?.classList.add('hidden');}
 function triggerInput(cat,idx,cam){closeMenu(cat,idx);document.getElementById((cam?'inp-cam-':'inp-gal-')+cat+'-'+idx)?.click();}
-function handlePhoto(input,cat,idx){if(!input.files[0])return;const reader=new FileReader();reader.onload=e=>{photoData[cat][idx]={src:e.target.result,caption:slotDefs[cat][idx]};renderFilledSlot(cat,idx);};reader.readAsDataURL(input.files[0]);}
+function handlePhoto(input,cat,idx){
+  if(!input.files[0])return;
+  const file=input.files[0];
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=function(){
+      // Ridimensiona mantenendo proporzioni, max 1600px lato lungo
+      const MAX=1600;
+      let w=img.width, h=img.height;
+      if(w>MAX||h>MAX){
+        if(w>h){h=Math.round(h*MAX/w);w=MAX;}
+        else{w=Math.round(w*MAX/h);h=MAX;}
+      }
+      const cv=document.createElement('canvas');
+      cv.width=w; cv.height=h;
+      const ctx=cv.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      const dataUrl=cv.toDataURL('image/jpeg',0.92);
+      photoData[cat][idx]={src:dataUrl,caption:slotDefs[cat][idx]};
+      renderFilledSlot(cat,idx);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 function renderFilledSlot(cat,idx){const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';const grid=document.getElementById(gridId);const d=photoData[cat][idx];if(!d)return;const slot=grid.children[idx];slot.innerHTML=`<img class="preview" src="${d.src}" alt="${d.caption}" loading="lazy"><input class="caption-input" placeholder="Didascalia..." value="${d.caption}" oninput="photoData['${cat}'][${idx}].caption=this.value" onclick="event.stopPropagation()"><button class="remove-btn" onclick="removePhoto('${cat}',${idx});event.stopPropagation()">✕</button>`;}
 function removePhoto(cat,idx){photoData[cat][idx]=null;const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';document.getElementById(gridId).replaceChild(createSlot(cat,idx,slotDefs[cat][idx]),document.getElementById(gridId).children[idx]);}
 document.addEventListener('click',e=>{if(!e.target.closest('.photo-slot'))document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));});
@@ -506,7 +544,7 @@ async function generatePDF(){
 
   // ── DATI ──
   secTitle('Ordine e Cliente');
-  fieldRow([{label:'Numero Attività',value:val('f_ordine')},{label:'Data',value:val('f_data')},{label:'N° Cliente',value:val('f_numcliente')},{label:'Tipo Ordine',value:val('f_tipoordine')}]);
+  fieldRow([{label:'Numero Attività',value:val('f_ordine')},{label:'Data Inizio',value:val('f_data')},{label:'Data Fine',value:val('f_data_fine')},{label:'N° Cliente',value:val('f_numcliente')},{label:'Tipo Ordine',value:val('f_tipoordine')}]);
   fieldRow([{label:'Cliente / Azienda',value:val('f_cliente')},{label:'Indirizzo Cantiere',value:val('f_indirizzo')},{label:'Cliente Presente',value:radio('clientepresente')}]);
 
   secTitle('Dati Macchina');
@@ -520,10 +558,10 @@ async function generatePDF(){
   fieldRow([{label:'Causa Guasto',value:val('f_causa')},{label:'Componente',value:val('f_fehlerteil')},{label:'Tecnico',value:val('f_tecnico')},{label:'Matricola',value:val('f_matricola')}]);
   fieldRow([{label:'Collaudo',value:radio('probelauf')},{label:'Esito',value:val('f_esito')},{label:'Ingrassato',value:radio('grasso')},{label:'Fluidi',value:radio('fluidi')}]);
 
-  // ── POSIZIONE / MAPPA ──
+  // ── POSIZIONE ──
   const gmapsLink = val('f_gmaps_link');
   if(gmapsLink || val('f_indirizzo') || mapsImgData){
-    secTitle('Posizione Cantiere / Site Location');
+    secTitle('Posizione Cantiere');
     if(val('f_indirizzo')){
       fieldRow([{label:'Indirizzo',value:val('f_indirizzo')}]);
     }
@@ -575,7 +613,7 @@ async function generatePDF(){
 
   // ── FIRME ──
   checkY(42);
-  secTitle('Firme / Signatures');
+  secTitle('Firme');
   const sigY=y;
   const colW=(W-14*2-6)/2;
 
@@ -585,7 +623,7 @@ async function generatePDF(){
   // Accent bar sinistra arancio
   doc.setFillColor(...ORANGE);doc.rect(14,sigY,3,38,'F');
   doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);
-  doc.text('TECNICO / TECHNICIAN',18,sigY+6.5);
+  doc.text('TECNICO',18,sigY+6.5);
   if(hasSig('Tec')){doc.addImage(sigState['Tec'].canvas.toDataURL('image/png'),'PNG',16,sigY+9,colW-6,20);}
   else{doc.setDrawColor(...LGREY);doc.line(18,sigY+26,14+colW-4,sigY+26);}
   doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...DARK);
@@ -599,7 +637,7 @@ async function generatePDF(){
   doc.setDrawColor(...LGREY);doc.rect(cx,sigY,colW,38,'S');
   doc.setFillColor(...TEAL);doc.rect(cx,sigY,3,38,'F');
   doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...TEAL);
-  doc.text('CLIENTE / CUSTOMER',cx+4,sigY+6.5);
+  doc.text('CLIENTE',cx+4,sigY+6.5);
   if(hasSig('Cli')){doc.addImage(sigState['Cli'].canvas.toDataURL('image/png'),'PNG',cx+2,sigY+9,colW-6,20);}
   else{doc.setDrawColor(...LGREY);doc.line(cx+4,sigY+26,cx+colW-4,sigY+26);}
   doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...DARK);
@@ -612,7 +650,7 @@ async function generatePDF(){
   const allPh=[...photoData.pre,...photoData.fault,...photoData.post].filter(Boolean);
   if(allPh.length){
     doc.addPage();y=0;drawHeader();
-    secTitle('Documentazione Fotografica / Photo Documentation');
+    secTitle('Documentazione Fotografica');
     // Inserisce ogni foto con proporzioni originali, max larghezza metà pagina
     const maxW=(W-14*2-8)/2; // max ~83mm (2 colonne)
     const maxH=90; // max altezza mm
@@ -801,6 +839,142 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('f_data').value=new Date().toISOString().split('T')[0];
   initSig('Tec');initSig('Cli');
 });
+
+// ── BOZZA ──
+function saveDraft(){
+  const data = {
+    step: currentStep,
+    fields: {},
+    radios: {},
+    photos: photoData,
+    parts: [],
+    sigs: {}
+  };
+
+  // Campi input/select/textarea
+  document.querySelectorAll('input[id^="f_"],select[id^="f_"],textarea[id^="f_"]').forEach(el=>{
+    data.fields[el.id] = el.value;
+  });
+
+  // Radio buttons
+  document.querySelectorAll('input[type="radio"]').forEach(el=>{
+    if(el.checked) data.radios[el.name] = el.value;
+  });
+
+  // Righe ricambi
+  document.querySelectorAll('#partsBody tr').forEach(tr=>{
+    const cells = tr.querySelectorAll('input');
+    if(cells.length>=4){
+      data.parts.push({
+        codice: cells[0].value,
+        desc: cells[1].value,
+        qty: cells[2].value,
+        um: cells[3].value
+      });
+    }
+  });
+
+  // Firme
+  ['Tec','Cli'].forEach(id=>{
+    const s = sigState[id];
+    if(s && hasSig(id)){
+      data.sigs[id] = s.canvas.toDataURL('image/png');
+    }
+    const nameEl = document.getElementById('f_tecnicosig') ;
+    const nameElCli = document.getElementById('f_clientesig');
+    if(nameEl) data.fields['f_tecnicosig'] = nameEl.value;
+    if(nameElCli) data.fields['f_clientesig'] = nameElCli.value;
+  });
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  // Nome file con data
+  const d = new Date();
+  const dateStr = d.toISOString().slice(0,10);
+  const cliente = document.getElementById('f_cliente')?.value || 'bozza';
+  a.href = url;
+  a.download = `report-${cliente}-${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function loadDraft(){
+  document.getElementById('draftInput').click();
+}
+
+function importDraft(input){
+  if(!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+
+      // Ripristina campi
+      Object.entries(data.fields||{}).forEach(([id,val])=>{
+        const el = document.getElementById(id);
+        if(el) el.value = val;
+      });
+
+      // Ripristina radio
+      Object.entries(data.radios||{}).forEach(([name,val])=>{
+        const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+        if(el) el.checked = true;
+      });
+
+      // Ripristina foto
+      if(data.photos){
+        Object.keys(data.photos).forEach(cat=>{
+          data.photos[cat].forEach((ph,idx)=>{
+            if(ph){
+              photoData[cat][idx] = ph;
+              renderFilledSlot(cat,idx);
+            }
+          });
+        });
+      }
+
+      // Ripristina ricambi
+      if(data.parts && data.parts.length){
+        const tbody = document.getElementById('partsBody');
+        tbody.innerHTML = '';
+        data.parts.forEach(p=>{
+          addPartRow();
+          const rows = tbody.querySelectorAll('tr');
+          const last = rows[rows.length-1];
+          const cells = last.querySelectorAll('input');
+          if(cells.length>=4){
+            cells[0].value = p.codice||'';
+            cells[1].value = p.desc||'';
+            cells[2].value = p.qty||'';
+            cells[3].value = p.um||'';
+          }
+        });
+      }
+
+      // Ripristina firme
+      Object.entries(data.sigs||{}).forEach(([id,dataUrl])=>{
+        const s = sigState[id];
+        if(s){
+          const img = new Image();
+          img.onload = ()=>{ s.ctx.drawImage(img,0,0,s.canvas.width,s.canvas.height); };
+          img.src = dataUrl;
+        }
+      });
+
+      // Vai allo step salvato
+      if(typeof data.step === 'number') goStep(data.step);
+
+      alert('✅ Bozza caricata correttamente!');
+    } catch(err){
+      alert('❌ Errore nel caricamento della bozza: file non valido.');
+    }
+  };
+  reader.readAsText(input.files[0]);
+  input.value = '';
+}
+
 </script>
+<input type="file" id="draftInput" accept=".json" style="display:none" onchange="importDraft(this)">
 </body>
 </html>
