@@ -170,7 +170,7 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
     <button class="theme-toggle" data-theme-toggle aria-label="Cambia tema">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-    <button class="btn-primary" onclick="generatePDF()">
+        <button class="btn-primary" onclick="generatePDF()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       Genera PDF
     </button>
@@ -368,6 +368,13 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
     </div>
     <div class="form-nav">
       <button class="btn-secondary" onclick="goStep(4)">← Modifica</button>
+      <select id="pdf-lang-select" style="font-family:var(--font-body);font-size:var(--text-sm);padding:var(--sp2) var(--sp3);border-radius:var(--r-md);border:1px solid var(--border);background:var(--surf-off);color:var(--text);cursor:pointer;min-height:44px;">
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="es">🇪🇸 Español</option>
+      </select>
       <button class="btn-primary" onclick="generatePDF()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Scarica PDF
@@ -475,10 +482,90 @@ function buildSummary(){
   `;
 }
 
+
+// ── DIZIONARIO ETICHETTE PDF ──
+const PDF_LABELS = {"it": {"ordine_cliente": "Ordine e Cliente", "dati_macchina": "Dati Macchina", "dati_intervento": "Dati Intervento", "tecnico": "Tecnico Incaricato", "collaudo": "Collaudo Finale", "foto": "Documentazione Fotografica", "ricambi": "Ricambi Utilizzati", "tempi": "Rilevazione Tempi", "firme": "Firme", "posizione": "Posizione Cantiere", "riepilogo": "Riepilogo Report", "num_attivita": "Numero Attività", "data": "Data Inizio", "data_fine": "Data Fine", "num_cliente": "N° Cliente", "tipo_ordine": "Tipo Ordine", "cliente": "Cliente / Azienda", "indirizzo": "Indirizzo Cantiere", "cliente_presente": "Cliente Presente", "costruttore": "Costruttore", "modello": "Modello", "seriale": "N° Serie", "anno": "Anno", "ore": "Ore Lavoro", "problema": "Problema Segnalato", "cod_errore": "Codice Errore", "garanzia": "Garanzia", "tipo_lavori": "Tipo Lavori", "luogo": "Luogo", "lavori": "Lavori Eseguiti", "difetto": "Descrizione Difetto", "causa": "Causa Guasto", "nome_tecnico": "Nome Tecnico", "matricola": "Matricola", "collaudo_ok": "Collaudo Eseguito", "esito": "Esito", "ingrassata": "Macchina Ingrassata", "fluidi": "Fluidi Verificati", "codice": "Codice", "descrizione": "Descrizione", "qta": "Qtà", "um": "U.M.", "ora_partenza": "Ora Partenza", "arrivo": "Arrivo Cantiere", "km_andata": "Km Andata", "inizio": "Inizio Lavoro", "fine": "Fine Lavoro", "ore_tot": "Ore Totali", "partenza_rit": "Partenza Rientro", "ora_rientro": "Ora Rientro", "km_ritorno": "Km Ritorno", "firma_tecnico": "Firma Tecnico", "firma_cliente": "Firma Cliente", "tecnico_label": "TECNICO", "cliente_label": "CLIENTE", "componente_difettoso": "Componente Difettoso"}, "de": {"ordine_cliente": "Auftrag und Kunde", "dati_macchina": "Maschinendaten", "dati_intervento": "Eingriffsdaten", "tecnico": "Beauftragter Techniker", "collaudo": "Endabnahme", "foto": "Fotodokumentation", "ricambi": "Verwendete Ersatzteile", "tempi": "Zeiterfassung", "firme": "Unterschriften", "posizione": "Baustellenposition", "riepilogo": "Berichtzusammenfassung", "num_attivita": "Aktivitätsnr.", "data": "Startdatum", "data_fine": "Enddatum", "num_cliente": "Kundennr.", "tipo_ordine": "Auftragsart", "cliente": "Kunde / Firma", "indirizzo": "Baustellenadresse", "cliente_presente": "Kunde vor Ort", "costruttore": "Hersteller", "modello": "Modell", "seriale": "Seriennr.", "anno": "Baujahr", "ore": "Betriebsstunden", "problema": "Gemeldetes Problem", "cod_errore": "Fehlercode", "garanzia": "Garantie", "tipo_lavori": "Arbeitsart", "luogo": "Ort", "lavori": "Durchgeführte Arbeiten", "difetto": "Fehlerbeschreibung", "causa": "Schadensursache", "nome_tecnico": "Techniker Name", "matricola": "Personalnummer", "collaudo_ok": "Abnahme durchgeführt", "esito": "Ergebnis", "ingrassata": "Maschine geschmiert", "fluidi": "Flüssigkeiten geprüft", "codice": "Code", "descrizione": "Beschreibung", "qta": "Menge", "um": "Einh.", "ora_partenza": "Abfahrtszeit", "arrivo": "Baustellenankunft", "km_andata": "Km Hinfahrt", "inizio": "Arbeitsbeginn", "fine": "Arbeitsende", "ore_tot": "Gesamtstunden", "partenza_rit": "Rückfahrt Abfahrt", "ora_rientro": "Rückfahrt Ankunft", "km_ritorno": "Km Rückfahrt", "firma_tecnico": "Unterschrift Techniker", "firma_cliente": "Unterschrift Kunde", "tecnico_label": "TECHNIKER", "cliente_label": "KUNDE", "componente_difettoso": "Defektes Bauteil"}, "en": {"ordine_cliente": "Order & Customer", "dati_macchina": "Machine Data", "dati_intervento": "Intervention Data", "tecnico": "Assigned Technician", "collaudo": "Final Test", "foto": "Photo Documentation", "ricambi": "Parts Used", "tempi": "Time Tracking", "firme": "Signatures", "posizione": "Site Location", "riepilogo": "Report Summary", "num_attivita": "Activity No.", "data": "Start Date", "data_fine": "End Date", "num_cliente": "Customer No.", "tipo_ordine": "Order Type", "cliente": "Customer / Company", "indirizzo": "Site Address", "cliente_presente": "Customer on site", "costruttore": "Manufacturer", "modello": "Model", "seriale": "Serial No.", "anno": "Year", "ore": "Working Hours", "problema": "Reported Issue", "cod_errore": "Error Code", "garanzia": "Warranty", "tipo_lavori": "Work Type", "luogo": "Location", "lavori": "Work Performed", "difetto": "Fault Description", "causa": "Fault Cause", "nome_tecnico": "Technician Name", "matricola": "Employee ID", "collaudo_ok": "Test Performed", "esito": "Result", "ingrassata": "Machine Lubricated", "fluidi": "Fluids Checked", "codice": "Code", "descrizione": "Description", "qta": "Qty", "um": "Unit", "ora_partenza": "Departure Time", "arrivo": "Site Arrival", "km_andata": "Km Outbound", "inizio": "Work Start", "fine": "Work End", "ore_tot": "Total Hours", "partenza_rit": "Return Departure", "ora_rientro": "Return Arrival", "km_ritorno": "Km Return", "firma_tecnico": "Technician Signature", "firma_cliente": "Customer Signature", "tecnico_label": "TECHNICIAN", "cliente_label": "CUSTOMER", "componente_difettoso": "Faulty Component"}, "fr": {"ordine_cliente": "Commande et Client", "dati_macchina": "Données Machine", "dati_intervento": "Données d'intervention", "tecnico": "Technicien chargé", "collaudo": "Test final", "foto": "Documentation photographique", "ricambi": "Pièces utilisées", "tempi": "Relevé des temps", "firme": "Signatures", "posizione": "Position du chantier", "riepilogo": "Récapitulatif", "num_attivita": "N° activité", "data": "Date début", "data_fine": "Date fin", "num_cliente": "N° client", "tipo_ordine": "Type commande", "cliente": "Client / Société", "indirizzo": "Adresse chantier", "cliente_presente": "Client présent", "costruttore": "Fabricant", "modello": "Modèle", "seriale": "N° série", "anno": "Année", "ore": "Heures travail", "problema": "Problème signalé", "cod_errore": "Code erreur", "garanzia": "Garantie", "tipo_lavori": "Type travaux", "luogo": "Lieu", "lavori": "Travaux effectués", "difetto": "Description défaut", "causa": "Cause panne", "nome_tecnico": "Nom technicien", "matricola": "Matricule", "collaudo_ok": "Test effectué", "esito": "Résultat", "ingrassata": "Machine graissée", "fluidi": "Niveaux vérifiés", "codice": "Code", "descrizione": "Description", "qta": "Qté", "um": "Unité", "ora_partenza": "Heure départ", "arrivo": "Arrivée chantier", "km_andata": "Km aller", "inizio": "Début travaux", "fine": "Fin travaux", "ore_tot": "Heures totales", "partenza_rit": "Départ retour", "ora_rientro": "Arrivée retour", "km_ritorno": "Km retour", "firma_tecnico": "Signature technicien", "firma_cliente": "Signature client", "tecnico_label": "TECHNICIEN", "cliente_label": "CLIENT", "componente_difettoso": "Composant défectueux"}, "es": {"ordine_cliente": "Pedido y Cliente", "dati_macchina": "Datos Máquina", "dati_intervento": "Datos Intervención", "tecnico": "Técnico encargado", "collaudo": "Prueba final", "foto": "Documentación fotográfica", "ricambi": "Repuestos utilizados", "tempi": "Control de tiempos", "firme": "Firmas", "posizione": "Posición de la obra", "riepilogo": "Resumen del informe", "num_attivita": "N° actividad", "data": "Fecha inicio", "data_fine": "Fecha fin", "num_cliente": "N° cliente", "tipo_ordine": "Tipo pedido", "cliente": "Cliente / Empresa", "indirizzo": "Dirección obra", "cliente_presente": "Cliente en obra", "costruttore": "Fabricante", "modello": "Modelo", "seriale": "N° serie", "anno": "Año", "ore": "Horas trabajo", "problema": "Problema reportado", "cod_errore": "Código error", "garanzia": "Garantía", "tipo_lavori": "Tipo trabajos", "luogo": "Lugar", "lavori": "Trabajos realizados", "difetto": "Descripción defecto", "causa": "Causa avería", "nome_tecnico": "Nombre técnico", "matricola": "Matrícula", "collaudo_ok": "Prueba realizada", "esito": "Resultado", "ingrassata": "Máquina engrasada", "fluidi": "Fluidos verificados", "codice": "Código", "descrizione": "Descripción", "qta": "Cant.", "um": "Unidad", "ora_partenza": "Hora salida", "arrivo": "Llegada obra", "km_andata": "Km ida", "inizio": "Inicio trabajo", "fine": "Fin trabajo", "ore_tot": "Horas totales", "partenza_rit": "Salida regreso", "ora_rientro": "Llegada regreso", "km_ritorno": "Km vuelta", "firma_tecnico": "Firma técnico", "firma_cliente": "Firma cliente", "tecnico_label": "TÉCNICO", "cliente_label": "CLIENTE", "componente_difettoso": "Componente defectuoso"}};
+function pL(key) {
+  const lang = document.getElementById('pdf-lang-select')?.value || 'it';
+  return (PDF_LABELS[lang] && PDF_LABELS[lang][key]) || PDF_LABELS['it'][key] || key;
+}
+
+
+// ── TRADUZIONE VALORI PDF ──
+const PDF_VALUES = {};
+const _tv = {"Sì": {"de": "Ja", "en": "Yes", "fr": "Oui", "es": "Sí"}, "No": {"de": "Nein", "en": "No", "fr": "Non", "es": "No"}, "Intervento in Garanzia": {"de": "Garantieeinsatz", "en": "Warranty Intervention", "fr": "Intervention sous garantie", "es": "Intervención en garantía"}, "Intervento a Pagamento": {"de": "Kostenpflichtiger Einsatz", "en": "Paid Intervention", "fr": "Intervention payante", "es": "Intervención de pago"}, "Ispezione": {"de": "Inspektion", "en": "Inspection", "fr": "Inspection", "es": "Inspección"}, "Riparazione": {"de": "Reparatur", "en": "Repair", "fr": "Réparation", "es": "Reparación"}, "Riparazione e Ispezione": {"de": "Reparatur und Inspektion", "en": "Repair and Inspection", "fr": "Réparation et inspection", "es": "Reparación e inspección"}, "Solo Ispezione": {"de": "Nur Inspektion", "en": "Inspection only", "fr": "Inspection seulement", "es": "Solo inspección"}, "Solo Riparazione": {"de": "Nur Reparatur", "en": "Repair only", "fr": "Réparation seulement", "es": "Solo reparación"}, "Sostituzione Componente": {"de": "Bauteilersatz", "en": "Part Replacement", "fr": "Remplacement de pièce", "es": "Sustitución de componente"}, "Diagnosi": {"de": "Diagnose", "en": "Diagnosis", "fr": "Diagnostic", "es": "Diagnóstico"}, "Cantiere – Dal Cliente / On-site": {"de": "Baustelle – beim Kunden", "en": "On-site – At Customer", "fr": "Chantier – chez le client", "es": "Obra – en el cliente"}, "In Officina": {"de": "In der Werkstatt", "en": "In Workshop", "fr": "En atelier", "es": "En taller"}, "In Sede": {"de": "Am Standort", "en": "At Headquarters", "fr": "Au siège", "es": "En sede"}, "Difetto di Materiale": {"de": "Materialfehler", "en": "Material Defect", "fr": "Défaut matériau", "es": "Defecto de material"}, "Usura Normale": {"de": "Normaler Verschleiß", "en": "Normal Wear", "fr": "Usure normale", "es": "Desgaste normal"}, "Danno da Operatore": {"de": "Bedienerschaden", "en": "Operator Damage", "fr": "Dommage opérateur", "es": "Daño del operador"}, "Mancata Manutenzione": {"de": "Fehlende Wartung", "en": "Lack of Maintenance", "fr": "Manque entretien", "es": "Falta de mantenimiento"}, "Corpo Estraneo": {"de": "Fremdkörper", "en": "Foreign Object", "fr": "Corps étranger", "es": "Cuerpo extraño"}, "Altro": {"de": "Sonstiges", "en": "Other", "fr": "Autre", "es": "Otro"}, "Tutto in ordine": {"de": "Alles in Ordnung", "en": "All OK", "fr": "Tout en ordre", "es": "Todo en orden"}, "Non conforme": {"de": "Nicht konform", "en": "Non-conformant", "fr": "Non conforme", "es": "No conforme"}};
+// Costruisce mappa per lingua corrente
+function tVal(v) {
+  const lang = document.getElementById('pdf-lang-select')?.value || 'it';
+  if(lang === 'it') return v;
+  return (_tv[v] && _tv[v][lang]) || v;
+}
+
+
+// ── LIBRE TRANSLATE ──
+async function translateFields(fields, targetLang) {
+  if(targetLang === 'it') return fields; // nessuna traduzione necessaria
+
+  const translated = {...fields};
+  const toTranslate = ['f_problema','f_lavori','f_difetto','f_causa'];
+
+  // Raccoglie testi non vuoti
+  const texts = toTranslate.map(k => fields[k] || '');
+  const nonEmpty = texts.filter(t => t.trim().length > 0);
+
+  if(nonEmpty.length === 0) return fields;
+
+  try {
+    // Usa LibreTranslate pubblico
+    const results = await Promise.all(
+      texts.map(async (text) => {
+        if(!text.trim()) return text;
+        const resp = await fetch('https://libretranslate.com/translate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            q: text,
+            source: 'it',
+            target: targetLang,
+            format: 'text',
+            api_key: ''
+          })
+        });
+        if(!resp.ok) return text; // fallback: testo originale
+        const data = await resp.json();
+        return data.translatedText || text;
+      })
+    );
+
+    toTranslate.forEach((k, i) => { translated[k] = results[i]; });
+  } catch(e) {
+    console.warn('Traduzione non disponibile, uso testo originale:', e);
+    // Nessun alert — fallback silenzioso al testo originale
+  }
+
+  return translated;
+}
+
+// Wrapper val() con supporto traduzione
+const _origFieldValues = {};
+function getTranslatedVal(fieldId, translatedFields) {
+  return translatedFields[fieldId] !== undefined ? translatedFields[fieldId] : val(fieldId);
+}
+
 // ── GENERA PDF ──
 async function generatePDF(){
   const {jsPDF}=window.jspdf;
   if(!jsPDF){alert('Libreria PDF non ancora caricata.');return;}
+
+  // Traduzione campi testo libero via LibreTranslate
+  const _pdfLang = document.getElementById('pdf-lang-select')?.value || 'it';
+  const _rawFields = {
+    f_problema: val('f_problema'), f_lavori: val('f_lavori'),
+    f_difetto: val('f_difetto'),   f_causa: val('f_causa'),
+  };
+  const _tFields = await translateFields(_rawFields, _pdfLang);
+  function tv(k){ return _tFields[k] || ''; }
+
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,H=297;
 
@@ -543,27 +630,27 @@ async function generatePDF(){
   }
 
   // ── DATI ──
-  secTitle('Ordine e Cliente');
-  fieldRow([{label:'Numero Attività',value:val('f_ordine')},{label:'Data Inizio',value:val('f_data')},{label:'Data Fine',value:val('f_data_fine')},{label:'N° Cliente',value:val('f_numcliente')},{label:'Tipo Ordine',value:val('f_tipoordine')}]);
-  fieldRow([{label:'Cliente / Azienda',value:val('f_cliente')},{label:'Indirizzo Cantiere',value:val('f_indirizzo')},{label:'Cliente Presente',value:radio('clientepresente')}]);
+  secTitle(pL('ordine_cliente'));
+  fieldRow([{label:pL('num_attivita'),value:val('f_ordine')},{label:pL('data'),value:val('f_data')},{label:pL('data_fine'),value:val('f_data_fine')},{label:pL('num_cliente'),value:val('f_numcliente')},{label:pL('tipo_ordine'),value:tVal(val('f_tipoordine'))}]);
+  fieldRow([{label:pL('cliente'),value:val('f_cliente')},{label:pL('indirizzo'),value:val('f_indirizzo')},{label:pL('cliente_presente'),value:tVal(radio('clientepresente'))}]);
 
-  secTitle('Dati Macchina');
-  fieldRow([{label:'Costruttore',value:val('f_costruttore')},{label:'Modello',value:val('f_modello')},{label:'N° Serie',value:val('f_seriale')},{label:'Anno',value:val('f_anno')},{label:'Ore Lavoro',value:val('f_ore')+' h'}]);
+  secTitle(pL('dati_macchina'));
+  fieldRow([{label:pL('costruttore'),value:val('f_costruttore')},{label:pL('modello'),value:val('f_modello')},{label:pL('seriale'),value:val('f_seriale')},{label:pL('anno'),value:val('f_anno')},{label:pL('ore'),value:val('f_ore')+' h'}]);
 
-  secTitle('Dati Intervento');
-  textBlock('Problema Segnalato',val('f_problema'));
-  fieldRow([{label:'Codice Errore',value:val('f_codiceerrore')||'Nessuno'},{label:'Garanzia',value:radio('garanzia')},{label:'Tipo Lavori',value:val('f_tipolavoro')},{label:'Luogo',value:val('f_luogo')}]);
-  textBlock('Lavori Eseguiti',val('f_lavori'));
-  textBlock('Descrizione Difetto',val('f_difetto'));
-  fieldRow([{label:'Causa Guasto',value:val('f_causa')},{label:'Componente',value:val('f_fehlerteil')},{label:'Tecnico',value:val('f_tecnico')},{label:'Matricola',value:val('f_matricola')}]);
-  fieldRow([{label:'Collaudo',value:radio('probelauf')},{label:'Esito',value:val('f_esito')},{label:'Ingrassato',value:radio('grasso')},{label:'Fluidi',value:radio('fluidi')}]);
+  secTitle(pL('dati_intervento'));
+  textBlock('Problema Segnalato',tv('f_problema'));
+  fieldRow([{label:pL('cod_errore'),value:val('f_codiceerrore')||'Nessuno'},{label:pL('garanzia'),value:tVal(radio('garanzia'))},{label:pL('tipo_lavori'),value:tVal(val('f_tipolavoro'))},{label:pL('luogo'),value:tVal(val('f_luogo'))}]);
+  textBlock('Lavori Eseguiti',tv('f_lavori'));
+  textBlock('Descrizione Difetto',tv('f_difetto'));
+  fieldRow([{label:pL('causa'),value:tv('f_causa')},{label:pL('componente_difettoso'),value:tVal(val('f_fehlerteil'))},{label:pL('nome_tecnico'),value:val('f_tecnico')},{label:pL('matricola'),value:val('f_matricola')}]);
+  fieldRow([{label:pL('collaudo_ok'),value:tVal(radio('probelauf'))},{label:pL('esito'),value:val('f_esito')},{label:pL('ingrassata'),value:tVal(radio('grasso'))},{label:pL('fluidi'),value:tVal(radio('fluidi'))}]);
 
   // ── POSIZIONE ──
   const gmapsLink = val('f_gmaps_link');
   if(gmapsLink || val('f_indirizzo') || mapsImgData){
-    secTitle('Posizione Cantiere');
+    secTitle(pL('posizione'));
     if(val('f_indirizzo')){
-      fieldRow([{label:'Indirizzo',value:val('f_indirizzo')}]);
+      fieldRow([{label:pL('indirizzo'),value:val('f_indirizzo')}]);
     }
     if(gmapsLink){
       checkY(8);
@@ -588,15 +675,15 @@ async function generatePDF(){
     }
   }
 
-  secTitle('Rilevazione Tempi');
-  fieldRow([{label:'Ora Partenza',value:val('f_partenza')},{label:'Arrivo Cantiere',value:val('f_arrivo')},{label:'Km Andata',value:val('f_km_and')+' km'},{label:'Inizio Lavoro',value:val('f_iniziolavoro')},{label:'Fine Lavoro',value:val('f_finelavoro')},{label:'Ore Lavoro',value:val('f_orelavoro')+' h'}]);
-  fieldRow([{label:'Km Ritorno',value:val('f_km_rit')+' km'},{label:'Km Totali',value:(parseInt(val('f_km_and')||0)+parseInt(val('f_km_rit')||0))+' km'},{label:'Ora Rientro',value:val('f_rientro')}]);
+  secTitle(pL('tempi'));
+  fieldRow([{label:pL('ora_partenza'),value:val('f_partenza')},{label:pL('arrivo'),value:val('f_arrivo')},{label:pL('km_andata'),value:val('f_km_and')+' km'},{label:pL('inizio'),value:val('f_iniziolavoro')},{label:pL('fine'),value:val('f_finelavoro')},{label:pL('ore'),value:val('f_orelavoro')+' h'}]);
+  fieldRow([{label:pL('km_ritorno'),value:val('f_km_rit')+' km'},{label:pL('ore_tot'),value:(parseInt(val('f_km_and')||0)+parseInt(val('f_km_rit')||0))+' km'},{label:pL('ora_rientro'),value:val('f_rientro')}]);
 
   // Ricambi
   const pRows=[];
   document.querySelectorAll('#partsBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');if(inp[0]?.value||inp[1]?.value)pRows.push([inp[0]?.value||'–',inp[1]?.value||'–',inp[2]?.value||'1',inp[3]?.value||'pz']);});
   if(pRows.length){
-    secTitle('Ricambi Utilizzati');
+    secTitle(pL('ricambi'));
     checkY(8);
     doc.setFillColor(...DARK);doc.rect(14,y,W-28,7,'F');
     doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...WHITE);
@@ -613,7 +700,7 @@ async function generatePDF(){
 
   // ── FIRME ──
   checkY(42);
-  secTitle('Firme');
+  secTitle(pL('firme'));
   const sigY=y;
   const colW=(W-14*2-6)/2;
 
@@ -623,7 +710,7 @@ async function generatePDF(){
   // Accent bar sinistra arancio
   doc.setFillColor(...ORANGE);doc.rect(14,sigY,3,38,'F');
   doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);
-  doc.text('TECNICO',18,sigY+6.5);
+  doc.text(pL('tecnico_label'),18,sigY+6.5);
   if(hasSig('Tec')){doc.addImage(sigState['Tec'].canvas.toDataURL('image/png'),'PNG',16,sigY+9,colW-6,20);}
   else{doc.setDrawColor(...LGREY);doc.line(18,sigY+26,14+colW-4,sigY+26);}
   doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...DARK);
@@ -637,7 +724,7 @@ async function generatePDF(){
   doc.setDrawColor(...LGREY);doc.rect(cx,sigY,colW,38,'S');
   doc.setFillColor(...TEAL);doc.rect(cx,sigY,3,38,'F');
   doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...TEAL);
-  doc.text('CLIENTE',cx+4,sigY+6.5);
+  doc.text(pL('cliente_label'),cx+4,sigY+6.5);
   if(hasSig('Cli')){doc.addImage(sigState['Cli'].canvas.toDataURL('image/png'),'PNG',cx+2,sigY+9,colW-6,20);}
   else{doc.setDrawColor(...LGREY);doc.line(cx+4,sigY+26,cx+colW-4,sigY+26);}
   doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...DARK);
@@ -650,7 +737,7 @@ async function generatePDF(){
   const allPh=[...photoData.pre,...photoData.fault,...photoData.post].filter(Boolean);
   if(allPh.length){
     doc.addPage();y=0;drawHeader();
-    secTitle('Documentazione Fotografica');
+    secTitle(pL('foto'));
     // Inserisce ogni foto con proporzioni originali, max larghezza metà pagina
     const maxW=(W-14*2-8)/2; // max ~83mm (2 colonne)
     const maxH=90; // max altezza mm
