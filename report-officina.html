@@ -520,18 +520,21 @@ function fixOrientation(src,orientation,cb){
   const img=new Image();
   img.onload=function(){
     const MAX=1600;
-    let sw=img.naturalWidth, sh=img.naturalHeight;
-    // Ridimensiona mantenendo proporzioni
+    const ow=img.naturalWidth, oh=img.naturalHeight;
+    // Calcola dimensioni ridimensionate mantenendo proporzioni
+    let sw=ow, sh=oh;
     if(sw>MAX||sh>MAX){
       if(sw>=sh){sh=Math.round(sh*(MAX/sw));sw=MAX;}
       else{sw=Math.round(sw*(MAX/sh));sh=MAX;}
     }
     const swap=(orientation>=5&&orientation<=8);
     const cv=document.createElement('canvas');
-    cv.width=swap?sh:sw; cv.height=swap?sw:sh;
+    cv.width=swap?sh:sw;
+    cv.height=swap?sw:sh;
     const ctx2=cv.getContext('2d');
     ctx2.imageSmoothingEnabled=true;
     ctx2.imageSmoothingQuality='high';
+    // Applica trasformazione EXIF
     switch(orientation){
       case 2:ctx2.transform(-1,0,0,1,sw,0);break;
       case 3:ctx2.transform(-1,0,0,-1,sw,sh);break;
@@ -541,7 +544,8 @@ function fixOrientation(src,orientation,cb){
       case 7:ctx2.transform(0,-1,-1,0,sh,sw);break;
       case 8:ctx2.transform(0,-1,1,0,0,sw);break;
     }
-    ctx2.drawImage(img,0,0,sw,sh);
+    // Disegna l'immagine originale ridimensionata nelle dimensioni target
+    ctx2.drawImage(img,0,0,ow,oh,0,0,sw,sh);
     cb(cv.toDataURL('image/jpeg',0.88));
   };
   img.src=src;
@@ -554,16 +558,11 @@ function handlePhoto(input,cat,idx){
     const orientation=getExifOrientation(ev.target.result);
     const b64Reader=new FileReader();
     b64Reader.onload=function(e2){
-      const src=e2.target.result;
-      if(orientation>1){
-        fixOrientation(src,orientation,function(fixed){
-          photoData[cat][idx]={src:fixed,caption:slotDefs[cat][idx]};
-          renderFilledSlot(cat,idx);
-        });
-      } else {
-        photoData[cat][idx]={src:src,caption:slotDefs[cat][idx]};
+      // Passa SEMPRE per fixOrientation: corregge rotazione E ridimensiona a max 1600px
+      fixOrientation(e2.target.result, orientation, function(fixed){
+        photoData[cat][idx]={src:fixed, caption:slotDefs[cat][idx]};
         renderFilledSlot(cat,idx);
-      }
+      });
     };
     b64Reader.readAsDataURL(file);
   };
@@ -1133,18 +1132,18 @@ function addGiorno(data) {
       '<input type="date" id="g' + i + '_data" value="' + ((data&&data.data)||today) + '" style="border:1px solid #ddd;border-radius:7px;padding:5px 10px;font-size:13px;font-family:inherit;">' +
       '<button type="button" class="giorno-del" onclick="delGiorno(' + i + ')">&#x2715;</button>' +
     '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px;">' +
-      '<div class="fg" style="margin:0;">' +
-        '<label>Operatore 1</label>' +
-        '<input type="text" id="g'+i+'_op1" placeholder="Nome" value="'+((data&&data.op1)||'')+'" oninput="this.value=this.value.toUpperCase()">' +
+    '<div style="display:flex;flex-direction:row;gap:6px;margin:4px 0 8px;align-items:flex-end;">' +
+      '<div style="flex:1;">' +
+        '<label style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:2px;">Operatore 1</label>' +
+        '<input type="text" id="g'+i+'_op1" placeholder="Nome" value="'+((data&&data.op1)||'')+'" oninput="this.value=this.value.toUpperCase()" style="width:100%;box-sizing:border-box;font-size:11px;padding:3px 6px;border:1px solid #ddd;border-radius:6px;">' +
       '</div>' +
-      '<div class="fg" style="margin:0;">' +
-        '<label>Operatore 2</label>' +
-        '<input type="text" id="g'+i+'_op2" placeholder="Nome" value="'+((data&&data.op2)||'')+'" oninput="this.value=this.value.toUpperCase()">' +
+      '<div style="flex:1;">' +
+        '<label style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:2px;">Operatore 2</label>' +
+        '<input type="text" id="g'+i+'_op2" placeholder="Nome" value="'+((data&&data.op2)||'')+'" oninput="this.value=this.value.toUpperCase()" style="width:100%;box-sizing:border-box;font-size:11px;padding:3px 6px;border:1px solid #ddd;border-radius:6px;">' +
       '</div>' +
-      '<div class="fg" style="margin:0;">' +
-        '<label>Operatore 3</label>' +
-        '<input type="text" id="g'+i+'_op3" placeholder="Nome" value="'+((data&&data.op3)||'')+'" oninput="this.value=this.value.toUpperCase()">' +
+      '<div style="flex:1;">' +
+        '<label style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:2px;">Operatore 3</label>' +
+        '<input type="text" id="g'+i+'_op3" placeholder="Nome" value="'+((data&&data.op3)||'')+'" oninput="this.value=this.value.toUpperCase()" style="width:100%;box-sizing:border-box;font-size:11px;padding:3px 6px;border:1px solid #ddd;border-radius:6px;">' +
       '</div>' +
     '</div>' +
     '<div class="giorno-grid">' +
