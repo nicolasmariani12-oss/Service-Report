@@ -157,7 +157,55 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .lightbox-close{position:fixed;top:var(--sp4);right:var(--sp4);color:#fff;font-size:28px;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border-radius:var(--r-md);}
 .lightbox-caption{position:fixed;bottom:var(--sp6);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;padding:var(--sp2) var(--sp5);border-radius:var(--r-full);font-size:var(--text-sm);backdrop-filter:blur(8px);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
 
-label.btn-secondary { font-family: 'Inter', sans-serif !important; }
+/* ── BOTTONI AGGIUNGI ── */
+.btn-add-row{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#fff;color:#e8481a;border:1.5px solid #e8481a;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.2px;transition:.15s;}
+.btn-add-row:hover{background:#c93d12;}
+/* ── GIORNO CARD ── */
+.giorno-card{background:#fafafa;border:1.5px solid #e2e2e2;border-radius:12px;padding:14px 16px 12px;transition:opacity .2s,transform .2s;}
+.giorno-card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.giorno-card-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#e8481a;white-space:nowrap;}
+.giorno-del{background:none;border:none;font-size:18px;cursor:pointer;color:#ccc;border-radius:6px;padding:2px 6px;transition:.15s;line-height:1;margin-left:auto;}
+.giorno-del:hover{color:#e8481a;background:#ffeee9;}
+.giorno-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px 12px;}
+.giorno-grid .fg{display:flex;flex-direction:column;}
+.giorno-grid .fg label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-bottom:4px;}
+.giorno-grid .fg input{padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box;width:100%;}
+.giorno-grid .fg input:focus{outline:none;border-color:#e8481a;}
+.ore-badge{display:inline-block;background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;margin-left:4px;}
+/* ── TECNICO ROW ── */
+.tecnico-row{display:flex;gap:12px;align-items:flex-end;background:#fafafa;border:1.5px solid #e2e2e2;border-radius:10px;padding:12px 14px;flex-wrap:wrap;}
+.tecnico-row .tf{display:flex;flex-direction:column;}
+.tecnico-row .tf label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-bottom:4px;}
+.tecnico-row .tf input{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;}
+.tecnico-row .tf input:focus{outline:none;border-color:#e8481a;}
+.tecnico-row .tf.nome{flex:2;min-width:160px;}
+.tecnico-row .tf.matr{flex:1;min-width:110px;}
+.t-del{background:none;border:none;font-size:20px;cursor:pointer;color:#ccc;padding:4px 8px;border-radius:6px;transition:.15s;line-height:1;align-self:center;}
+.t-del:hover{color:#e8481a;background:#ffeee9;}
+
+
+/* ── COLLAUDO FINALE ── */
+.collaudo-wrap{background:#fff;border:1.5px solid #e2e2e2;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px;}
+.collaudo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.collaudo-card{background:#f7f7f7;border:1.5px solid #ececec;border-radius:10px;padding:14px 16px;}
+.collaudo-card-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#aaa;margin-bottom:10px;}
+.collaudo-card .radio-group{display:flex;gap:18px;align-items:center;}
+.collaudo-card .radio-item{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:500;cursor:pointer;}
+.collaudo-card .radio-item input[type=radio]{width:17px;height:17px;accent-color:#e8481a;cursor:pointer;}
+.collaudo-esito{display:flex;flex-direction:column;gap:6px;}
+.collaudo-esito-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#aaa;}
+.collaudo-esito input{padding:10px 12px;border:1.5px solid #e2e2e2;border-radius:8px;font-size:14px;font-family:inherit;width:100%;box-sizing:border-box;background:#f7f7f7;}
+.collaudo-esito input:focus{outline:none;border-color:#e8481a;background:#fff;}
+@media(max-width:580px){.collaudo-row{grid-template-columns:1fr;}}
+
+
+/* ── STAMPATELLO automatico su tutti i campi testo ── */
+.step-panel input[type="text"],
+.step-panel textarea,
+.tecnico-row input[type="text"] {
+  text-transform: uppercase;
+}
+
 </style>
 </head>
 <body>
@@ -170,22 +218,12 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
     <button class="theme-toggle" data-theme-toggle aria-label="Cambia tema">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-        <button class="btn-primary" onclick="generatePDF()">
+    <button class="btn-primary" onclick="generatePDF()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       Genera PDF
     </button>
   </div>
 </header>
-<div class="draft-bar">
-  <span>📋 Bozza</span>
-  <button class="btn-secondary" onclick="saveDraft()" style="font-size:var(--text-xs);padding:var(--sp2) var(--sp4);min-height:36px;font-family:var(--font-body);">
-    💾 Salva bozza
-  </button>
-  <label for="draftInput" class="btn-secondary" style="font-size:var(--text-xs);padding:var(--sp2) var(--sp4);min-height:36px;font-family:var(--font-body);cursor:pointer;display:inline-flex;align-items:center;">
-    📂 Carica bozza
-  </label>
-</div>
-
 
 <main class="app-main">
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:16.6%"></div></div>
@@ -210,7 +248,6 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
       <div class="form-grid">
         <div class="form-group"><label>Numero Attività</label><input type="text" id="f_ordine" placeholder="es. ACT-2025-001"></div>
         <div class="form-group"><label>Data Intervento</label><input type="date" id="f_data"></div>
-        <div class="form-group"><label>Data Fine Intervento</label><input type="date" id="f_data_fine"></div>
         <div class="form-group"><label>Numero Cliente</label><input type="text" id="f_numcliente" placeholder="es. 241956"></div>
         <div class="form-group"><label>Nome Cliente</label><input type="text" id="f_cliente" placeholder="es. Rossi Costruzioni Srl"></div>
         <div class="form-group full">
@@ -248,8 +285,8 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
     <input type="file" accept="image/*" id="mapsImgGal" style="display:none" onchange="handleMapsImg(this)">
   </div>
 </div>
-        <div class="form-group"><label>Tipo Ordine</label><select id="f_tipoordine"><option value="">Seleziona...</option><option>Intervento in Garanzia</option><option>Intervento a Pagamento</option><option>Ispezione</option><option>Riparazione</option></select></div>
-        <div class="form-group"><label>Cliente presente in loco??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="clientepresente" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="clientepresente" value="No"> No</label></div></div>
+        <div class="form-group"><label>Tipo Ordine</label><select id="f_tipoordine"><option value="">Seleziona...</option><option>Intervento in Garanzia</option><option>Intervento a Pagamento</option><option>Ispezione / Service</option><option>Riparazione</option></select></div>
+        <div class="form-group"><label>Cliente presente in loco?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="clientepresente" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="clientepresente" value="No"> No</label></div></div>
       </div>
     </div>
     <div class="form-nav"><span></span><button class="btn-primary" onclick="goStep(1)">Avanti →</button></div>
@@ -258,14 +295,14 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
   <!-- STEP 2 -->
   <div class="step-panel" id="step-1">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>Dati Macchina</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>Dati Macchina / Machine Data</div>
       <div class="form-grid cols-3">
         <div class="form-group"><label>Costruttore</label><input type="text" id="f_costruttore" value="Eurocomach"></div>
-        <div class="form-group"><label>Tipo / Modello</label><input type="text" id="f_modello" placeholder="es. X24D"></div>
+        <div class="form-group"><label>Tipo</label><input type="text" id="f_modello" placeholder="es. X24D"></div>
         <div class="form-group"><label>Numero di Serie</label><input type="text" id="f_seriale" placeholder="es. MM00052"></div>
         <div class="form-group"><label>Anno di Fabbricazione</label><input type="number" id="f_anno" placeholder="es. 2025" min="1990" max="2030"></div>
         <div class="form-group"><label>Ore di Lavoro</label><input type="number" id="f_ore" placeholder="es. 44" min="0"></div>
-        <div class="form-group"><label>Contaore presente??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="contaore" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="contaore" value="No"> No</label></div></div>
+        <div class="form-group"><label>Contaore presente?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="contaore" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="contaore" value="No"> No</label></div></div>
       </div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(0)">← Indietro</button><button class="btn-primary" onclick="goStep(2)">Avanti →</button></div>
@@ -274,29 +311,54 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
   <!-- STEP 3 -->
   <div class="step-panel" id="step-2">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Dati Intervento</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Dati Intervento / Work Order Details</div>
       <div class="form-grid">
         <div class="form-group full"><label>Problema Segnalato</label><textarea id="f_problema" placeholder="Descrivi il problema riportato dal cliente..."></textarea></div>
         <div class="form-group"><label>Codice Errore</label><input type="text" id="f_codiceerrore" placeholder="es. 259"></div>
-        <div class="form-group"><label>Caso di Garanzia??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="garanzia" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="garanzia" value="No"> No</label></div></div>
+        <div class="form-group"><label>Caso di Garanzia?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="garanzia" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="garanzia" value="No"> No</label></div></div>
         <div class="form-group"><label>Tipo di Lavori</label><select id="f_tipolavoro"><option>Riparazione e Ispezione</option><option>Solo Ispezione</option><option>Solo Riparazione</option><option>Sostituzione Componente</option><option>Diagnosi</option></select></div>
-        <div class="form-group"><label>Luogo di Esecuzione</label><select id="f_luogo"><option>Cantiere – Dal Cliente / On-site</option><option>In Officina</option><option>In Sede</option></select></div>
+        <div class="form-group"><label>Luogo di Esecuzione</label><select id="f_luogo"><option>Cantiere – Dal Cliente</option><option>In Officina</option></select></div>
         <div class="form-group full"><label>Lavori Eseguiti</label><textarea id="f_lavori" placeholder="Elenca le operazioni eseguite..."></textarea></div>
         <div class="form-group full"><label>Descrizione del Difetto</label><textarea id="f_difetto" placeholder="Componente difettoso, sintomi, causa guasto..."></textarea></div>
         <div class="form-group"><label>Causa del Guasto</label><select id="f_causa"><option value="">Seleziona...</option><option>Difetto di Materiale</option><option>Usura Normale</option><option>Danno da Operatore</option><option>Mancata Manutenzione</option><option>Corpo Estraneo</option><option>Altro</option></select></div>
         <div class="form-group"><label>Componente Difettoso</label><input type="text" id="f_fehlerteil" placeholder="es. Leva del gas"></div>
       </div>
-      <div class="section-divider">Tecnico Incaricato</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Nome Tecnico</label><input type="text" id="f_tecnico" placeholder="Nome Cognome"></div>
-        <div class="form-group"><label>Matricola</label><input type="text" id="f_matricola" placeholder="es. S102201"></div>
-      </div>
+      <div class="section-divider">Tecnici Incaricati</div>
+      <div id="tecniciList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;"></div>
+      <button type="button" onclick="addTecnico()" class="btn-add-row" style="margin-top:4px;">&#xff0b; Aggiungi Tecnico</button>
+      <div style="margin-top:24px;"></div>
       <div class="section-divider">Collaudo Finale</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Collaudo Eseguito??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="probelauf" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="probelauf" value="No"> No</label></div></div>
-        <div class="form-group"><label>Esito Collaudo</label><input type="text" id="f_esito" placeholder="es. Tutto in ordine"></div>
-        <div class="form-group"><label>Macchina ingrassata??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="grasso" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="grasso" value="No"> No</label></div></div>
-        <div class="form-group"><label>Livelli fluidi verificati??</label><div class="radio-group"><label class="radio-item"><input type="radio" name="fluidi" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="fluidi" value="No"> No</label></div></div>
+      <div class="collaudo-wrap">
+
+        <div class="collaudo-row">
+          <div class="collaudo-card">
+            <div class="collaudo-card-lbl">Collaudo Eseguito?</div>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="probelauf" value="Sì"> Sì</label>
+              <label class="radio-item"><input type="radio" name="probelauf" value="No"> No</label>
+            </div>
+          </div>
+          <div class="collaudo-card">
+            <div class="collaudo-card-lbl">Macchina Ingrassata?</div>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="grasso" value="Sì"> Sì</label>
+              <label class="radio-item"><input type="radio" name="grasso" value="No"> No</label>
+            </div>
+          </div>
+          <div class="collaudo-card">
+            <div class="collaudo-card-lbl">Livelli Fluidi Verificati?</div>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="fluidi" value="Sì"> Sì</label>
+              <label class="radio-item"><input type="radio" name="fluidi" value="No"> No</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="collaudo-esito">
+          <div class="collaudo-esito-lbl">Esito Collaudo</div>
+          <input type="text" id="f_esito" placeholder="es. Tutto in ordine">
+        </div>
+
       </div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(1)">← Indietro</button><button class="btn-primary" onclick="goStep(3)">Avanti →</button></div>
@@ -305,13 +367,13 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
   <!-- STEP 4 -->
   <div class="step-panel" id="step-3">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>Documentazione Fotografica</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>Documentazione Fotografica / Photo Documentation</div>
       <p style="font-size:var(--text-xs);color:var(--text-m);margin-bottom:var(--sp5);background:var(--primary-hl);padding:var(--sp3);border-radius:var(--r-md);border-left:3px solid var(--samp-orange);">
         💡 Tocca uno slot per scegliere <strong>Scatta Foto</strong> o <strong>Carica dal Dispositivo</strong>. Clicca su una foto per vederla a schermo intero.
       </p>
-      <div class="photo-section"><div class="photo-section-title">📷 Prima dell'Intervento</div><div class="photo-grid" id="photoGridPre"></div></div>
-      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">🔧 Componente Difettoso</div><div class="photo-grid" id="photoGridFault"></div></div>
-      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">✅ Dopo l'Intervento</div><div class="photo-grid" id="photoGridPost"></div></div>
+      <div class="photo-section"><div class="photo-section-title">📷 Prima dell'Intervento / Before Work</div><div class="photo-grid" id="photoGridPre"></div></div>
+      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">🔧 Componente Difettoso / Faulty Part</div><div class="photo-grid" id="photoGridFault"></div></div>
+      <div class="photo-section" style="margin-top:var(--sp6)"><div class="photo-section-title">✅ Dopo l'Intervento / After Work</div><div class="photo-grid" id="photoGridPost"></div></div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(2)">← Indietro</button><button class="btn-primary" onclick="goStep(4)">Avanti →</button></div>
   </div>
@@ -319,9 +381,9 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
   <!-- STEP 5 -->
   <div class="step-panel" id="step-4">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Ricambi Utilizzati</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Ricambi Utilizzati / Parts Used</div>
       <table class="parts-table">
-        <thead><tr><th>N°</th><th>Codice</th><th>Descrizione</th><th>Qtà</th><th>U.M.</th><th></th></tr></thead>
+        <thead><tr><th>N°</th><th>Codice / Part Number</th><th>Descrizione / Description</th><th>Qtà</th><th>U.M.</th><th></th></tr></thead>
         <tbody id="partsBody">
           <tr><td style="color:var(--text-m);font-size:var(--text-xs)">1</td><td><input type="text" placeholder="Codice..."></td><td><input type="text" placeholder="Descrizione..."></td><td><input type="number" placeholder="1" style="width:60px"></td><td><input type="text" placeholder="pz" style="width:50px"></td><td><button onclick="removeRow(this)" style="color:var(--error);font-size:16px;padding:2px 6px">✕</button></td></tr>
         </tbody>
@@ -330,16 +392,10 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
     </div>
     <div class="form-card">
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Rilevazione Tempi</div>
-      <div class="form-grid cols-3">
-        <div class="form-group"><label>Ora Partenza</label><input type="time" id="f_partenza"></div>
-        <div class="form-group"><label>Arrivo Cantiere</label><input type="time" id="f_arrivo"></div>
-        <div class="form-group"><label>Km Andata</label><input type="number" id="f_km_and" placeholder="es. 160" min="0"></div>
-        <div class="form-group"><label>Inizio Lavoro</label><input type="time" id="f_iniziolavoro"></div>
-        <div class="form-group"><label>Fine Lavoro</label><input type="time" id="f_finelavoro"></div>
-        <div class="form-group"><label>Ore Totali</label><input type="number" id="f_orelavoro" step="0.5" placeholder="es. 2.5" min="0"></div>
-        <div class="form-group"><label>Partenza Rientro.</label><input type="time" id="f_partrientro"></div>
-        <div class="form-group"><label>Ora Rientro.</label><input type="time" id="f_rientro"></div>
-        <div class="form-group"><label>Km Ritorno</label><input type="number" id="f_km_rit" placeholder="es. 160" min="0"></div>
+      <div id="giorniTempi" style="display:flex;flex-direction:column;gap:14px;margin:12px 0;"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <button type="button" onclick="addGiorno()" class="btn-add-row">&#xff0b; Aggiungi Giorno</button>
+        <div id="totaliTempi" style="font-size:13px;color:#666;font-weight:600;"></div>
       </div>
       <div class="section-divider">Firme</div>
       <div class="sig-grid">
@@ -363,18 +419,11 @@ label.btn-secondary { font-family: 'Inter', sans-serif !important; }
   <!-- STEP 6 -->
   <div class="step-panel" id="step-5">
     <div class="form-card">
-      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>Riepilogo Report</div>
+      <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>Riepilogo Report / Report Summary</div>
       <div id="summaryContent"></div>
     </div>
     <div class="form-nav">
       <button class="btn-secondary" onclick="goStep(4)">← Modifica</button>
-      <select id="pdf-lang-select" style="font-family:var(--font-body);font-size:var(--text-sm);padding:var(--sp2) var(--sp3);border-radius:var(--r-md);border:1px solid var(--border);background:var(--surf-off);color:var(--text);cursor:pointer;min-height:44px;">
-        <option value="it">🇮🇹 Italiano</option>
-        <option value="de">🇩🇪 Deutsch</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="fr">🇫🇷 Français</option>
-        <option value="es">🇪🇸 Español</option>
-      </select>
       <button class="btn-primary" onclick="generatePDF()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Scarica PDF
@@ -419,32 +468,7 @@ function createSlot(cat,idx,label){
 function toggleMenu(cat,idx){document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));document.getElementById('menu-'+cat+'-'+idx)?.classList.remove('hidden');}
 function closeMenu(cat,idx){document.getElementById('menu-'+cat+'-'+idx)?.classList.add('hidden');}
 function triggerInput(cat,idx,cam){closeMenu(cat,idx);document.getElementById((cam?'inp-cam-':'inp-gal-')+cat+'-'+idx)?.click();}
-function handlePhoto(input,cat,idx){
-  if(!input.files[0])return;
-  const file=input.files[0];
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=new Image();
-    img.onload=function(){
-      // Ridimensiona mantenendo proporzioni, max 1600px lato lungo
-      const MAX=1600;
-      let w=img.width, h=img.height;
-      if(w>MAX||h>MAX){
-        if(w>h){h=Math.round(h*MAX/w);w=MAX;}
-        else{w=Math.round(w*MAX/h);h=MAX;}
-      }
-      const cv=document.createElement('canvas');
-      cv.width=w; cv.height=h;
-      const ctx=cv.getContext('2d');
-      ctx.drawImage(img,0,0,w,h);
-      const dataUrl=cv.toDataURL('image/jpeg',0.92);
-      photoData[cat][idx]={src:dataUrl,caption:slotDefs[cat][idx]};
-      renderFilledSlot(cat,idx);
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
+function handlePhoto(input,cat,idx){if(!input.files[0])return;const reader=new FileReader();reader.onload=e=>{photoData[cat][idx]={src:e.target.result,caption:slotDefs[cat][idx]};renderFilledSlot(cat,idx);};reader.readAsDataURL(input.files[0]);}
 function renderFilledSlot(cat,idx){const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';const grid=document.getElementById(gridId);const d=photoData[cat][idx];if(!d)return;const slot=grid.children[idx];slot.innerHTML=`<img class="preview" src="${d.src}" alt="${d.caption}" loading="lazy"><input class="caption-input" placeholder="Didascalia..." value="${d.caption}" oninput="photoData['${cat}'][${idx}].caption=this.value" onclick="event.stopPropagation()"><button class="remove-btn" onclick="removePhoto('${cat}',${idx});event.stopPropagation()">✕</button>`;}
 function removePhoto(cat,idx){photoData[cat][idx]=null;const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';document.getElementById(gridId).replaceChild(createSlot(cat,idx,slotDefs[cat][idx]),document.getElementById(gridId).children[idx]);}
 document.addEventListener('click',e=>{if(!e.target.closest('.photo-slot'))document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));});
@@ -482,90 +506,10 @@ function buildSummary(){
   `;
 }
 
-
-// ── DIZIONARIO ETICHETTE PDF ──
-const PDF_LABELS = {"it": {"ordine_cliente": "Ordine e Cliente", "dati_macchina": "Dati Macchina", "dati_intervento": "Dati Intervento", "tecnico": "Tecnico Incaricato", "collaudo": "Collaudo Finale", "foto": "Documentazione Fotografica", "ricambi": "Ricambi Utilizzati", "tempi": "Rilevazione Tempi", "firme": "Firme", "posizione": "Posizione Cantiere", "riepilogo": "Riepilogo Report", "num_attivita": "Numero Attività", "data": "Data Inizio", "data_fine": "Data Fine", "num_cliente": "N° Cliente", "tipo_ordine": "Tipo Ordine", "cliente": "Cliente / Azienda", "indirizzo": "Indirizzo Cantiere", "cliente_presente": "Cliente Presente", "costruttore": "Costruttore", "modello": "Modello", "seriale": "N° Serie", "anno": "Anno", "ore": "Ore Lavoro", "problema": "Problema Segnalato", "cod_errore": "Codice Errore", "garanzia": "Garanzia", "tipo_lavori": "Tipo Lavori", "luogo": "Luogo", "lavori": "Lavori Eseguiti", "difetto": "Descrizione Difetto", "causa": "Causa Guasto", "nome_tecnico": "Nome Tecnico", "matricola": "Matricola", "collaudo_ok": "Collaudo Eseguito", "esito": "Esito", "ingrassata": "Macchina Ingrassata", "fluidi": "Fluidi Verificati", "codice": "Codice", "descrizione": "Descrizione", "qta": "Qtà", "um": "U.M.", "ora_partenza": "Ora Partenza", "arrivo": "Arrivo Cantiere", "km_andata": "Km Andata", "inizio": "Inizio Lavoro", "fine": "Fine Lavoro", "ore_tot": "Ore Totali", "partenza_rit": "Partenza Rientro", "ora_rientro": "Ora Rientro", "km_ritorno": "Km Ritorno", "firma_tecnico": "Firma Tecnico", "firma_cliente": "Firma Cliente", "tecnico_label": "TECNICO", "cliente_label": "CLIENTE", "componente_difettoso": "Componente Difettoso"}, "de": {"ordine_cliente": "Auftrag und Kunde", "dati_macchina": "Maschinendaten", "dati_intervento": "Eingriffsdaten", "tecnico": "Beauftragter Techniker", "collaudo": "Endabnahme", "foto": "Fotodokumentation", "ricambi": "Verwendete Ersatzteile", "tempi": "Zeiterfassung", "firme": "Unterschriften", "posizione": "Baustellenposition", "riepilogo": "Berichtzusammenfassung", "num_attivita": "Aktivitätsnr.", "data": "Startdatum", "data_fine": "Enddatum", "num_cliente": "Kundennr.", "tipo_ordine": "Auftragsart", "cliente": "Kunde / Firma", "indirizzo": "Baustellenadresse", "cliente_presente": "Kunde vor Ort", "costruttore": "Hersteller", "modello": "Modell", "seriale": "Seriennr.", "anno": "Baujahr", "ore": "Betriebsstunden", "problema": "Gemeldetes Problem", "cod_errore": "Fehlercode", "garanzia": "Garantie", "tipo_lavori": "Arbeitsart", "luogo": "Ort", "lavori": "Durchgeführte Arbeiten", "difetto": "Fehlerbeschreibung", "causa": "Schadensursache", "nome_tecnico": "Techniker Name", "matricola": "Personalnummer", "collaudo_ok": "Abnahme durchgeführt", "esito": "Ergebnis", "ingrassata": "Maschine geschmiert", "fluidi": "Flüssigkeiten geprüft", "codice": "Code", "descrizione": "Beschreibung", "qta": "Menge", "um": "Einh.", "ora_partenza": "Abfahrtszeit", "arrivo": "Baustellenankunft", "km_andata": "Km Hinfahrt", "inizio": "Arbeitsbeginn", "fine": "Arbeitsende", "ore_tot": "Gesamtstunden", "partenza_rit": "Rückfahrt Abfahrt", "ora_rientro": "Rückfahrt Ankunft", "km_ritorno": "Km Rückfahrt", "firma_tecnico": "Unterschrift Techniker", "firma_cliente": "Unterschrift Kunde", "tecnico_label": "TECHNIKER", "cliente_label": "KUNDE", "componente_difettoso": "Defektes Bauteil"}, "en": {"ordine_cliente": "Order & Customer", "dati_macchina": "Machine Data", "dati_intervento": "Intervention Data", "tecnico": "Assigned Technician", "collaudo": "Final Test", "foto": "Photo Documentation", "ricambi": "Parts Used", "tempi": "Time Tracking", "firme": "Signatures", "posizione": "Site Location", "riepilogo": "Report Summary", "num_attivita": "Activity No.", "data": "Start Date", "data_fine": "End Date", "num_cliente": "Customer No.", "tipo_ordine": "Order Type", "cliente": "Customer / Company", "indirizzo": "Site Address", "cliente_presente": "Customer on site", "costruttore": "Manufacturer", "modello": "Model", "seriale": "Serial No.", "anno": "Year", "ore": "Working Hours", "problema": "Reported Issue", "cod_errore": "Error Code", "garanzia": "Warranty", "tipo_lavori": "Work Type", "luogo": "Location", "lavori": "Work Performed", "difetto": "Fault Description", "causa": "Fault Cause", "nome_tecnico": "Technician Name", "matricola": "Employee ID", "collaudo_ok": "Test Performed", "esito": "Result", "ingrassata": "Machine Lubricated", "fluidi": "Fluids Checked", "codice": "Code", "descrizione": "Description", "qta": "Qty", "um": "Unit", "ora_partenza": "Departure Time", "arrivo": "Site Arrival", "km_andata": "Km Outbound", "inizio": "Work Start", "fine": "Work End", "ore_tot": "Total Hours", "partenza_rit": "Return Departure", "ora_rientro": "Return Arrival", "km_ritorno": "Km Return", "firma_tecnico": "Technician Signature", "firma_cliente": "Customer Signature", "tecnico_label": "TECHNICIAN", "cliente_label": "CUSTOMER", "componente_difettoso": "Faulty Component"}, "fr": {"ordine_cliente": "Commande et Client", "dati_macchina": "Données Machine", "dati_intervento": "Données d'intervention", "tecnico": "Technicien chargé", "collaudo": "Test final", "foto": "Documentation photographique", "ricambi": "Pièces utilisées", "tempi": "Relevé des temps", "firme": "Signatures", "posizione": "Position du chantier", "riepilogo": "Récapitulatif", "num_attivita": "N° activité", "data": "Date début", "data_fine": "Date fin", "num_cliente": "N° client", "tipo_ordine": "Type commande", "cliente": "Client / Société", "indirizzo": "Adresse chantier", "cliente_presente": "Client présent", "costruttore": "Fabricant", "modello": "Modèle", "seriale": "N° série", "anno": "Année", "ore": "Heures travail", "problema": "Problème signalé", "cod_errore": "Code erreur", "garanzia": "Garantie", "tipo_lavori": "Type travaux", "luogo": "Lieu", "lavori": "Travaux effectués", "difetto": "Description défaut", "causa": "Cause panne", "nome_tecnico": "Nom technicien", "matricola": "Matricule", "collaudo_ok": "Test effectué", "esito": "Résultat", "ingrassata": "Machine graissée", "fluidi": "Niveaux vérifiés", "codice": "Code", "descrizione": "Description", "qta": "Qté", "um": "Unité", "ora_partenza": "Heure départ", "arrivo": "Arrivée chantier", "km_andata": "Km aller", "inizio": "Début travaux", "fine": "Fin travaux", "ore_tot": "Heures totales", "partenza_rit": "Départ retour", "ora_rientro": "Arrivée retour", "km_ritorno": "Km retour", "firma_tecnico": "Signature technicien", "firma_cliente": "Signature client", "tecnico_label": "TECHNICIEN", "cliente_label": "CLIENT", "componente_difettoso": "Composant défectueux"}, "es": {"ordine_cliente": "Pedido y Cliente", "dati_macchina": "Datos Máquina", "dati_intervento": "Datos Intervención", "tecnico": "Técnico encargado", "collaudo": "Prueba final", "foto": "Documentación fotográfica", "ricambi": "Repuestos utilizados", "tempi": "Control de tiempos", "firme": "Firmas", "posizione": "Posición de la obra", "riepilogo": "Resumen del informe", "num_attivita": "N° actividad", "data": "Fecha inicio", "data_fine": "Fecha fin", "num_cliente": "N° cliente", "tipo_ordine": "Tipo pedido", "cliente": "Cliente / Empresa", "indirizzo": "Dirección obra", "cliente_presente": "Cliente en obra", "costruttore": "Fabricante", "modello": "Modelo", "seriale": "N° serie", "anno": "Año", "ore": "Horas trabajo", "problema": "Problema reportado", "cod_errore": "Código error", "garanzia": "Garantía", "tipo_lavori": "Tipo trabajos", "luogo": "Lugar", "lavori": "Trabajos realizados", "difetto": "Descripción defecto", "causa": "Causa avería", "nome_tecnico": "Nombre técnico", "matricola": "Matrícula", "collaudo_ok": "Prueba realizada", "esito": "Resultado", "ingrassata": "Máquina engrasada", "fluidi": "Fluidos verificados", "codice": "Código", "descrizione": "Descripción", "qta": "Cant.", "um": "Unidad", "ora_partenza": "Hora salida", "arrivo": "Llegada obra", "km_andata": "Km ida", "inizio": "Inicio trabajo", "fine": "Fin trabajo", "ore_tot": "Horas totales", "partenza_rit": "Salida regreso", "ora_rientro": "Llegada regreso", "km_ritorno": "Km vuelta", "firma_tecnico": "Firma técnico", "firma_cliente": "Firma cliente", "tecnico_label": "TÉCNICO", "cliente_label": "CLIENTE", "componente_difettoso": "Componente defectuoso"}};
-function pL(key) {
-  const lang = document.getElementById('pdf-lang-select')?.value || 'it';
-  return (PDF_LABELS[lang] && PDF_LABELS[lang][key]) || PDF_LABELS['it'][key] || key;
-}
-
-
-// ── TRADUZIONE VALORI PDF ──
-const PDF_VALUES = {};
-const _tv = {"Sì": {"de": "Ja", "en": "Yes", "fr": "Oui", "es": "Sí"}, "No": {"de": "Nein", "en": "No", "fr": "Non", "es": "No"}, "Intervento in Garanzia": {"de": "Garantieeinsatz", "en": "Warranty Intervention", "fr": "Intervention sous garantie", "es": "Intervención en garantía"}, "Intervento a Pagamento": {"de": "Kostenpflichtiger Einsatz", "en": "Paid Intervention", "fr": "Intervention payante", "es": "Intervención de pago"}, "Ispezione": {"de": "Inspektion", "en": "Inspection", "fr": "Inspection", "es": "Inspección"}, "Riparazione": {"de": "Reparatur", "en": "Repair", "fr": "Réparation", "es": "Reparación"}, "Riparazione e Ispezione": {"de": "Reparatur und Inspektion", "en": "Repair and Inspection", "fr": "Réparation et inspection", "es": "Reparación e inspección"}, "Solo Ispezione": {"de": "Nur Inspektion", "en": "Inspection only", "fr": "Inspection seulement", "es": "Solo inspección"}, "Solo Riparazione": {"de": "Nur Reparatur", "en": "Repair only", "fr": "Réparation seulement", "es": "Solo reparación"}, "Sostituzione Componente": {"de": "Bauteilersatz", "en": "Part Replacement", "fr": "Remplacement de pièce", "es": "Sustitución de componente"}, "Diagnosi": {"de": "Diagnose", "en": "Diagnosis", "fr": "Diagnostic", "es": "Diagnóstico"}, "Cantiere – Dal Cliente / On-site": {"de": "Baustelle – beim Kunden", "en": "On-site – At Customer", "fr": "Chantier – chez le client", "es": "Obra – en el cliente"}, "In Officina": {"de": "In der Werkstatt", "en": "In Workshop", "fr": "En atelier", "es": "En taller"}, "In Sede": {"de": "Am Standort", "en": "At Headquarters", "fr": "Au siège", "es": "En sede"}, "Difetto di Materiale": {"de": "Materialfehler", "en": "Material Defect", "fr": "Défaut matériau", "es": "Defecto de material"}, "Usura Normale": {"de": "Normaler Verschleiß", "en": "Normal Wear", "fr": "Usure normale", "es": "Desgaste normal"}, "Danno da Operatore": {"de": "Bedienerschaden", "en": "Operator Damage", "fr": "Dommage opérateur", "es": "Daño del operador"}, "Mancata Manutenzione": {"de": "Fehlende Wartung", "en": "Lack of Maintenance", "fr": "Manque entretien", "es": "Falta de mantenimiento"}, "Corpo Estraneo": {"de": "Fremdkörper", "en": "Foreign Object", "fr": "Corps étranger", "es": "Cuerpo extraño"}, "Altro": {"de": "Sonstiges", "en": "Other", "fr": "Autre", "es": "Otro"}, "Tutto in ordine": {"de": "Alles in Ordnung", "en": "All OK", "fr": "Tout en ordre", "es": "Todo en orden"}, "Non conforme": {"de": "Nicht konform", "en": "Non-conformant", "fr": "Non conforme", "es": "No conforme"}};
-// Costruisce mappa per lingua corrente
-function tVal(v) {
-  const lang = document.getElementById('pdf-lang-select')?.value || 'it';
-  if(lang === 'it') return v;
-  return (_tv[v] && _tv[v][lang]) || v;
-}
-
-
-// ── LIBRE TRANSLATE ──
-async function translateFields(fields, targetLang) {
-  if(targetLang === 'it') return fields; // nessuna traduzione necessaria
-
-  const translated = {...fields};
-  const toTranslate = ['f_problema','f_lavori','f_difetto','f_causa'];
-
-  // Raccoglie testi non vuoti
-  const texts = toTranslate.map(k => fields[k] || '');
-  const nonEmpty = texts.filter(t => t.trim().length > 0);
-
-  if(nonEmpty.length === 0) return fields;
-
-  try {
-    // Usa LibreTranslate pubblico
-    const results = await Promise.all(
-      texts.map(async (text) => {
-        if(!text.trim()) return text;
-        const resp = await fetch('https://libretranslate.com/translate', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            q: text,
-            source: 'it',
-            target: targetLang,
-            format: 'text',
-            api_key: ''
-          })
-        });
-        if(!resp.ok) return text; // fallback: testo originale
-        const data = await resp.json();
-        return data.translatedText || text;
-      })
-    );
-
-    toTranslate.forEach((k, i) => { translated[k] = results[i]; });
-  } catch(e) {
-    console.warn('Traduzione non disponibile, uso testo originale:', e);
-    // Nessun alert — fallback silenzioso al testo originale
-  }
-
-  return translated;
-}
-
-// Wrapper val() con supporto traduzione
-const _origFieldValues = {};
-function getTranslatedVal(fieldId, translatedFields) {
-  return translatedFields[fieldId] !== undefined ? translatedFields[fieldId] : val(fieldId);
-}
-
 // ── GENERA PDF ──
 async function generatePDF(){
   const {jsPDF}=window.jspdf;
   if(!jsPDF){alert('Libreria PDF non ancora caricata.');return;}
-
-  // Traduzione campi testo libero via LibreTranslate
-  const _pdfLang = document.getElementById('pdf-lang-select')?.value || 'it';
-  const _rawFields = {
-    f_problema: val('f_problema'), f_lavori: val('f_lavori'),
-    f_difetto: val('f_difetto'),   f_causa: val('f_causa'),
-  };
-  const _tFields = await translateFields(_rawFields, _pdfLang);
-  function tv(k){ return _tFields[k] || ''; }
-
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,H=297;
 
@@ -581,7 +525,17 @@ async function generatePDF(){
 
   let y=0;
 
-  function newPage(){doc.addPage();y=0;drawHeader();}
+  function newPage(){
+    doc.addPage();
+    y=8;
+    // header compatto nelle pagine successive: solo linea + numero pagina
+    doc.setDrawColor(220,220,220);
+    doc.setLineWidth(0.3);
+    doc.line(14,6,W-14,6);
+    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(180,180,180);
+    doc.text('RAPPORTO DI INTERVENTO  –  p. '+doc.internal.getCurrentPageInfo().pageNumber, W/2, 4, {align:'center'});
+    doc.setTextColor(45,47,51);
+  }
   function checkY(h){if(y+h>278)newPage();}
 
   // ── INTESTAZIONE: immagine Sampierana full-width ──
@@ -630,27 +584,39 @@ async function generatePDF(){
   }
 
   // ── DATI ──
-  secTitle(pL('ordine_cliente'));
-  fieldRow([{label:pL('num_attivita'),value:val('f_ordine')},{label:pL('data'),value:val('f_data')},{label:pL('data_fine'),value:val('f_data_fine')},{label:pL('num_cliente'),value:val('f_numcliente')},{label:pL('tipo_ordine'),value:tVal(val('f_tipoordine'))}]);
-  fieldRow([{label:pL('cliente'),value:val('f_cliente')},{label:pL('indirizzo'),value:val('f_indirizzo')},{label:pL('cliente_presente'),value:tVal(radio('clientepresente'))}]);
+  secTitle('Ordine e Cliente');
+  fieldRow([{label:'Numero Attività',value:val('f_ordine')},{label:'Data',value:val('f_data')},{label:'N° Cliente',value:val('f_numcliente')},{label:'Tipo Ordine',value:val('f_tipoordine')}]);
+  fieldRow([{label:'Cliente / Azienda',value:val('f_cliente')},{label:'Indirizzo Cantiere',value:val('f_indirizzo')},{label:'Cliente Presente',value:radio('clientepresente')}]);
 
-  secTitle(pL('dati_macchina'));
-  fieldRow([{label:pL('costruttore'),value:val('f_costruttore')},{label:pL('modello'),value:val('f_modello')},{label:pL('seriale'),value:val('f_seriale')},{label:pL('anno'),value:val('f_anno')},{label:pL('ore'),value:val('f_ore')+' h'}]);
+  secTitle('Dati Macchina');
+  fieldRow([{label:'Costruttore',value:val('f_costruttore')},{label:'Modello',value:val('f_modello')},{label:'N° Serie',value:val('f_seriale')},{label:'Anno',value:val('f_anno')},{label:'Ore Lavoro',value:val('f_ore')+' h'}]);
 
-  secTitle(pL('dati_intervento'));
-  textBlock('Problema Segnalato',tv('f_problema'));
-  fieldRow([{label:pL('cod_errore'),value:val('f_codiceerrore')||'Nessuno'},{label:pL('garanzia'),value:tVal(radio('garanzia'))},{label:pL('tipo_lavori'),value:tVal(val('f_tipolavoro'))},{label:pL('luogo'),value:tVal(val('f_luogo'))}]);
-  textBlock('Lavori Eseguiti',tv('f_lavori'));
-  textBlock('Descrizione Difetto',tv('f_difetto'));
-  fieldRow([{label:pL('causa'),value:tv('f_causa')},{label:pL('componente_difettoso'),value:tVal(val('f_fehlerteil'))},{label:pL('nome_tecnico'),value:val('f_tecnico')},{label:pL('matricola'),value:val('f_matricola')}]);
-  fieldRow([{label:pL('collaudo_ok'),value:tVal(radio('probelauf'))},{label:pL('esito'),value:val('f_esito')},{label:pL('ingrassata'),value:tVal(radio('grasso'))},{label:pL('fluidi'),value:tVal(radio('fluidi'))}]);
+  secTitle('Dati Intervento');
+  textBlock('Problema Segnalato',val('f_problema'));
+  fieldRow([{label:'Codice Errore',value:val('f_codiceerrore')||'Nessuno'},{label:'Garanzia',value:radio('garanzia')},{label:'Tipo Lavori',value:val('f_tipolavoro')},{label:'Luogo',value:val('f_luogo')}]);
+  textBlock('Lavori Eseguiti',val('f_lavori'));
+  textBlock('Descrizione Difetto',val('f_difetto'));
+  fieldRow([{label:'Causa Guasto',value:val('f_causa')},{label:'Componente',value:val('f_fehlerteil')}]);
+  // Lista tecnici su righe separate
+  var _tec=getTecnici();
+  if(_tec.length){
+    checkY(6*_tec.length+2);
+    doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(120,120,120);
+    doc.text('TECNICI',14,y);y+=5;
+    doc.setFont('helvetica','normal');doc.setTextColor(45,47,51);
+    for(var ti=0;ti<_tec.length;ti++){
+      doc.text('• '+_tec[ti].nome.toUpperCase()+(_tec[ti].matr?' ('+_tec[ti].matr+')':''),18,y);y+=5;
+    }
+    y+=2;
+  }
+  fieldRow([{label:'Collaudo',value:radio('probelauf')},{label:'Esito',value:val('f_esito')},{label:'Ingrassato',value:radio('grasso')},{label:'Fluidi',value:radio('fluidi')}]);
 
-  // ── POSIZIONE ──
+  // ── POSIZIONE / MAPPA ──
   const gmapsLink = val('f_gmaps_link');
   if(gmapsLink || val('f_indirizzo') || mapsImgData){
-    secTitle(pL('posizione'));
+    secTitle('Posizione Cantiere / Site Location');
     if(val('f_indirizzo')){
-      fieldRow([{label:pL('indirizzo'),value:val('f_indirizzo')}]);
+      fieldRow([{label:'Indirizzo',value:val('f_indirizzo')}]);
     }
     if(gmapsLink){
       checkY(8);
@@ -660,13 +626,12 @@ async function generatePDF(){
       doc.textWithLink(gmapsLink.substring(0,80),14,y+5,{url:gmapsLink});
       y+=12;
     }
-    if(mapsImgData){
-      // Immagine screenshot mappa proporzionata
-      const imgEl=new Image();imgEl.src=mapsImgData;
-      const nw=imgEl.naturalWidth||800,nh=imgEl.naturalHeight||400;
+    if(mapsImgData && typeof mapsImgData==='string'){
+      // Immagine mappa base64
+      const nw=768,nh=512;
       const ratio=nw/nh;
       let fw=W-28,fh=fw/ratio;
-      if(fh>70){fh=70;fw=70*ratio;}
+      if(fh>65){fh=65;fw=65*ratio;}
       checkY(fh+10);
       doc.setDrawColor(...LGREY);doc.rect(14,y,fw,fh,'S');
       try{doc.addImage(mapsImgData,'JPEG',14,y,fw,fh);}
@@ -675,15 +640,23 @@ async function generatePDF(){
     }
   }
 
-  secTitle(pL('tempi'));
-  fieldRow([{label:pL('ora_partenza'),value:val('f_partenza')},{label:pL('arrivo'),value:val('f_arrivo')},{label:pL('km_andata'),value:val('f_km_and')+' km'},{label:pL('inizio'),value:val('f_iniziolavoro')},{label:pL('fine'),value:val('f_finelavoro')},{label:pL('ore'),value:val('f_orelavoro')+' h'}]);
-  fieldRow([{label:pL('km_ritorno'),value:val('f_km_rit')+' km'},{label:pL('ore_tot'),value:(parseInt(val('f_km_and')||0)+parseInt(val('f_km_rit')||0))+' km'},{label:pL('ora_rientro'),value:val('f_rientro')}]);
+  secTitle('Rilevazione Tempi');
+  var _gg=getGiorni(),_tO=0,_tA=0,_tR=0;
+  _gg.forEach(function(g,idx){
+    var df=g.data?new Date(g.data+'T00:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
+    checkY(8);doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(232,72,26);
+    doc.text('Giorno '+(idx+1)+' — '+df,14,y);y+=6;doc.setTextColor(45,47,51);
+    fieldRow([{label:'Ora Partenza',value:g.par||'–'},{label:'Arrivo Cantiere',value:g.arr||'–'},{label:'Km Andata',value:(g.kma||'–')+' km'},{label:'Inizio Lavoro',value:g.ini||'–'},{label:'Fine Lavoro',value:g.fin||'–'},{label:'Ore Lavoro',value:(g.ore||'–')+' h'}]);
+    fieldRow([{label:'Part. Rientro',value:g.pri||'–'},{label:'Ora Rientro',value:g.rie||'–'},{label:'Km Ritorno',value:(g.kmr||'–')+' km'}]);
+    _tO+=parseFloat(g.ore)||0;_tA+=parseFloat(g.kma)||0;_tR+=parseFloat(g.kmr)||0;
+  });
+  if(_gg.length>1)fieldRow([{label:'TOT. Ore',value:_tO.toFixed(1)+' h'},{label:'TOT. Km Andata',value:_tA+' km'},{label:'TOT. Km Ritorno',value:_tR+' km'}]);
 
   // Ricambi
   const pRows=[];
   document.querySelectorAll('#partsBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');if(inp[0]?.value||inp[1]?.value)pRows.push([inp[0]?.value||'–',inp[1]?.value||'–',inp[2]?.value||'1',inp[3]?.value||'pz']);});
   if(pRows.length){
-    secTitle(pL('ricambi'));
+    secTitle('Ricambi Utilizzati');
     checkY(8);
     doc.setFillColor(...DARK);doc.rect(14,y,W-28,7,'F');
     doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...WHITE);
@@ -700,7 +673,7 @@ async function generatePDF(){
 
   // ── FIRME ──
   checkY(42);
-  secTitle(pL('firme'));
+  secTitle('Firme / Signatures');
   const sigY=y;
   const colW=(W-14*2-6)/2;
 
@@ -710,11 +683,11 @@ async function generatePDF(){
   // Accent bar sinistra arancio
   doc.setFillColor(...ORANGE);doc.rect(14,sigY,3,38,'F');
   doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);
-  doc.text(pL('tecnico_label'),18,sigY+6.5);
+  doc.text('TECNICO / TECHNICIAN',18,sigY+6.5);
   if(hasSig('Tec')){doc.addImage(sigState['Tec'].canvas.toDataURL('image/png'),'PNG',16,sigY+9,colW-6,20);}
   else{doc.setDrawColor(...LGREY);doc.line(18,sigY+26,14+colW-4,sigY+26);}
   doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...DARK);
-  doc.text(val('f_tecnico_sig')||val('f_tecnico')||'____________________________',18,sigY+32);
+  doc.text(val('f_tecnico_sig')||(getTecnici().length?getTecnici()[0].nome:'____________________________'),18,sigY+32);
   doc.setFontSize(6.5);doc.setTextColor(...TEXTGREY);
   doc.text(val('f_data')||new Date().toLocaleDateString('it-IT'),18,sigY+37);
 
@@ -724,7 +697,7 @@ async function generatePDF(){
   doc.setDrawColor(...LGREY);doc.rect(cx,sigY,colW,38,'S');
   doc.setFillColor(...TEAL);doc.rect(cx,sigY,3,38,'F');
   doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...TEAL);
-  doc.text(pL('cliente_label'),cx+4,sigY+6.5);
+  doc.text('CLIENTE / CUSTOMER',cx+4,sigY+6.5);
   if(hasSig('Cli')){doc.addImage(sigState['Cli'].canvas.toDataURL('image/png'),'PNG',cx+2,sigY+9,colW-6,20);}
   else{doc.setDrawColor(...LGREY);doc.line(cx+4,sigY+26,cx+colW-4,sigY+26);}
   doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...DARK);
@@ -737,7 +710,7 @@ async function generatePDF(){
   const allPh=[...photoData.pre,...photoData.fault,...photoData.post].filter(Boolean);
   if(allPh.length){
     doc.addPage();y=0;drawHeader();
-    secTitle(pL('foto'));
+    secTitle('Documentazione Fotografica / Photo Documentation');
     // Inserisce ogni foto con proporzioni originali, max larghezza metà pagina
     const maxW=(W-14*2-8)/2; // max ~83mm (2 colonne)
     const maxH=90; // max altezza mm
@@ -806,20 +779,92 @@ function extractCoords(url){
 }
 
 async function fetchStaticMap(lat, lng){
-  // Usa openstreetmap via staticmap.net (no api key)
-  const url = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=600x300&markers=${lat},${lng},red`;
-  try{
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return new Promise(resolve=>{
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(blob);
-    });
-  }catch(e){ return null; }
-}
+  // Compone la mappa su canvas usando tile OSM (CORS: *) a zoom 15
+  return new Promise(resolve=>{
+    const zoom = 15;
+    const TILE = 256;
+    const COLS = 3, ROWS = 2; // griglia 3x2 tile = 768x512 px
 
-function onMapsLink(){
+    // Conversione lat/lng → tile number
+    function latLngToTile(lat, lng, z){
+      const n = Math.pow(2, z);
+      const x = Math.floor((lng + 180) / 360 * n);
+      const latRad = lat * Math.PI / 180;
+      const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI) / 2 * n);
+      return {x, y};
+    }
+    // Pixel offset del punto esatto nella tile centrale
+    function latLngToPixel(lat, lng, z, tx, ty){
+      const n = Math.pow(2, z);
+      const px = (((lng + 180) / 360 * n) - tx) * TILE;
+      const latRad = lat * Math.PI / 180;
+      const py = ((1 - Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI) / 2 * n - ty) * TILE;
+      return {px, py};
+    }
+
+    const center = latLngToTile(lat, lng, zoom);
+    const offX = Math.floor(COLS/2), offY = Math.floor(ROWS/2);
+    const startX = center.x - offX, startY = center.y - offY;
+
+    const cv = document.createElement('canvas');
+    cv.width = COLS * TILE; cv.height = ROWS * TILE;
+    const ctx2 = cv.getContext('2d');
+
+    let loaded = 0;
+    const total = COLS * ROWS;
+    // Carto tile servers: CORS aperto, nessun Referer richiesto
+    const tileServers = [
+      'https://a.basemaps.cartocdn.com/rastertiles/voyager',
+      'https://b.basemaps.cartocdn.com/rastertiles/voyager',
+      'https://c.basemaps.cartocdn.com/rastertiles/voyager'
+    ];
+
+    for(let col=0; col<COLS; col++){
+      for(let row=0; row<ROWS; row++){
+        const tx = startX + col, ty = startY + row;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const srv = tileServers[(col+row)%3];
+        img.onload = (function(c2,r2,i2){
+          return function(){
+            ctx2.drawImage(i2, c2*TILE, r2*TILE, TILE, TILE);
+            loaded++;
+            if(loaded === total){
+              // Disegna pin rosso sulla posizione esatta
+              const pix = latLngToPixel(lat, lng, zoom, startX, startY);
+              ctx2.beginPath();
+              ctx2.arc(pix.px, pix.py-8, 8, 0, 2*Math.PI);
+              ctx2.fillStyle = '#e8481a';
+              ctx2.fill();
+              ctx2.strokeStyle = '#fff';
+              ctx2.lineWidth = 2;
+              ctx2.stroke();
+              // Triangolino puntatore
+              ctx2.beginPath();
+              ctx2.moveTo(pix.px-5, pix.py-4);
+              ctx2.lineTo(pix.px+5, pix.py-4);
+              ctx2.lineTo(pix.px, pix.py+2);
+              ctx2.closePath();
+              ctx2.fillStyle = '#e8481a';
+              ctx2.fill();
+              try{ resolve(cv.toDataURL('image/jpeg',0.88)); }
+              catch(e){ resolve(null); }
+            }
+          };
+        })(col, row, img);
+        img.onerror = (function(){
+          return function(){
+            loaded++;
+            if(loaded===total){
+              try{ resolve(cv.toDataURL('image/jpeg',0.88)); }catch(e){ resolve(null); }
+            }
+          };
+        })();
+        img.src = `${srv}/${zoom}/${tx}/${ty}.png`;
+      }
+    }
+  });
+}function onMapsLink(){
   const raw = document.getElementById('f_gmaps_link').value.trim();
   if(!raw){ document.getElementById('mapsPreviewWrap').style.display='none'; return; }
   // Costruisco embed URL
@@ -925,143 +970,148 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildPhotoGrid('photoGridPost',slotDefs.post,'post');
   document.getElementById('f_data').value=new Date().toISOString().split('T')[0];
   initSig('Tec');initSig('Cli');
+  addGiorno();
+  addTecnico();
+  // Forza uppercase su tutti i campi testo (inclusi quelli aggiunti dinamicamente)
+  document.addEventListener('input', function(e){
+    if((e.target.tagName==='INPUT' && e.target.type==='text') || e.target.tagName==='TEXTAREA'){
+      var pos=e.target.selectionStart;
+      e.target.value=e.target.value.toUpperCase();
+      try{e.target.setSelectionRange(pos,pos);}catch(ex){}
+    }
+  }, true);
 });
 
-// ── BOZZA ──
-function saveDraft(){
-  const data = {
-    step: currentStep,
-    fields: {},
-    radios: {},
-    photos: photoData,
-    parts: [],
-    sigs: {}
-  };
+// ═══════════════════════════════════════════════
+// MULTI-GIORNO
+// ═══════════════════════════════════════════════
+var _gCnt = 0;
 
-  // Campi input/select/textarea
-  document.querySelectorAll('input[id^="f_"],select[id^="f_"],textarea[id^="f_"]').forEach(el=>{
-    data.fields[el.id] = el.value;
-  });
-
-  // Radio buttons
-  document.querySelectorAll('input[type="radio"]').forEach(el=>{
-    if(el.checked) data.radios[el.name] = el.value;
-  });
-
-  // Righe ricambi
-  document.querySelectorAll('#partsBody tr').forEach(tr=>{
-    const cells = tr.querySelectorAll('input');
-    if(cells.length>=4){
-      data.parts.push({
-        codice: cells[0].value,
-        desc: cells[1].value,
-        qty: cells[2].value,
-        um: cells[3].value
-      });
-    }
-  });
-
-  // Firme
-  ['Tec','Cli'].forEach(id=>{
-    const s = sigState[id];
-    if(s && hasSig(id)){
-      data.sigs[id] = s.canvas.toDataURL('image/png');
-    }
-    const nameEl = document.getElementById('f_tecnicosig') ;
-    const nameElCli = document.getElementById('f_clientesig');
-    if(nameEl) data.fields['f_tecnicosig'] = nameEl.value;
-    if(nameElCli) data.fields['f_clientesig'] = nameElCli.value;
-  });
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  // Nome file con data
-  const d = new Date();
-  const dateStr = d.toISOString().slice(0,10);
-  const cliente = document.getElementById('f_cliente')?.value || 'bozza';
-  a.href = url;
-  a.download = `report-${cliente}-${dateStr}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
+function addGiorno(data) {
+  _gCnt++;
+  var i = _gCnt;
+  var today = new Date().toISOString().slice(0,10);
+  var card = document.createElement('div');
+  card.className = 'giorno-card';
+  card.id = 'gc_' + i;
+  function inp(key, type, ph, ev) {
+    return '<div class="fg">' +
+      '<label>' + ph + '</label>' +
+      '<input type="' + type + '" id="g' + i + '_' + key + '"' +
+      (type==='number' ? ' min="0" placeholder="0"' : '') +
+      ' oninput="' + ev + '">' +
+    '</div>';
+  }
+  card.innerHTML =
+    '<div class="giorno-card-head">' +
+      '<span class="giorno-card-lbl">Giorno ' + i + '</span>' +
+      '<input type="date" id="g' + i + '_data" value="' + ((data&&data.data)||today) + '" style="border:1px solid #ddd;border-radius:7px;padding:5px 10px;font-size:13px;font-family:inherit;">' +
+      '<button type="button" class="giorno-del" onclick="delGiorno(' + i + ')">&#x2715;</button>' +
+    '</div>' +
+    '<div class="giorno-grid">' +
+      inp('par','time','Ora Partenza','aggTot()') +
+      inp('arr','time','Arrivo Cantiere','aggTot()') +
+      inp('kma','number','Km Andata','aggTot()') +
+      inp('ini','time','Inizio Lavoro','calcH('+i+')') +
+      inp('fin','time','Fine Lavoro','calcH('+i+')') +
+      '<div class="fg"><label>Ore Lavoro <span class="ore-badge" id="g'+i+'_ob" style="display:none"></span></label>' +
+        '<input type="number" id="g'+i+'_ore" step="0.5" min="0" placeholder="0" oninput="aggTot()"></div>' +
+      inp('pri','time','Part. Rientro','aggTot()') +
+      inp('rie','time','Ora Rientro','aggTot()') +
+      inp('kmr','number','Km Ritorno','aggTot()') +
+    '</div>';
+  document.getElementById('giorniTempi').appendChild(card);
+  aggTot();
 }
 
-function loadDraft(){
-  document.getElementById('draftInput').click();
+function delGiorno(i) {
+  var el = document.getElementById('gc_' + i);
+  if (!el) return;
+  el.style.opacity='0'; el.style.transform='translateX(12px)';
+  setTimeout(function(){ el.remove(); aggTot(); }, 220);
 }
 
-function importDraft(input){
-  if(!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try{
-      const data = JSON.parse(e.target.result);
+function calcH(i) {
+  var a = document.getElementById('g'+i+'_ini');
+  var b = document.getElementById('g'+i+'_fin');
+  var o = document.getElementById('g'+i+'_ore');
+  var d = document.getElementById('g'+i+'_ob');
+  if (!a||!b||!a.value||!b.value) return;
+  var av=a.value.split(':'), bv=b.value.split(':');
+  var ini=parseInt(av[0])*60+parseInt(av[1]);
+  var fin=parseInt(bv[0])*60+parseInt(bv[1]);
+  if(fin<ini) fin+=1440;
+  var diff=fin-ini;
+  // Pausa pranzo 12:00-13:00 (720-780 min)
+  var pIni=720, pFin=780;
+  var overlap=Math.max(0, Math.min(fin,pFin)-Math.max(ini,pIni));
+  diff=Math.max(0, diff-overlap);
+  var hVal=(diff/60);
+  var h=hVal%1===0?hVal.toFixed(0):(hVal).toFixed(2).replace(/\.?0+$/,'');
+  if(o) o.value=h;
+  if(d){d.textContent=h+'h'+(overlap>0?' (-pausa)':'');d.style.display='inline-block';}
+  aggTot();
+}
 
-      // Ripristina campi
-      Object.entries(data.fields||{}).forEach(([id,val])=>{
-        const el = document.getElementById(id);
-        if(el) el.value = val;
-      });
+function getGiorni() {
+  var cards=document.querySelectorAll('.giorno-card'), res=[];
+  for(var k=0;k<cards.length;k++){
+    var id=cards[k].id.replace('gc_','');
+    function v(xid,key){var el=document.getElementById('g'+xid+'_'+key);return el?el.value:'';}
+    res.push({id:id,data:v(id,'data'),par:v(id,'par'),arr:v(id,'arr'),kma:v(id,'kma'),
+      ini:v(id,'ini'),fin:v(id,'fin'),ore:v(id,'ore'),pri:v(id,'pri'),rie:v(id,'rie'),kmr:v(id,'kmr')});
+  }
+  return res;
+}
 
-      // Ripristina radio
-      Object.entries(data.radios||{}).forEach(([name,val])=>{
-        const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
-        if(el) el.checked = true;
-      });
+function aggTot() {
+  var gg=getGiorni(), tO=0,tA=0,tR=0;
+  for(var k=0;k<gg.length;k++){tO+=parseFloat(gg[k].ore)||0;tA+=parseFloat(gg[k].kma)||0;tR+=parseFloat(gg[k].kmr)||0;}
+  var el=document.getElementById('totaliTempi');
+  if(!el) return;
+  el.innerHTML=gg.length?
+    '<span style="margin-right:12px">&#9200; Ore: <strong>'+tO.toFixed(1)+'h</strong></span>'+
+    '<span style="margin-right:12px">&#128663; Km A/R: <strong>'+tA+'/'+tR+' km</strong></span>':'';
+}
 
-      // Ripristina foto
-      if(data.photos){
-        Object.keys(data.photos).forEach(cat=>{
-          data.photos[cat].forEach((ph,idx)=>{
-            if(ph){
-              photoData[cat][idx] = ph;
-              renderFilledSlot(cat,idx);
-            }
-          });
-        });
-      }
+// ═══════════════════════════════════════════════
+// MULTI-TECNICO
+// ═══════════════════════════════════════════════
+var _tCnt = 0;
 
-      // Ripristina ricambi
-      if(data.parts && data.parts.length){
-        const tbody = document.getElementById('partsBody');
-        tbody.innerHTML = '';
-        data.parts.forEach(p=>{
-          addPartRow();
-          const rows = tbody.querySelectorAll('tr');
-          const last = rows[rows.length-1];
-          const cells = last.querySelectorAll('input');
-          if(cells.length>=4){
-            cells[0].value = p.codice||'';
-            cells[1].value = p.desc||'';
-            cells[2].value = p.qty||'';
-            cells[3].value = p.um||'';
-          }
-        });
-      }
+function addTecnico(data) {
+  _tCnt++;
+  var i = _tCnt;
+  var row = document.createElement('div');
+  row.className = 'tecnico-row';
+  row.id = 'tr_' + i;
+  row.innerHTML =
+    '<div class="tf nome"><label>Nome Tecnico</label>' +
+      '<input type="text" id="t'+i+'_n" placeholder="Nome Cognome" value="'+((data&&data.nome)||'')+'"></div>' +
+    '<div class="tf matr"><label>Matricola</label>' +
+      '<input type="text" id="t'+i+'_m" placeholder="es. S102201" value="'+((data&&data.matr)||'')+'"></div>' +
+    '<button type="button" class="t-del" onclick="delTecnico('+i+')">&#x2715;</button>';
+  document.getElementById('tecniciList').appendChild(row);
+}
 
-      // Ripristina firme
-      Object.entries(data.sigs||{}).forEach(([id,dataUrl])=>{
-        const s = sigState[id];
-        if(s){
-          const img = new Image();
-          img.onload = ()=>{ s.ctx.drawImage(img,0,0,s.canvas.width,s.canvas.height); };
-          img.src = dataUrl;
-        }
-      });
+function delTecnico(i) {
+  var el=document.getElementById('tr_'+i);
+  if(!el) return;
+  el.style.opacity='0'; el.style.transition='.2s';
+  setTimeout(function(){el.remove();},210);
+}
 
-      // Vai allo step salvato
-      if(typeof data.step === 'number') goStep(data.step);
-
-      alert('✅ Bozza caricata correttamente!');
-    } catch(err){
-      alert('❌ Errore nel caricamento della bozza: file non valido.');
-    }
-  };
-  reader.readAsText(input.files[0]);
-  input.value = '';
+function getTecnici() {
+  var rows=document.querySelectorAll('.tecnico-row'), res=[];
+  for(var k=0;k<rows.length;k++){
+    var id=rows[k].id.replace('tr_','');
+    var n=document.getElementById('t'+id+'_n');
+    var m=document.getElementById('t'+id+'_m');
+    if(n&&n.value.trim()) res.push({nome:n.value.trim(),matr:m?m.value.trim():''});
+  }
+  return res;
 }
 
 </script>
-<input type="file" id="draftInput" accept=".json" style="display:none" onchange="importDraft(this)">
 </body>
 </html>
