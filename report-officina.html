@@ -162,6 +162,12 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .btn-add-row:hover{background:#c93d12;}
 /* ── GIORNO CARD ── */
 .giorno-card{background:#fafafa;border:1.5px solid #e2e2e2;border-radius:12px;padding:14px 16px 12px;transition:opacity .2s,transform .2s;}
+.operatori-section{border-top:1px solid #eee;margin-top:10px;padding-top:4px;}
+.op-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.op-row input[type=text]{flex:1;min-width:140px;}
+.op-row input[type=number]{width:80px;}
+.op-del{background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:2px 6px;}
+.op-del:hover{color:#e8481a;}
 .giorno-card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
 .giorno-card-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#e8481a;white-space:nowrap;}
 .giorno-del{background:none;border:none;font-size:18px;cursor:pointer;color:#ccc;border-radius:6px;padding:2px 6px;transition:.15s;line-height:1;margin-left:auto;}
@@ -239,6 +245,19 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="step-item" data-step="4"><div class="step-dot">5</div><span>Ricambi e Tempi</span></div>
     <span class="step-sep">›</span>
     <div class="step-item" data-step="5"><div class="step-dot">6</div><span>Riepilogo</span></div>
+  </div>
+
+  <!-- BARRA SALVA/CARICA SEMPRE VISIBILE -->
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <button onclick="saveReport()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;color:#e8481a;border:1.5px solid #e8481a;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Salva Report
+    </button>
+    <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;color:#555;border:1.5px solid #ccc;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Carica Report
+      <input type="file" accept=".json" style="display:none;" onchange="loadReport(this)">
+    </label>
   </div>
 
   <!-- STEP 1 -->
@@ -422,12 +441,23 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>Riepilogo Report / Report Summary</div>
       <div id="summaryContent"></div>
     </div>
-    <div class="form-nav">
+    <div class="form-nav" style="flex-wrap:wrap;gap:8px;">
       <button class="btn-secondary" onclick="goStep(4)">← Modifica</button>
-      <button class="btn-primary" onclick="generatePDF()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Scarica PDF
-      </button>
+      <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;">
+        <button class="btn-secondary" onclick="saveReport()" style="display:inline-flex;align-items:center;gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Salva Report
+        </button>
+        <label class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Carica Report
+          <input type="file" accept=".json" style="display:none;" onchange="loadReport(this)">
+        </label>
+        <button class="btn-primary" onclick="generatePDF()" style="display:inline-flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Scarica PDF
+        </button>
+      </div>
     </div>
   </div>
 </main>
@@ -468,7 +498,77 @@ function createSlot(cat,idx,label){
 function toggleMenu(cat,idx){document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));document.getElementById('menu-'+cat+'-'+idx)?.classList.remove('hidden');}
 function closeMenu(cat,idx){document.getElementById('menu-'+cat+'-'+idx)?.classList.add('hidden');}
 function triggerInput(cat,idx,cam){closeMenu(cat,idx);document.getElementById((cam?'inp-cam-':'inp-gal-')+cat+'-'+idx)?.click();}
-function handlePhoto(input,cat,idx){if(!input.files[0])return;const reader=new FileReader();reader.onload=e=>{photoData[cat][idx]={src:e.target.result,caption:slotDefs[cat][idx]};renderFilledSlot(cat,idx);};reader.readAsDataURL(input.files[0]);}
+function getExifOrientation(buffer){
+  const view=new DataView(buffer);
+  if(view.getUint16(0,false)!==0xFFD8)return 1;
+  let offset=2;
+  while(offset<view.byteLength){
+    if(view.getUint16(offset,false)===0xFFE1){
+      if(view.getUint32(offset+4,false)!==0x45786966)return 1;
+      const little=view.getUint16(offset+10,false)===0x4949;
+      const tags=view.getUint16(offset+14,little);
+      for(let i=0;i<tags;i++){
+        if(view.getUint16(offset+16+i*12,little)===0x0112)
+          return view.getUint16(offset+16+i*12+8,little);
+      }
+    }
+    offset+=2+view.getUint16(offset+2,false);
+  }
+  return 1;
+}
+function fixOrientation(src,orientation,cb){
+  const img=new Image();
+  img.onload=function(){
+    const MAX=1600;
+    let sw=img.naturalWidth, sh=img.naturalHeight;
+    // Ridimensiona mantenendo proporzioni
+    if(sw>MAX||sh>MAX){
+      if(sw>=sh){sh=Math.round(sh*(MAX/sw));sw=MAX;}
+      else{sw=Math.round(sw*(MAX/sh));sh=MAX;}
+    }
+    const swap=(orientation>=5&&orientation<=8);
+    const cv=document.createElement('canvas');
+    cv.width=swap?sh:sw; cv.height=swap?sw:sh;
+    const ctx2=cv.getContext('2d');
+    ctx2.imageSmoothingEnabled=true;
+    ctx2.imageSmoothingQuality='high';
+    switch(orientation){
+      case 2:ctx2.transform(-1,0,0,1,sw,0);break;
+      case 3:ctx2.transform(-1,0,0,-1,sw,sh);break;
+      case 4:ctx2.transform(1,0,0,-1,0,sh);break;
+      case 5:ctx2.transform(0,1,1,0,0,0);break;
+      case 6:ctx2.transform(0,1,-1,0,sh,0);break;
+      case 7:ctx2.transform(0,-1,-1,0,sh,sw);break;
+      case 8:ctx2.transform(0,-1,1,0,0,sw);break;
+    }
+    ctx2.drawImage(img,0,0,sw,sh);
+    cb(cv.toDataURL('image/jpeg',0.88));
+  };
+  img.src=src;
+}
+function handlePhoto(input,cat,idx){
+  if(!input.files[0])return;
+  const file=input.files[0];
+  const arrReader=new FileReader();
+  arrReader.onload=function(ev){
+    const orientation=getExifOrientation(ev.target.result);
+    const b64Reader=new FileReader();
+    b64Reader.onload=function(e2){
+      const src=e2.target.result;
+      if(orientation>1){
+        fixOrientation(src,orientation,function(fixed){
+          photoData[cat][idx]={src:fixed,caption:slotDefs[cat][idx]};
+          renderFilledSlot(cat,idx);
+        });
+      } else {
+        photoData[cat][idx]={src:src,caption:slotDefs[cat][idx]};
+        renderFilledSlot(cat,idx);
+      }
+    };
+    b64Reader.readAsDataURL(file);
+  };
+  arrReader.readAsArrayBuffer(file);
+}
 function renderFilledSlot(cat,idx){const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';const grid=document.getElementById(gridId);const d=photoData[cat][idx];if(!d)return;const slot=grid.children[idx];slot.innerHTML=`<img class="preview" src="${d.src}" alt="${d.caption}" loading="lazy"><input class="caption-input" placeholder="Didascalia..." value="${d.caption}" oninput="photoData['${cat}'][${idx}].caption=this.value" onclick="event.stopPropagation()"><button class="remove-btn" onclick="removePhoto('${cat}',${idx});event.stopPropagation()">✕</button>`;}
 function removePhoto(cat,idx){photoData[cat][idx]=null;const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';document.getElementById(gridId).replaceChild(createSlot(cat,idx,slotDefs[cat][idx]),document.getElementById(gridId).children[idx]);}
 document.addEventListener('click',e=>{if(!e.target.closest('.photo-slot'))document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));});
@@ -618,25 +718,26 @@ async function generatePDF(){
     if(val('f_indirizzo')){
       fieldRow([{label:'Indirizzo',value:val('f_indirizzo')}]);
     }
+    // Pre-check: sposta tutto il blocco link+mappa sulla stessa pagina
+    const _mapH = (mapsImgData && typeof mapsImgData==='string') ? 55 : 0;
+    if(gmapsLink || _mapH>0) checkY(14 + _mapH);
     if(gmapsLink){
-      checkY(8);
       doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(...TEXTGREY);
       doc.text('LINK GOOGLE MAPS:',14,y);
       doc.setFont('helvetica','normal');doc.setTextColor(...ORANGE);
       doc.textWithLink(gmapsLink.substring(0,80),14,y+5,{url:gmapsLink});
-      y+=12;
+      doc.setTextColor(45,47,51);
+      y+=10;
     }
     if(mapsImgData && typeof mapsImgData==='string'){
-      // Immagine mappa base64
       const nw=768,nh=512;
       const ratio=nw/nh;
       let fw=W-28,fh=fw/ratio;
-      if(fh>65){fh=65;fw=65*ratio;}
-      checkY(fh+10);
+      if(fh>55){fh=55;fw=55*ratio;}
       doc.setDrawColor(...LGREY);doc.rect(14,y,fw,fh,'S');
       try{doc.addImage(mapsImgData,'JPEG',14,y,fw,fh);}
       catch(e){try{doc.addImage(mapsImgData,'PNG',14,y,fw,fh);}catch(e2){}}
-      y+=fh+8;
+      y+=fh+6;
     }
   }
 
@@ -648,6 +749,12 @@ async function generatePDF(){
     doc.text('Giorno '+(idx+1)+' — '+df,14,y);y+=6;doc.setTextColor(45,47,51);
     fieldRow([{label:'Ora Partenza',value:g.par||'–'},{label:'Arrivo Cantiere',value:g.arr||'–'},{label:'Km Andata',value:(g.kma||'–')+' km'},{label:'Inizio Lavoro',value:g.ini||'–'},{label:'Fine Lavoro',value:g.fin||'–'},{label:'Ore Lavoro',value:(g.ore||'–')+' h'}]);
     fieldRow([{label:'Part. Rientro',value:g.pri||'–'},{label:'Ora Rientro',value:g.rie||'–'},{label:'Km Ritorno',value:(g.kmr||'–')+' km'}]);
+    // Stampa operatori
+    var _ops=[];
+    if(g.op1) _ops.push({label:'Operatore 1',value:g.op1});
+    if(g.op2) _ops.push({label:'Operatore 2',value:g.op2});
+    if(g.op3) _ops.push({label:'Operatore 3',value:g.op3});
+    if(_ops.length) fieldRow(_ops);
     _tO+=parseFloat(g.ore)||0;_tA+=parseFloat(g.kma)||0;_tR+=parseFloat(g.kmr)||0;
   });
   if(_gg.length>1)fieldRow([{label:'TOT. Ore',value:_tO.toFixed(1)+' h'},{label:'TOT. Km Andata',value:_tA+' km'},{label:'TOT. Km Ritorno',value:_tR+' km'}]);
@@ -987,6 +1094,24 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ═══════════════════════════════════════════════
 var _gCnt = 0;
 
+function addOperatore(gi, nome, ore) {
+  var list = document.getElementById('opsList_'+gi);
+  if(!list) return;
+  var idx = list.children.length + 1;
+  var row = document.createElement('div');
+  row.className = 'op-row';
+  row.innerHTML =
+    '<input type="text" placeholder="Nome operatore" value="'+(nome||'')+'" '+
+    'oninput="this.value=this.value.toUpperCase();aggTot()" style="text-transform:uppercase;">'+
+    '<div class="fg" style="display:flex;align-items:center;gap:4px;margin:0;">'+
+      '<label style="margin:0;font-size:11px;white-space:nowrap;">Ore lavoro</label>'+
+      '<input type="number" step="0.5" min="0" placeholder="0" value="'+(ore||'')+'" oninput="aggTot()" style="width:70px;margin:0;">'+
+    '</div>'+
+    '<button type="button" class="op-del" onclick="this.parentElement.remove();aggTot()">✕</button>';
+  list.appendChild(row);
+  aggTot();
+}
+
 function addGiorno(data) {
   _gCnt++;
   var i = _gCnt;
@@ -1007,6 +1132,20 @@ function addGiorno(data) {
       '<span class="giorno-card-lbl">Giorno ' + i + '</span>' +
       '<input type="date" id="g' + i + '_data" value="' + ((data&&data.data)||today) + '" style="border:1px solid #ddd;border-radius:7px;padding:5px 10px;font-size:13px;font-family:inherit;">' +
       '<button type="button" class="giorno-del" onclick="delGiorno(' + i + ')">&#x2715;</button>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px;">' +
+      '<div class="fg" style="margin:0;">' +
+        '<label>Operatore 1</label>' +
+        '<input type="text" id="g'+i+'_op1" placeholder="Nome" value="'+((data&&data.op1)||'')+'" oninput="this.value=this.value.toUpperCase()">' +
+      '</div>' +
+      '<div class="fg" style="margin:0;">' +
+        '<label>Operatore 2</label>' +
+        '<input type="text" id="g'+i+'_op2" placeholder="Nome" value="'+((data&&data.op2)||'')+'" oninput="this.value=this.value.toUpperCase()">' +
+      '</div>' +
+      '<div class="fg" style="margin:0;">' +
+        '<label>Operatore 3</label>' +
+        '<input type="text" id="g'+i+'_op3" placeholder="Nome" value="'+((data&&data.op3)||'')+'" oninput="this.value=this.value.toUpperCase()">' +
+      '</div>' +
     '</div>' +
     '<div class="giorno-grid">' +
       inp('par','time','Ora Partenza','aggTot()') +
@@ -1058,8 +1197,22 @@ function getGiorni() {
   for(var k=0;k<cards.length;k++){
     var id=cards[k].id.replace('gc_','');
     function v(xid,key){var el=document.getElementById('g'+xid+'_'+key);return el?el.value:'';}
+    // Raccoglie operatori del giorno
+    var opsList=document.getElementById('opsList_'+id);
+    var operatori=[];
+    if(opsList){
+      var rows=opsList.querySelectorAll('.op-row');
+      for(var r=0;r<rows.length;r++){
+        var nome=rows[r].querySelector('input[type=text]');
+        var ore=rows[r].querySelector('input[type=number]');
+        if(nome&&ore&&(nome.value||ore.value)){
+          operatori.push({nome:nome.value, ore:ore.value});
+        }
+      }
+    }
     res.push({id:id,data:v(id,'data'),par:v(id,'par'),arr:v(id,'arr'),kma:v(id,'kma'),
-      ini:v(id,'ini'),fin:v(id,'fin'),ore:v(id,'ore'),pri:v(id,'pri'),rie:v(id,'rie'),kmr:v(id,'kmr')});
+      ini:v(id,'ini'),fin:v(id,'fin'),ore:v(id,'ore'),pri:v(id,'pri'),rie:v(id,'rie'),kmr:v(id,'kmr'),
+      op1:v(id,'op1'), op2:v(id,'op2'), op3:v(id,'op3'), operatori:operatori});
   }
   return res;
 }
@@ -1112,6 +1265,72 @@ function getTecnici() {
   return res;
 }
 
+
+// ══ SALVA / CARICA REPORT ══════════════════════════════════════════════
+function collectFormData(){
+  const fields={};
+  document.querySelectorAll('input[type=text],input[type=number],input[type=date],textarea,select').forEach(el=>{
+    if(el.id) fields[el.id]=el.value;
+  });
+  document.querySelectorAll('input[type=radio]:checked,input[type=checkbox]:checked').forEach(el=>{
+    if(el.name) fields['__radio__'+el.name]=el.value;
+  });
+  return fields;
+}
+function saveReport(){
+  const data={
+    version:1,
+    ts: new Date().toISOString(),
+    fields: collectFormData(),
+    photos: photoData,
+    mapsImgData: mapsImgData,
+    gmapsLink: document.getElementById('f_gmaps_link')?document.getElementById('f_gmaps_link').value:''
+  };
+  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const fname='report_'+(data.fields['f_numero']||'bozza')+'_'+(data.fields['f_data']||new Date().toLocaleDateString('it')).replace(/\//g,'-')+'.json';
+  a.download=fname;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function loadReport(input){
+  if(!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      // Ripopola campi
+      Object.entries(data.fields||{}).forEach(([k,v])=>{
+        if(k.startsWith('__radio__')){
+          const name=k.replace('__radio__','');
+          const el=document.querySelector(`input[type=radio][name="${name}"][value="${v}"]`);
+          if(el){el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));}
+        } else {
+          const el=document.getElementById(k);
+          if(el){el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));}
+        }
+      });
+      // Ripristina foto
+      if(data.photos){
+        photoData=data.photos;
+        ['pre','fault','post'].forEach(cat=>{
+          Object.keys(photoData[cat]||{}).forEach(idx=>{
+            if(photoData[cat][idx]) renderFilledSlot(cat,parseInt(idx));
+          });
+        });
+      }
+      // Ripristina mappa
+      if(data.mapsImgData){ mapsImgData=data.mapsImgData; }
+      if(data.gmapsLink){
+        const el=document.getElementById('f_gmaps_link');
+        if(el){el.value=data.gmapsLink;onMapsLink();}
+      }
+      alert('✅ Report caricato correttamente!');
+    }catch(err){alert('❌ Errore nel caricamento: file non valido.');}
+  };
+  reader.readAsText(input.files[0]);
+}
 </script>
 </body>
 </html>
