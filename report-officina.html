@@ -497,24 +497,7 @@ function createSlot(cat,idx,label){
 }
 function toggleMenu(cat,idx){document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));document.getElementById('menu-'+cat+'-'+idx)?.classList.remove('hidden');}
 function closeMenu(cat,idx){document.getElementById('menu-'+cat+'-'+idx)?.classList.add('hidden');}
-function triggerInput(cat,idx,cam){
-  closeMenu(cat,idx);
-  // Crea input dinamico e rimuovilo dopo l'uso (fix reload iOS Safari)
-  var old=document.getElementById('_dynInput');
-  if(old) old.remove();
-  var inp=document.createElement('input');
-  inp.type='file';
-  inp.accept='image/*';
-  inp.id='_dynInput';
-  if(cam) inp.setAttribute('capture','environment');
-  inp.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0;';
-  inp.addEventListener('change',function(){
-    handlePhoto(inp,cat,idx);
-    setTimeout(function(){inp.remove();},1000);
-  });
-  document.body.appendChild(inp);
-  inp.click();
-}
+function triggerInput(cat,idx,cam){closeMenu(cat,idx);document.getElementById((cam?'inp-cam-':'inp-gal-')+cat+'-'+idx)?.click();}
 function getExifOrientation(buffer){
   const view=new DataView(buffer);
   if(view.getUint16(0,false)!==0xFFD8)return 1;
@@ -560,7 +543,7 @@ function fixOrientation(src, orientation, cb) {
     else if (orientation === 7)                   { ctx.translate(cv.width,cv.height);  ctx.rotate(Math.PI/2); ctx.scale(1,-1); }
     else if (orientation === 8)                   { ctx.translate(0,cv.height);         ctx.rotate(-Math.PI/2);}
     // Disegna con dimensioni ridimensionate (sw x sh = dimensione pre-rotazione)
-    ctx.drawImage(img, 0, 0, sw, sh);
+    ctx.drawImage(img, 0, 0, rotate90 ? sh : sw, rotate90 ? sw : sh);
     ctx.restore();
     // Libera memoria
     img.src = '';
@@ -573,19 +556,16 @@ function fixOrientation(src, orientation, cb) {
 function handlePhoto(input,cat,idx){
   if(!input.files[0])return;
   const file=input.files[0];
-  var reader=new FileReader();
+  const reader=new FileReader();
   reader.onload=function(ev){
     var dataUrl=ev.target.result;
-    // Legge EXIF orientation dal file (primi 256 byte del base64)
     var orientation=1;
     try{
-      var b64=dataUrl.split(',')[1];
-      var bin=atob(b64.substring(0,Math.min(b64.length,512)));
-      var buf=new ArrayBuffer(bin.length);
-      var u8=new Uint8Array(buf);
-      for(var i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
-      orientation=getExifOrientation(buf);
-    }catch(ex){ orientation=1; }
+      var bin=atob(dataUrl.split(',')[1].substring(0,256));
+      var arr=new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+      orientation=getExifOrientation(arr.buffer);
+    }catch(ex){}
     fixOrientationFromUrl(dataUrl, orientation, function(fixed){
       photoData[cat][idx]={src:fixed, caption:slotDefs[cat][idx]};
       renderFilledSlot(cat,idx);
@@ -595,43 +575,38 @@ function handlePhoto(input,cat,idx){
 }
 
 function fixOrientationFromUrl(url, orientation, cb) {
-  var img = new Image();
+  const img = new Image();
   img.onload = function() {
-    var FHD = 1920;
-    var ow = img.naturalWidth, oh = img.naturalHeight;
-    // Per orientation 5-8 larghezza e altezza si scambiano
-    var rotate90 = (orientation >= 5 && orientation <= 8);
-    var scale = Math.min(1, FHD / Math.max(ow, oh));
-    var sw = Math.round(ow * scale);
-    var sh = Math.round(oh * scale);
-    var cw = rotate90 ? sh : sw;
-    var ch = rotate90 ? sw : sh;
-    var cv = document.createElement('canvas');
-    cv.width = cw; cv.height = ch;
-    var ctx = cv.getContext('2d');
+    const FHD = 1920;
+    const ow = img.naturalWidth, oh = img.naturalHeight;
+    let scale = Math.min(1, FHD / Math.max(ow, oh));
+    let sw = Math.round(ow * scale);
+    let sh = Math.round(oh * scale);
+    const rotate90 = (orientation >= 5 && orientation <= 8);
+    const cv = document.createElement('canvas');
+    cv.width  = rotate90 ? sh : sw;
+    cv.height = rotate90 ? sw : sh;
+    const ctx = cv.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    // Trasformazioni standard EXIF (testate, da spec EXIF/blueimp)
-    switch(orientation){
-      case 2: ctx.transform(-1, 0, 0, 1, cw, 0); break;
-      case 3: ctx.transform(-1, 0, 0, -1, cw, ch); break;
-      case 4: ctx.transform(1, 0, 0, -1, 0, ch); break;
-      case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
-      case 6: ctx.transform(0, 1, -1, 0, ch, 0); break;
-      case 7: ctx.transform(0, -1, -1, 0, ch, cw); break;
-      case 8: ctx.transform(0, -1, 1, 0, 0, cw); break;
-      default: break;
-    }
-    ctx.drawImage(img, 0, 0, sw, sh);
+    ctx.save();
+    if      (orientation === 2) { ctx.translate(cv.width,0);         ctx.scale(-1,1);        }
+    else if (orientation === 3) { ctx.translate(cv.width,cv.height);  ctx.rotate(Math.PI);    }
+    else if (orientation === 4) { ctx.translate(0,cv.height);         ctx.scale(1,-1);        }
+    else if (orientation === 5) { ctx.translate(0,0);                 ctx.rotate(Math.PI/2);  ctx.scale(1,-1); }
+    else if (orientation === 6) { ctx.translate(cv.width,0);          ctx.rotate(Math.PI/2);  }
+    else if (orientation === 7) { ctx.translate(cv.width,0);          ctx.rotate(Math.PI/2);  ctx.scale(-1,1); }
+    else if (orientation === 8) { ctx.translate(0,cv.height);         ctx.rotate(-Math.PI/2); }
+    ctx.drawImage(img, 0, 0, rotate90 ? sh : sw, rotate90 ? sw : sh);
+    ctx.restore();
     img.src = '';
-    var result = cv.toDataURL('image/jpeg', 0.82);
+    const result = cv.toDataURL('image/jpeg', 0.82);
     cv.width = 0; cv.height = 0;
     cb(result);
   };
   img.onerror = function() { cb(url); };
   img.src = url;
 }
-
 function renderFilledSlot(cat,idx){const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';const grid=document.getElementById(gridId);const d=photoData[cat][idx];if(!d)return;const slot=grid.children[idx];slot.innerHTML=`<img class="preview" src="${d.src}" alt="${d.caption}" loading="lazy"><input class="caption-input" placeholder="Didascalia..." value="${d.caption}" oninput="photoData['${cat}'][${idx}].caption=this.value" onclick="event.stopPropagation()"><button class="remove-btn" onclick="removePhoto('${cat}',${idx});event.stopPropagation()">✕</button>`;}
 function removePhoto(cat,idx){photoData[cat][idx]=null;const gridId=cat==='pre'?'photoGridPre':cat==='fault'?'photoGridFault':'photoGridPost';document.getElementById(gridId).replaceChild(createSlot(cat,idx,slotDefs[cat][idx]),document.getElementById(gridId).children[idx]);}
 document.addEventListener('click',e=>{if(!e.target.closest('.photo-slot'))document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));});
@@ -1364,15 +1339,17 @@ function loadReport(input){
     try{
       const data=JSON.parse(e.target.result);
       if(typeof data!=='object'||data===null) throw new Error('file non valido');
-      var fields=data.fields||{};
+      const fields=data.fields||{};
+      // 1. Ricrea giorni necessari
       var maxG=1;
       Object.keys(fields).forEach(function(k){
-        var m=k.match(/^g([0-9]+)_/);
+        var m=k.match(/^g(\d+)_/);
         if(m){var n=parseInt(m[1]);if(n>maxG)maxG=n;}
       });
       var cont=document.getElementById('giorniTempi');
       if(cont){cont.querySelectorAll('.giorno-card').forEach(function(el){el.remove();});_gCnt=0;}
       for(var j=0;j<maxG;j++) addGiorno();
+      // 2. Ripopola campi
       Object.keys(fields).forEach(function(k){
         var v=fields[k];
         if(k.startsWith('__radio__')){
@@ -1384,6 +1361,7 @@ function loadReport(input){
           if(el){el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));}
         }
       });
+      // 3. Ripristina foto (senza riassegnare const photoData)
       if(data.photos){
         ['pre','fault','post'].forEach(function(cat){
           photoData[cat]=[];
@@ -1394,14 +1372,15 @@ function loadReport(input){
           });
         });
       }
+      // 4. Ripristina mappa
       if(data.mapsImgData){
         mapsImgData=data.mapsImgData;
         var slot=document.getElementById('mapsImgSlot');
         if(slot){slot.innerHTML='<img src="'+mapsImgData+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';}
       }
       if(data.gmapsLink){
-        var elg=document.getElementById('f_gmaps_link');
-        if(elg){elg.value=data.gmapsLink;onMapsLink();}
+        var el2=document.getElementById('f_gmaps_link');
+        if(el2){el2.value=data.gmapsLink;onMapsLink();}
       }
       aggTot();
       alert('✅ Report caricato correttamente!');
