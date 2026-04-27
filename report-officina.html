@@ -497,7 +497,24 @@ function createSlot(cat,idx,label){
 }
 function toggleMenu(cat,idx){document.querySelectorAll('.photo-action-menu').forEach(m=>m.classList.add('hidden'));document.getElementById('menu-'+cat+'-'+idx)?.classList.remove('hidden');}
 function closeMenu(cat,idx){document.getElementById('menu-'+cat+'-'+idx)?.classList.add('hidden');}
-function triggerInput(cat,idx,cam){closeMenu(cat,idx);document.getElementById((cam?'inp-cam-':'inp-gal-')+cat+'-'+idx)?.click();}
+function triggerInput(cat,idx,cam){
+  closeMenu(cat,idx);
+  // Crea input dinamico e rimuovilo dopo l'uso (fix reload iOS Safari)
+  var old=document.getElementById('_dynInput');
+  if(old) old.remove();
+  var inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='image/*';
+  inp.id='_dynInput';
+  if(cam) inp.setAttribute('capture','environment');
+  inp.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0;';
+  inp.addEventListener('change',function(){
+    handlePhoto(inp,cat,idx);
+    setTimeout(function(){inp.remove();},1000);
+  });
+  document.body.appendChild(inp);
+  inp.click();
+}
 function getExifOrientation(buffer){
   const view=new DataView(buffer);
   if(view.getUint16(0,false)!==0xFFD8)return 1;
