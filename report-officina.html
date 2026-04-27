@@ -556,12 +556,20 @@ function fixOrientation(src, orientation, cb) {
 function handlePhoto(input,cat,idx){
   if(!input.files[0])return;
   const file=input.files[0];
-  const reader=new FileReader();
+  var reader=new FileReader();
   reader.onload=function(ev){
     var dataUrl=ev.target.result;
-    // Carica su img: il browser applica già EXIF automaticamente (iOS e Android)
-    // poi disegna su canvas senza nessuna rotazione manuale
-    fixOrientationFromUrl(dataUrl, 1, function(fixed){
+    // Legge EXIF orientation dal file (primi 256 byte del base64)
+    var orientation=1;
+    try{
+      var b64=dataUrl.split(',')[1];
+      var bin=atob(b64.substring(0,Math.min(b64.length,512)));
+      var buf=new ArrayBuffer(bin.length);
+      var u8=new Uint8Array(buf);
+      for(var i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+      orientation=getExifOrientation(buf);
+    }catch(ex){ orientation=1; }
+    fixOrientationFromUrl(dataUrl, orientation, function(fixed){
       photoData[cat][idx]={src:fixed, caption:slotDefs[cat][idx]};
       renderFilledSlot(cat,idx);
     });
@@ -570,21 +578,33 @@ function handlePhoto(input,cat,idx){
 }
 
 function fixOrientationFromUrl(url, orientation, cb) {
-  // Il browser applica già l'orientamento EXIF tramite CSS image-orientation: from-image
-  // Usiamo il canvas solo per ridimensionare a max 1920px sul lato lungo
   var img = new Image();
   img.onload = function() {
     var FHD = 1920;
     var ow = img.naturalWidth, oh = img.naturalHeight;
+    // Per orientation 5-8 larghezza e altezza si scambiano
+    var rotate90 = (orientation >= 5 && orientation <= 8);
     var scale = Math.min(1, FHD / Math.max(ow, oh));
     var sw = Math.round(ow * scale);
     var sh = Math.round(oh * scale);
+    var cw = rotate90 ? sh : sw;
+    var ch = rotate90 ? sw : sh;
     var cv = document.createElement('canvas');
-    cv.width = sw;
-    cv.height = sh;
+    cv.width = cw; cv.height = ch;
     var ctx = cv.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    // Trasformazioni standard EXIF (testate, da spec EXIF/blueimp)
+    switch(orientation){
+      case 2: ctx.transform(-1, 0, 0, 1, cw, 0); break;
+      case 3: ctx.transform(-1, 0, 0, -1, cw, ch); break;
+      case 4: ctx.transform(1, 0, 0, -1, 0, ch); break;
+      case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
+      case 6: ctx.transform(0, 1, -1, 0, ch, 0); break;
+      case 7: ctx.transform(0, -1, -1, 0, ch, cw); break;
+      case 8: ctx.transform(0, -1, 1, 0, 0, cw); break;
+      default: break;
+    }
     ctx.drawImage(img, 0, 0, sw, sh);
     img.src = '';
     var result = cv.toDataURL('image/jpeg', 0.82);
