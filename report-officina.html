@@ -556,19 +556,22 @@ function fixOrientation(src, orientation, cb) {
 function handlePhoto(input,cat,idx){
   if(!input.files[0])return;
   const file=input.files[0];
-  // Legge ArrayBuffer solo per EXIF, poi usa ObjectURL per caricare l'immagine (meno memoria)
-  const arrReader=new FileReader();
-  arrReader.onload=function(ev){
-    const orientation=getExifOrientation(ev.target.result);
-    // Libera ArrayBuffer subito
-    const objUrl=URL.createObjectURL(file);
-    fixOrientationFromUrl(objUrl, orientation, function(fixed){
-      URL.revokeObjectURL(objUrl);
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    var dataUrl=ev.target.result;
+    var orientation=1;
+    try{
+      var bin=atob(dataUrl.split(',')[1].substring(0,256));
+      var arr=new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+      orientation=getExifOrientation(arr.buffer);
+    }catch(ex){}
+    fixOrientationFromUrl(dataUrl, orientation, function(fixed){
       photoData[cat][idx]={src:fixed, caption:slotDefs[cat][idx]};
       renderFilledSlot(cat,idx);
     });
   };
-  arrReader.readAsArrayBuffer(file);
+  reader.readAsDataURL(file);
 }
 
 function fixOrientationFromUrl(url, orientation, cb) {
@@ -1334,38 +1337,36 @@ function loadReport(input){
   const reader=new FileReader();
   reader.onload=function(e){
     try{
-      const text=e.target.result;
-      const data=JSON.parse(text);
-      if(typeof data!=='object'||data===null) throw new Error('invalid');
+      const data=JSON.parse(e.target.result);
+      if(typeof data!=='object'||data===null) throw new Error('file non valido');
       const fields=data.fields||{};
       // 1. Ricrea giorni necessari
-      let maxG=1;
+      var maxG=1;
       Object.keys(fields).forEach(function(k){
-        const m=k.match(/^g(\d+)_/);
-        if(m){const n=parseInt(m[1]);if(n>maxG)maxG=n;}
+        var m=k.match(/^g(\d+)_/);
+        if(m){var n=parseInt(m[1]);if(n>maxG)maxG=n;}
       });
-      const cont=document.getElementById('giorniTempi');
+      var cont=document.getElementById('giorniTempi');
       if(cont){cont.querySelectorAll('.giorno-card').forEach(function(el){el.remove();});_gCnt=0;}
       for(var j=0;j<maxG;j++) addGiorno();
       // 2. Ripopola campi
-      Object.entries(fields).forEach(function([k,v]){
+      Object.keys(fields).forEach(function(k){
+        var v=fields[k];
         if(k.startsWith('__radio__')){
-          const name=k.replace('__radio__','');
-          const el=document.querySelector('input[type=radio][name="'+name+'"][value="'+v+'"]');
+          var name=k.replace('__radio__','');
+          var el=document.querySelector('input[type=radio][name="'+name+'"][value="'+v+'"]');
           if(el){el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));}
         } else {
-          const el=document.getElementById(k);
+          var el=document.getElementById(k);
           if(el){el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));}
         }
       });
-      // 3. Ripristina foto
+      // 3. Ripristina foto (senza riassegnare const photoData)
       if(data.photos){
         ['pre','fault','post'].forEach(function(cat){
           photoData[cat]=[];
-          var catData=data.photos[cat]||{};
-          Object.keys(catData).forEach(function(i){
-            photoData[cat][parseInt(i)]=catData[i];
-          });
+          var src=data.photos[cat]||{};
+          Object.keys(src).forEach(function(i){photoData[cat][parseInt(i)]=src[i];});
           Object.keys(photoData[cat]).forEach(function(i){
             if(photoData[cat][i]) renderFilledSlot(cat,parseInt(i));
           });
@@ -1374,12 +1375,12 @@ function loadReport(input){
       // 4. Ripristina mappa
       if(data.mapsImgData){
         mapsImgData=data.mapsImgData;
-        const slot=document.getElementById('mapsImgSlot');
+        var slot=document.getElementById('mapsImgSlot');
         if(slot){slot.innerHTML='<img src="'+mapsImgData+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';}
       }
       if(data.gmapsLink){
-        const el=document.getElementById('f_gmaps_link');
-        if(el){el.value=data.gmapsLink;onMapsLink();}
+        var el2=document.getElementById('f_gmaps_link');
+        if(el2){el2.value=data.gmapsLink;onMapsLink();}
       }
       aggTot();
       alert('✅ Report caricato correttamente!');
