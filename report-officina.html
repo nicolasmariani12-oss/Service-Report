@@ -51,7 +51,7 @@ html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
 body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--text);background:var(--bg);line-height:1.6;}
 img{display:block;max-width:100%;height:auto;}
 input,select,textarea,button{font:inherit;color:inherit;}
-button{cursor:pointer;background:none;border:none;}
+button{cursor:pointer;background:none;border:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 a,button,input,select,textarea{transition:color var(--tr),background var(--tr),border-color var(--tr),box-shadow var(--tr);}
 
 /* ── HEADER ── */
@@ -210,6 +210,115 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .step-panel textarea,
 .tecnico-row input[type="text"] {
   text-transform: uppercase;
+}
+
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE MOBILE — max-width: 480px
+═══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* Header */
+  .app-header { padding: 8px var(--sp4); min-height: 50px; }
+  .header-logos img { height: 22px; }
+  .header-logos .sep { display: none; }
+  .btn-primary span { display: none; }
+  .btn-primary { padding: var(--sp2) var(--sp3); }
+
+  /* Layout principale */
+  .app-main { padding: var(--sp4) var(--sp3); }
+
+  /* Progress e steps */
+  .steps-bar { gap: 4px; margin-bottom: var(--sp5); }
+  .step-sep { display: none; }
+  .step-item { font-size: 10px; }
+  .step-dot { width: 20px; height: 20px; font-size: 9px; }
+
+  /* Form cards */
+  .form-card { padding: var(--sp4) var(--sp4); border-radius: var(--r-lg); }
+  .form-card-title { font-size: var(--text-base); margin-bottom: var(--sp4); }
+  .form-card-title .icon { width: 26px; height: 26px; }
+
+  /* Form grids → sempre 1 colonna */
+  .form-grid,
+  .form-grid.cols-3,
+  .form-grid.cols-2 { grid-template-columns: 1fr !important; }
+
+  /* Input e select: più grandi per touch */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    padding: 12px var(--sp3);
+    font-size: 16px !important; /* evita zoom automatico iOS */
+    border-radius: var(--r-md);
+  }
+
+  /* Radio group */
+  .radio-group { gap: var(--sp3); }
+  .radio-item label { font-size: var(--text-sm); }
+
+  /* Foto: 2 colonne su mobile */
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--sp2);
+  }
+  .photo-slot { aspect-ratio: 1/1; }
+  .photo-slot .slot-label { font-size: 10px; }
+
+  /* Tecnico rows */
+  .tecnico-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  .tecnico-row input,
+  .tecnico-row select { width: 100% !important; }
+
+  /* Firma */
+  .sig-grid { grid-template-columns: 1fr !important; }
+  .signature-pad { height: 100px; }
+
+  /* Navigazione step */
+  .nav-actions,
+  .step-actions {
+    flex-direction: column !important;
+    gap: var(--sp3) !important;
+  }
+  .nav-actions button,
+  .step-actions button {
+    width: 100% !important;
+    justify-content: center;
+    padding: 14px var(--sp4) !important;
+    font-size: var(--text-base) !important;
+  }
+
+  /* Bottoni generici */
+  .btn-secondary { padding: var(--sp2) var(--sp3); font-size: var(--text-xs); }
+
+  /* Summary */
+  .summary-row { flex-direction: column; gap: var(--sp2); }
+  .summary-field { min-width: unset; width: 100%; }
+
+  /* Collaudo rows */
+  .collaudo-row { grid-template-columns: 1fr !important; }
+
+  /* Tabelle → scroll orizzontale */
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Modal/overlay */
+  .modal-box,
+  [class*="modal"] { width: 95vw !important; max-width: 95vw !important; padding: var(--sp4) !important; }
+}
+
+/* Tablet intermedio 481–768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .app-main { padding: var(--sp6) var(--sp4); }
+  .form-grid.cols-3 { grid-template-columns: 1fr 1fr !important; }
+  .photo-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .tecnico-row { flex-wrap: wrap; }
 }
 
 </style>
@@ -624,22 +733,50 @@ function fixOrientation(src, orientation, cb) {
 function handlePhoto(input,cat,idx){
   if(!input.files[0])return;
   var file=input.files[0];
-  // Prima leggi come ArrayBuffer per estrarre l'orientamento EXIF
-  var bufReader=new FileReader();
-  bufReader.onload=function(bufEv){
-    var orientation=getExifOrientation(bufEv.target.result);
-    // Poi leggi come DataURL per ottenere l'immagine
-    var urlReader=new FileReader();
-    urlReader.onload=function(urlEv){
-      var src=urlEv.target.result;
-      fixOrientation(src, orientation, function(fixedSrc){
-        photoData[cat][idx]={src:fixedSrc, caption:slotDefs[cat][idx]};
+  const FHD = 1280;
+  // Usa createImageBitmap con imageOrientation:'from-image' (supportato da Chrome/Safari moderni)
+  // per gestire automaticamente l'EXIF senza parsing manuale
+  if(typeof createImageBitmap !== 'undefined'){
+    createImageBitmap(file, {imageOrientation:'from-image', resizeQuality:'high'}).then(function(bmp){
+      var ow=bmp.width, oh=bmp.height;
+      var scale=Math.min(1, FHD/Math.max(ow,oh));
+      var sw=Math.round(ow*scale), sh=Math.round(oh*scale);
+      var cv=document.createElement('canvas');
+      cv.width=sw; cv.height=sh;
+      var ctx=cv.getContext('2d');
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality='high';
+      ctx.drawImage(bmp,0,0,sw,sh);
+      bmp.close();
+      var fixedSrc=cv.toDataURL('image/jpeg',0.72);
+      cv.width=0; cv.height=0;
+      photoData[cat][idx]={src:fixedSrc, caption:slotDefs[cat][idx]};
+      renderFilledSlot(cat,idx);
+    }).catch(function(){
+      // Fallback: leggi come DataURL senza correzione
+      var r=new FileReader();
+      r.onload=function(e){
+        photoData[cat][idx]={src:e.target.result, caption:slotDefs[cat][idx]};
         renderFilledSlot(cat,idx);
-      });
+      };
+      r.readAsDataURL(file);
+    });
+  } else {
+    // Fallback per browser vecchi: ArrayBuffer per EXIF + DataURL
+    var bufReader=new FileReader();
+    bufReader.onload=function(bufEv){
+      var orientation=getExifOrientation(bufEv.target.result);
+      var urlReader=new FileReader();
+      urlReader.onload=function(urlEv){
+        fixOrientation(urlEv.target.result, orientation, function(fixedSrc){
+          photoData[cat][idx]={src:fixedSrc, caption:slotDefs[cat][idx]};
+          renderFilledSlot(cat,idx);
+        });
+      };
+      urlReader.readAsDataURL(file);
     };
-    urlReader.readAsDataURL(file);
-  };
-  bufReader.readAsArrayBuffer(file);
+    bufReader.readAsArrayBuffer(file);
+  }
 }
 
 function fixOrientationFromUrl(url, orientation, cb) {
