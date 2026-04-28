@@ -587,7 +587,7 @@ function getExifOrientation(buffer){
 function fixOrientation(src, orientation, cb) {
   const img = new Image();
   img.onload = function() {
-    const FHD = 1920;
+    const FHD = 1280;
     const ow = img.naturalWidth, oh = img.naturalHeight;
     // Calcola scala mantenendo proporzioni, max Full HD
     let scale = Math.min(1, FHD / Math.max(ow, oh));
@@ -615,7 +615,7 @@ function fixOrientation(src, orientation, cb) {
     ctx.restore();
     // Libera memoria
     img.src = '';
-    cb(cv.toDataURL('image/jpeg', 0.85));
+    cb(cv.toDataURL('image/jpeg', 0.72));
     cv.width = 0; cv.height = 0;
   };
   img.onerror = function() { cb(src); };
@@ -624,19 +624,28 @@ function fixOrientation(src, orientation, cb) {
 function handlePhoto(input,cat,idx){
   if(!input.files[0])return;
   var file=input.files[0];
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    // Salva il DataURL direttamente, senza canvas né rotazioni
-    photoData[cat][idx]={src:ev.target.result, caption:slotDefs[cat][idx]};
-    renderFilledSlot(cat,idx);
+  // Prima leggi come ArrayBuffer per estrarre l'orientamento EXIF
+  var bufReader=new FileReader();
+  bufReader.onload=function(bufEv){
+    var orientation=getExifOrientation(bufEv.target.result);
+    // Poi leggi come DataURL per ottenere l'immagine
+    var urlReader=new FileReader();
+    urlReader.onload=function(urlEv){
+      var src=urlEv.target.result;
+      fixOrientation(src, orientation, function(fixedSrc){
+        photoData[cat][idx]={src:fixedSrc, caption:slotDefs[cat][idx]};
+        renderFilledSlot(cat,idx);
+      });
+    };
+    urlReader.readAsDataURL(file);
   };
-  reader.readAsDataURL(file);
+  bufReader.readAsArrayBuffer(file);
 }
 
 function fixOrientationFromUrl(url, orientation, cb) {
   const img = new Image();
   img.onload = function() {
-    const FHD = 1920;
+    const FHD = 1280;
     const ow = img.naturalWidth, oh = img.naturalHeight;
     let scale = Math.min(1, FHD / Math.max(ow, oh));
     let sw = Math.round(ow * scale);
@@ -659,7 +668,7 @@ function fixOrientationFromUrl(url, orientation, cb) {
     ctx.drawImage(img, 0, 0, sw, sh);
     ctx.restore();
     img.src = '';
-    const result = cv.toDataURL('image/jpeg', 0.82);
+    const result = cv.toDataURL('image/jpeg', 0.72);
     cv.width = 0; cv.height = 0;
     cb(result);
   };
