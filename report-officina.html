@@ -1717,17 +1717,58 @@ function ensureExtraPhotoSlot(cat){
   if(grid)grid.appendChild(createSlot(cat,index,label));
   return index;
 }
-function readPhotoFile(file,cat,idx){
-  return new Promise(resolve=>{
+function fileToDataURL(file){
+  return new Promise((resolve,reject)=>{
     const reader=new FileReader();
-    reader.onload=e=>{
-      photoData[cat][idx]={src:e.target.result,caption:slotDefs[cat][idx]||tr('Foto aggiuntiva')};
-      renderFilledSlot(cat,idx);
-      resolve();
-    };
-    reader.onerror=()=>resolve();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=()=>reject(reader.error||new Error('File non leggibile'));
     reader.readAsDataURL(file);
   });
+}
+function loadHtmlImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error('Immagine non caricabile'));
+    img.src=src;
+  });
+}
+async function normalizePhotoSource(src,maxSide=1800,quality=.84){
+  try{
+    const img=await loadHtmlImage(src);
+    const nw=img.naturalWidth||img.width||1200;
+    const nh=img.naturalHeight||img.height||900;
+    const scale=Math.min(1,maxSide/Math.max(nw,nh));
+    const w=Math.max(1,Math.round(nw*scale));
+    const h=Math.max(1,Math.round(nh*scale));
+    const canvas=document.createElement('canvas');
+    canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d',{alpha:false});
+    ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);
+    ctx.drawImage(img,0,0,w,h);
+    return {src:canvas.toDataURL('image/jpeg',quality),width:w,height:h};
+  }catch(e){
+    return {src:src,width:1200,height:900};
+  }
+}
+async function readPhotoFile(file,cat,idx){
+  try{
+    const original=await fileToDataURL(file);
+    const normalized=await normalizePhotoSource(original);
+    photoData[cat][idx]={src:normalized.src,caption:slotDefs[cat][idx]||tr('Foto aggiuntiva')};
+    renderFilledSlot(cat,idx);
+  }catch(e){
+    console.error('Errore caricamento foto',e);
+  }
+}
+async function preparePdfPhotos(items){
+  const out=[];
+  for(const item of items){
+    if(!item||!item.src)continue;
+    const normalized=await normalizePhotoSource(item.src,1800,.82);
+    out.push({src:normalized.src,width:normalized.width,height:normalized.height,caption:item.caption||''});
+  }
+  return out;
 }
 async function handlePhoto(input,cat,idx){
   const files=Array.from(input.files||[]).filter(f=>f&&f.type&&f.type.startsWith('image/'));
@@ -1795,6 +1836,7 @@ function buildSummary(){
 async function generatePDF(mode){
   const {jsPDF}=window.jspdf;
   if(!jsPDF){alert(tr('Libreria PDF non ancora caricata.'));return;}
+  const pdfPhotos=await preparePdfPhotos([...photoData.pre,...photoData.fault,...photoData.post].filter(Boolean));
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,H=297;
 
@@ -2030,18 +2072,15 @@ async function generatePDF(mode){
   y=sigY+42;
 
   // ── FOTO ──
-  const allPh=[...photoData.pre,...photoData.fault,...photoData.post].filter(Boolean);
+  const allPh=pdfPhotos;
   if(allPh.length){
     doc.addPage();y=0;drawHeader();
     secTitle('Documentazione Fotografica / Photo Documentation');
-    // Inserisce ogni foto con proporzioni originali, max larghezza metà pagina
-    const maxW=(W-14*2-8)/2; // max ~83mm (2 colonne)
-    const maxH=90; // max altezza mm
+    const maxW=(W-14*2-8)/2;
+    const maxH=90;
     let col=0;let rowH=0;
     for(const ph of allPh){
-      // Calcola dimensioni reali preservando proporzioni
-      const imgEl=new Image();imgEl.src=ph.src;
-      const nw=imgEl.naturalWidth||1200,nh=imgEl.naturalHeight||900;
+      const nw=ph.width||1200,nh=ph.height||900;
       const ratio=nw/nh;
       let fw=maxW,fh=maxW/ratio;
       if(fh>maxH){fh=maxH;fw=maxH*ratio;}
@@ -2050,12 +2089,10 @@ async function generatePDF(mode){
       rowH=Math.max(rowH,fh);
       if(col===0)checkY(rowH+16);
       const xP=14+col*(maxW+8);
-      // Sfondo neutro del riquadro
       doc.setFillColor(...OFFWHITE);doc.rect(xP,y,fw,fh,'F');
       doc.setDrawColor(...LGREY);doc.rect(xP,y,fw,fh,'S');
-      try{doc.addImage(ph.src,'JPEG',xP,y,fw,fh);}
-      catch(e){try{doc.addImage(ph.src,'PNG',xP,y,fw,fh);}catch(e2){}}
-      // Didascalia sotto
+      try{doc.addImage(ph.src,'JPEG',xP,y,fw,fh,undefined,'FAST');}
+      catch(e){console.error('Immagine non inserita nel PDF',e);}
       doc.setFillColor(...OFFWHITE);doc.rect(xP,y+fh,fw,7,'F');
       doc.setFontSize(6);doc.setFont('helvetica','normal');doc.setTextColor(...TEXTGREY);
       doc.text(String(tv(ph.caption||'')).toUpperCase().substring(0,34),xP+fw/2,y+fh+4.5,{align:'center',maxWidth:fw-2});
