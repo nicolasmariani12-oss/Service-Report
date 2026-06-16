@@ -1222,6 +1222,10 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
   .auth-title{font-size:25px}
 }
 
+
+.share-report-btn{min-height:50px;gap:9px}
+@media(max-width:360px){.share-report-btn{font-size:13px}}
+
 </style>
 </head>
 <body class="auth-locked">
@@ -1411,13 +1415,12 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
     <div class="form-card">
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Dati Intervento / Work Order Details</div>
       <div class="form-grid">
+        <div class="form-group full"><label>Descrizione difetto da parte del cliente</label><textarea id="f_difetto" placeholder="Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta..."></textarea></div>
         <div class="form-group full">
-          <label>Problema Segnalato</label>
+          <label>Problema Riscontrato</label>
           <div id="problemiList" class="multi-list"></div>
           <button type="button" onclick="addProblema()" class="btn-add-row">＋ Aggiungi Problema</button>
         </div>
-        <div class="form-group"><label>Codice Errore</label><input type="text" id="f_codiceerrore" placeholder="es. 259"></div>
-        <div class="form-group"><label>Caso di Garanzia?</label><div class="radio-group"><label class="radio-item"><input type="radio" name="garanzia" value="Sì"> Sì</label><label class="radio-item"><input type="radio" name="garanzia" value="No"> No</label></div></div>
         <div class="form-group"><label>Tipo di Lavori</label><select id="f_tipolavoro"><option>Tagliando</option><option>Riparazione</option><option>Diagnosi</option></select></div>
         <div class="form-group"><label>Luogo di Esecuzione</label><select id="f_luogo"><option>Cantiere – Dal Cliente</option><option>In Officina</option></select></div>
         <div class="form-group full">
@@ -1425,9 +1428,7 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
           <div id="lavoriList" class="multi-list"></div>
           <button type="button" onclick="addLavoro()" class="btn-add-row">＋ Aggiungi Lavoro Eseguito</button>
         </div>
-        <div class="form-group full"><label>Descrizione del Difetto</label><textarea id="f_difetto" placeholder="Componente difettoso, sintomi, causa guasto..."></textarea></div>
-        <div class="form-group"><label>Causa del Guasto</label><select id="f_causa"><option value="">Seleziona...</option><option>Difetto di Materiale</option><option>Usura Normale</option><option>Danno da Operatore</option><option>Mancata Manutenzione</option><option>Corpo Estraneo</option><option>Altro</option></select></div>
-        <div class="form-group"><label>Componente Difettoso</label><input type="text" id="f_fehlerteil" placeholder="es. Leva del gas"></div>
+        <div class="form-group full"><label>Causa del Guasto</label><select id="f_causa"><option value="">Seleziona...</option><option>Difetto di Materiale</option><option>Usura Normale</option><option>Danno da Operatore</option><option>Mancata Manutenzione</option><option>Corpo Estraneo</option><option>Altro</option></select></div>
       </div>
       <div class="section-divider">Tecnici Incaricati</div>
       <div id="tecniciList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;"></div>
@@ -1462,7 +1463,11 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
 
         <div class="collaudo-esito">
           <div class="collaudo-esito-lbl">Esito Collaudo</div>
-          <input type="text" id="f_esito" placeholder="es. Tutto in ordine">
+          <select id="f_esito">
+            <option value="">Seleziona...</option>
+            <option value="OK">OK</option>
+            <option value="KO">KO</option>
+          </select>
         </div>
 
       </div>
@@ -1527,6 +1532,10 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
     <div class="form-card">
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>Riepilogo Report / Report Summary</div>
       <div id="summaryContent"></div>
+      <button type="button" class="btn-primary share-report-btn" onclick="shareReport()" style="width:100%;margin-top:16px;justify-content:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Condividi PDF
+      </button>
     </div>
     <div class="form-nav">
       <button class="btn-secondary" onclick="goStep(4)">← Modifica</button>
@@ -1556,6 +1565,17 @@ let currentLanguage='it';
 try{currentLanguage=localStorage.getItem('eurocomach_report_language')||'it';}catch(e){}
 const _i18nTextOriginal=new WeakMap();
 const _i18nAttrOriginal=new WeakMap();
+
+
+Object.assign(I18N.en,{"Condividi PDF":"Share PDF","Condivisione PDF":"PDF sharing","Rapporto di intervento allegato.":"Service report attached.","Il dispositivo non supporta la condivisione diretta dei file. Il PDF è stato scaricato.":"This device does not support direct file sharing. The PDF has been downloaded.","Condivisione annullata o non riuscita.":"Sharing was cancelled or failed."});
+Object.assign(I18N.fr,{"Condividi PDF":"Partager le PDF","Condivisione PDF":"Partage du PDF","Rapporto di intervento allegato.":"Rapport d’intervention joint.","Il dispositivo non supporta la condivisione diretta dei file. Il PDF è stato scaricato.":"Cet appareil ne prend pas en charge le partage direct de fichiers. Le PDF a été téléchargé.","Condivisione annullata o non riuscita.":"Le partage a été annulé ou a échoué."});
+Object.assign(I18N.de,{"Condividi PDF":"PDF teilen","Condivisione PDF":"PDF-Freigabe","Rapporto di intervento allegato.":"Servicebericht im Anhang.","Il dispositivo non supporta la condivisione diretta dei file. Il PDF è stato scaricato.":"Dieses Gerät unterstützt keine direkte Dateifreigabe. Die PDF-Datei wurde heruntergeladen.","Condivisione annullata o non riuscita.":"Die Freigabe wurde abgebrochen oder ist fehlgeschlagen."});
+Object.assign(I18N.es,{"Condividi PDF":"Compartir PDF","Condivisione PDF":"Compartir PDF","Rapporto di intervento allegato.":"Informe de intervención adjunto.","Il dispositivo non supporta la condivisione diretta dei file. Il PDF è stato scaricato.":"Este dispositivo no admite el uso compartido directo de archivos. El PDF se ha descargado.","Condivisione annullata o non riuscita.":"El uso compartido se canceló o falló."});
+
+Object.assign(I18N.en,{"Descrizione difetto da parte del cliente":"Fault Description Provided by the Customer","Problema Riscontrato":"Problem Found","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Describe what the customer reported, the symptoms and the conditions in which they occur...","Descrivi il problema riscontrato...":"Describe the problem found..."});
+Object.assign(I18N.fr,{"Descrizione difetto da parte del cliente":"Description du défaut par le client","Problema Riscontrato":"Problème constaté","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Décrivez ce que le client a signalé, les symptômes et les conditions dans lesquelles ils apparaissent...","Descrivi il problema riscontrato...":"Décrivez le problème constaté..."});
+Object.assign(I18N.de,{"Descrizione difetto da parte del cliente":"Fehlerbeschreibung durch den Kunden","Problema Riscontrato":"Festgestelltes Problem","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Beschreiben Sie die Kundenangabe, die Symptome und die Bedingungen, unter denen sie auftreten...","Descrivi il problema riscontrato...":"Beschreiben Sie das festgestellte Problem..."});
+Object.assign(I18N.es,{"Descrizione difetto da parte del cliente":"Descripción del defecto por parte del cliente","Problema Riscontrato":"Problema detectado","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Describe lo indicado por el cliente, los síntomas y las condiciones en las que se presentan...","Descrivi il problema riscontrato...":"Describe el problema detectado..."});
 
 function tr(key){
   if(key===undefined||key===null)return '';
@@ -1772,7 +1792,7 @@ function buildSummary(){
 }
 
 // ── GENERA PDF ──
-async function generatePDF(){
+async function generatePDF(mode){
   const {jsPDF}=window.jspdf;
   if(!jsPDF){alert(tr('Libreria PDF non ancora caricata.'));return;}
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
@@ -1872,11 +1892,11 @@ async function generatePDF(){
   fieldRow([{label:'Costruttore',value:val('f_costruttore')},{label:'Modello',value:val('f_modello')},{label:'N° Serie',value:val('f_seriale')},{label:'Anno',value:val('f_anno')},{label:'Ore Lavoro',value:val('f_ore')+' h'}]);
 
   secTitle('Dati Intervento');
-  textBlock('Problema Segnalato',getMultiText('problemiList'));
-  fieldRow([{label:'Codice Errore',value:val('f_codiceerrore')||'Nessuno'},{label:'Garanzia',value:radio('garanzia')},{label:'Tipo Lavori',value:val('f_tipolavoro')},{label:'Luogo',value:val('f_luogo')}]);
+  textBlock('Descrizione difetto da parte del cliente',val('f_difetto'));
+  textBlock('Problema Riscontrato',getMultiText('problemiList'));
+  fieldRow([{label:'Tipo Lavori',value:val('f_tipolavoro')},{label:'Luogo',value:val('f_luogo')}]);
   textBlock('Lavori Eseguiti',getMultiText('lavoriList'));
-  textBlock('Descrizione Difetto',val('f_difetto'));
-  fieldRow([{label:'Causa Guasto',value:val('f_causa')},{label:'Componente',value:val('f_fehlerteil')}]);
+  fieldRow([{label:'Causa Guasto',value:val('f_causa')}]);
   // Lista tecnici su righe separate
   var _tec=getTecnici();
   if(_tec.length){
@@ -2058,8 +2078,37 @@ async function generatePDF(){
   }
 
   const fname=`Report_${val('f_modello')||'Macchina'}_${val('f_seriale')||'SN'}_${val('f_data')||'data'}.pdf`.replace(/[^a-zA-Z0-9_\-\.]/g,'_');
+
+  if(mode==='share'){
+    try{
+      const blob=doc.output('blob');
+      const file=new File([blob],fname,{type:'application/pdf'});
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+        await navigator.share({
+          files:[file],
+          title:tr('Condivisione PDF'),
+          text:tr('Rapporto di intervento allegato.')
+        });
+        return;
+      }
+      doc.save(fname);
+      alert(tr('Il dispositivo non supporta la condivisione diretta dei file. Il PDF è stato scaricato.'));
+      return;
+    }catch(err){
+      if(err && err.name==='AbortError') return;
+      try{doc.save(fname);}catch(e){}
+      alert(tr('Condivisione annullata o non riuscita.'));
+      return;
+    }
+  }
+
   doc.save(fname);
 }
+
+function shareReport(){
+  return window.generatePDF('share');
+}
+window.shareReport=shareReport;
 
 
 // ── PERCORSO CANTIERE / NAVIGAZIONE ──
@@ -2459,7 +2508,7 @@ function renumberMultiRows() {
     });
   });
 }
-function addProblema(value) { addMultiItem('problemiList', 'problema', 'Descrivi il problema segnalato...', value); }
+function addProblema(value) { addMultiItem('problemiList', 'problema', 'Descrivi il problema riscontrato...', value); }
 function addLavoro(value) { addMultiItem('lavoriList', 'lavoro', 'Descrivi il lavoro eseguito...', value); }
 function getMultiValues(listId) {
   var vals = [];
@@ -2863,8 +2912,6 @@ function getTecnici() {
   function decorate(){
     markRequired();
     addQuickSet('f_costruttore',[{label:'CASE CONSTRUCTION',value:'Case Construction'},{label:'EUROCOMACH',value:'Eurocomach'},{label:'NEW HOLLAND',value:'New Holland'}]);
-    addQuickSet('f_codiceerrore',[{label:'Nessun errore',value:'NESSUNO'}]);
-    addQuickSet('f_esito',[{label:'Tutto in ordine',value:'TUTTO IN ORDINE'},{label:'Collaudo OK',value:'COLLAUDO OK'}]);
     decorateCollaudo();decorateSignatures();decorateDays();
     document.querySelectorAll('.step-item[data-step]').forEach(function(item){item.tabIndex=0;item.setAttribute('role','button');item.addEventListener('click',function(){goStep(Number(item.dataset.step));});item.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();goStep(Number(item.dataset.step));}});});
   }
@@ -2886,12 +2933,12 @@ function getTecnici() {
     var originalSummary=window.buildSummary;
     if(typeof originalSummary==='function')window.buildSummary=function(){originalSummary();addCompleteness();};
     var originalPdf=window.generatePDF;
-    if(typeof originalPdf==='function')window.generatePDF=function(){
+    if(typeof originalPdf==='function')window.generatePDF=function(mode){
       var miss=missingFields();flagMissing(miss);saveDraft(true);
       if(miss.length&&!confirm(miss.length+' '+tr('campi essenziali non compilati. Vuoi generare comunque il PDF?'))){
         var panel=miss[0].closest('.step-panel');if(panel)goStep(Number(panel.id.replace('step-','')));miss[0].focus();return;
       }
-      originalPdf();
+      return originalPdf(mode);
     };
 
     decorate();restoreDraft();updateStepMeta(uiStep);
