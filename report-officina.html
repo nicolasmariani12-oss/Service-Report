@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#262a2f">
-<meta name="description" content="Rapporto di intervento Eurocomach compilabile con foto, firme, ricambi, tempi e PDF finale.">
+<meta name="description" content="Rapporto di intervento Eurocomach con dati macchina, foto, firme, ricambi, tempi, percorso e PDF finale.">
 <title>Rapporto di Intervento Premium – Eurocomach</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 :root {
   --font-body:'Inter',sans-serif;
@@ -1078,6 +1079,31 @@ textarea {
 .route-origin strong{color:var(--text);display:block;margin-bottom:2px}
 .route-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .route-actions button{width:100%;min-height:48px;border-radius:11px;font-size:13px}
+.route-calc-btn{width:100%;min-height:52px;border-radius:12px;font-size:14px;justify-content:center}
+
+/* Sezioni Partenza (A) e Arrivo (B) ben distinte */
+.route-section{border:1px solid var(--border);border-radius:14px;background:var(--surf);padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--sh-sm)}
+.route-section.origin-section{border-left:4px solid #2d2f33}
+.route-section.dest-section{border-left:4px solid #ff6a2a}
+.route-section-head{display:flex;align-items:center;gap:10px}
+.route-section-head strong{display:block;font-size:13px;color:var(--text);text-transform:uppercase;letter-spacing:.05em}
+.route-section-head small{display:block;font-size:11px;color:var(--text-m);margin-top:1px}
+.route-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:var(--sh-sm)}
+.route-badge.badge-a{background:#2d2f33}
+.route-badge.badge-b{background:#ff6a2a}
+.route-connector{height:22px;margin:-4px 0 -4px 26px;border-left:3px dotted #b7bdc5;width:0}
+.origin-modes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.origin-mode,.destination-mode{min-height:46px;border-radius:11px;border:1.5px solid var(--border);background:var(--surf-off);color:var(--text-m);font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 4px;transition:all .15s ease}
+.origin-mode:hover,.destination-mode:hover{border-color:#b7bdc5}
+.origin-mode.active{background:#2d2f33;border-color:#2d2f33;color:#fff;box-shadow:var(--sh-sm)}
+.destination-mode.active{background:#ff6a2a;border-color:#ff6a2a;color:#fff;box-shadow:var(--sh-sm)}
+.origin-hint{padding:8px 11px;border-radius:10px;background:var(--surf-off);font-size:12px;color:var(--text-m);line-height:1.4;display:flex;align-items:flex-start;gap:6px}
+.stops-list{display:flex;flex-direction:column;gap:8px}
+.stops-list:empty{display:none}
+.stop-row{display:grid;grid-template-columns:1fr 44px;gap:8px;align-items:center}
+.stop-row .stop-remove{min-height:44px;border-radius:11px;border:1px solid var(--border);background:var(--surf-off);color:#a13d36;font-size:16px;font-weight:700;cursor:pointer}
+.stop-row .stop-remove:hover{background:rgba(196,75,65,.10)}
+.route-point .route-city{display:block;font-size:11px;color:var(--text);font-weight:700;margin-top:2px}
 .route-status{display:none;padding:9px 11px;border-radius:10px;background:var(--surf-off);font-size:12px;color:var(--text-m);line-height:1.4}
 .route-status.busy{display:block;color:var(--text)}
 .route-status.ok{display:block;background:rgba(79,145,112,.10);color:#2f7654}
@@ -1226,6 +1252,80 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
 .share-report-btn{min-height:50px;gap:9px}
 @media(max-width:360px){.share-report-btn{font-size:13px}}
 
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MULTI-MACCHINA — seriali, problemi e lavori associati
+   ═══════════════════════════════════════════════════════════════ */
+.machine-intro{
+  display:flex;flex-direction:column;gap:4px;margin:-4px 0 16px;padding:13px 14px;
+  border:1px solid var(--premium-line);border-left:4px solid var(--premium-orange);
+  border-radius:13px;background:linear-gradient(135deg,rgba(232,75,27,.08),var(--premium-soft));
+}
+.machine-intro strong{font-size:13px;color:var(--premium-ink)}
+.machine-intro span{font-size:12px;line-height:1.45;color:var(--premium-muted)}
+.machines-list{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.machine-card{
+  position:relative;border:1px solid var(--premium-line);border-radius:17px;background:var(--premium-soft);
+  overflow:hidden;box-shadow:0 5px 18px rgba(30,35,40,.05)
+}
+.machine-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--premium-orange),rgba(232,75,27,.15))}
+.machine-card-head{
+  display:flex;align-items:center;gap:10px;padding:13px 13px 12px 16px;background:var(--premium-card);
+  border-bottom:1px solid var(--premium-line)
+}
+.machine-number{
+  width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--premium-orange),var(--premium-orange-2));color:#fff;font-size:13px;font-weight:850;
+  box-shadow:0 7px 16px rgba(232,75,27,.22)
+}
+.machine-head-copy{min-width:0;flex:1}
+.machine-title{font-size:13px;font-weight:850;color:var(--premium-ink);letter-spacing:.015em;text-transform:uppercase}
+.machine-serial-preview{font-size:11px;color:var(--premium-muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.machine-remove{
+  width:40px;height:40px;border-radius:10px;border:1px solid var(--premium-line);background:var(--premium-soft);
+  color:#a13d36;font-size:17px;display:grid;place-items:center;flex:0 0 auto
+}
+.machine-remove:hover{background:rgba(196,75,65,.09);border-color:rgba(196,75,65,.25)}
+.machine-card-body{padding:15px 13px 14px 16px}
+.machine-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.machine-fields .form-group.full{grid-column:1/-1}
+.machine-subsection{margin-top:16px;padding-top:14px;border-top:1px solid var(--premium-line)}
+.machine-subsection-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}
+.machine-subsection-icon{
+  width:29px;height:29px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;
+  background:rgba(232,75,27,.10);color:var(--premium-orange);font-size:14px
+}
+.machine-subsection-head strong{display:block;font-size:12px;color:var(--premium-ink);text-transform:uppercase;letter-spacing:.045em}
+.machine-subsection-head span{display:block;font-size:10.5px;color:var(--premium-muted);line-height:1.35;margin-top:2px}
+.machine-card .multi-row{background:var(--premium-card);border-color:var(--premium-line)}
+.machine-card .btn-add-row{min-height:44px;font-size:12px}
+.machine-add-btn{margin-top:2px}
+.machine-card[data-machine-id="1"] .machine-remove{display:none}
+@media(max-width:390px){
+  .machine-fields{grid-template-columns:1fr}
+  .machine-fields .form-group.full{grid-column:1}
+  .machine-card-body{padding:13px 11px 13px 14px}
+}
+
+
+.summary-machines{display:flex;flex-direction:column;gap:11px}
+.summary-machine-card{background:var(--premium-card);border:1px solid var(--premium-line);border-radius:13px;padding:12px}
+.summary-machine-head{display:flex;align-items:center;gap:9px;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--premium-line)}
+.summary-machine-head>span{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--premium-orange);color:#fff;font-size:12px;font-weight:850}
+.summary-machine-head b{display:block;font-size:13px;color:var(--premium-ink)}
+.summary-machine-head small{display:block;font-size:11px;color:var(--premium-muted)}
+.summary-machine-site{font-size:11px;color:var(--premium-muted);padding:8px 9px;border-radius:9px;background:var(--premium-soft);margin-top:8px}
+.summary-machine-list{margin-top:10px;padding-top:9px;border-top:1px dashed var(--premium-line)}
+.summary-machine-list strong{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--premium-orange)}
+.summary-machine-list ol{margin:5px 0 0 20px;font-size:12px;line-height:1.45;color:var(--premium-ink)}
+
+
+/* Versione a singola macchina e destinazione unica */
+.machine-card-head{grid-template-columns:1fr!important;}
+.machine-head-copy{width:100%;}
+.machine-remove,.machine-number,.machine-add-btn,.stops-list,.stop-row{display:none!important;}
+
 </style>
 </head>
 <body class="auth-locked">
@@ -1344,19 +1444,43 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
         <div class="form-group"><label>Numero Cliente</label><input type="text" id="f_numcliente" placeholder="es. 241956"></div>
         <div class="form-group"><label>Nome Cliente</label><input type="text" id="f_cliente" placeholder="es. Rossi Costruzioni Srl"></div>
         <div class="form-group full route-planner">
-          <label>Destinazione Cantiere</label>
-          <input type="text" id="f_indirizzo" placeholder="Inserisci indirizzo, comune oppure coordinate GPS" oninput="onAddrInput()">
+          <label>Percorso Cantiere / Route</label>
           <input type="hidden" id="f_gmaps_link">
 
-          <div class="route-origin">
-            <span aria-hidden="true">🏭</span>
-            <div><strong>Partenza fissa</strong>Sampierana - Via Leonardo da Vinci 40, 47021 San Piero in Bagno (FC)</div>
+          <!-- SEZIONE A · PARTENZA -->
+          <div class="route-section origin-section">
+            <div class="route-section-head">
+              <span class="route-badge badge-a">A</span>
+              <div><strong>Partenza</strong><small>Da dove parti?</small></div>
+            </div>
+            <input type="hidden" id="f_origine_mode" value="sede">
+            <div class="origin-modes" role="radiogroup" aria-label="Modalità di partenza">
+              <button type="button" class="origin-mode active" data-mode="sede" onclick="setOriginMode('sede')"><span aria-hidden="true">🏭</span> Sede</button>
+              <button type="button" class="origin-mode" data-mode="manual" onclick="setOriginMode('manual')"><span aria-hidden="true">✏️</span> Manuale</button>
+            </div>
+            <div id="originModeHint" class="origin-hint">Sampierana – Via Leonardo da Vinci 40, 47021 San Piero in Bagno (FC)</div>
+            <input type="text" id="f_origine_manuale" placeholder="Indirizzo, città oppure coordinate GPS di partenza" style="display:none" oninput="onOriginManualInput()">
           </div>
 
-          <div class="route-actions">
-            <button type="button" class="btn-secondary" onclick="getCurrentPos()">📍 Usa posizione attuale</button>
-            <button type="button" class="btn-primary" onclick="calculateRouteFromManual()">🧭 Calcola percorso</button>
+          <div class="route-connector" aria-hidden="true"></div>
+
+          <!-- SEZIONE B · ARRIVO -->
+          <div class="route-section dest-section">
+            <div class="route-section-head">
+              <span class="route-badge badge-b">B</span>
+              <div><strong>Arrivo</strong><small>Destinazione Cantiere</small></div>
+            </div>
+            <input type="hidden" id="f_dest_mode" value="manual">
+            <div class="origin-modes" role="radiogroup" aria-label="Modalità di arrivo">
+              <button type="button" class="destination-mode active" data-mode="manual" onclick="setDestinationMode('manual')"><span aria-hidden="true">✏️</span> Manuale</button>
+              <button type="button" class="destination-mode" data-mode="gps" onclick="setDestinationMode('gps')"><span aria-hidden="true">📍</span> GPS attuale</button>
+            </div>
+            <div id="destinationModeHint" class="origin-hint" style="display:none">📍 La posizione GPS di arrivo verrà rilevata quando premi «Calcola percorso».</div>
+            <input type="text" id="f_indirizzo" placeholder="Inserisci indirizzo, comune oppure coordinate GPS di arrivo" oninput="onAddrInput()">
+
           </div>
+
+          <button type="button" class="btn-primary route-calc-btn" onclick="calculateRouteFromManual()">🧭 Calcola percorso</button>
 
           <div id="gpsStatus" class="route-status" role="status" aria-live="polite"></div>
 
@@ -1365,7 +1489,7 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
               <img id="routePreviewImg" alt="Anteprima del percorso stradale">
             </div>
             <div class="route-preview-body">
-              <div class="route-points">
+              <div class="route-points" id="routePointsList">
                 <div class="route-point"><span class="route-pin logo"><img id="routeOriginLogo" alt="Logo aziendale"></span><div><strong>Partenza</strong><span id="routeOriginLabel">Sampierana - San Piero in Bagno</span></div></div>
                 <div class="route-point"><span class="route-pin dest">B</span><div><strong>Destinazione</strong><span id="routeDestinationLabel">-</span></div></div>
               </div>
@@ -1388,24 +1512,7 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
   <div class="step-panel" id="step-1">
     <div class="form-card">
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>Dati Macchina / Machine Data</div>
-      <div class="form-grid cols-3">
-        <div class="form-group"><label>Costruttore</label><select id="f_costruttore">
-          <option>Eurocomach</option>
-          <option>Case Construction</option>
-          <option>New Holland</option>
-          <option>Ammann</option>
-          <option>Coltrax</option>
-          <option>Tonti Trading</option>
-          <option>Geax</option>
-          <option>Marini</option>
-          <option>IMT</option>
-          <option>Altro</option>
-        </select></div>
-        <div class="form-group"><label>Tipo</label><input type="text" id="f_modello" placeholder="es. X24D"></div>
-        <div class="form-group"><label>Numero di Serie</label><input type="text" id="f_seriale" placeholder="es. MM00052"></div>
-        <div class="form-group"><label>Anno di Fabbricazione</label><input type="number" id="f_anno" placeholder="es. 2025" min="1990" max="2030"></div>
-        <div class="form-group"><label>Ore di Lavoro</label><input type="number" id="f_ore" placeholder="es. 44" min="0"></div>
-      </div>
+      <div id="machinesList" class="machines-list"></div>
     </div>
     <div class="form-nav"><button class="btn-secondary" onclick="goStep(0)">← Indietro</button><button class="btn-primary" onclick="goStep(2)">Avanti →</button></div>
   </div>
@@ -1416,18 +1523,8 @@ body.auth-locked> :not(#authGate){pointer-events:none!important;user-select:none
       <div class="form-card-title"><div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>Dati Intervento / Work Order Details</div>
       <div class="form-grid">
         <div class="form-group full"><label>Descrizione difetto da parte del cliente</label><textarea id="f_difetto" placeholder="Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta..."></textarea></div>
-        <div class="form-group full">
-          <label>Problema Riscontrato</label>
-          <div id="problemiList" class="multi-list"></div>
-          <button type="button" onclick="addProblema()" class="btn-add-row">＋ Aggiungi Problema</button>
-        </div>
         <div class="form-group"><label>Tipo di Lavori</label><select id="f_tipolavoro"><option>Tagliando</option><option>Riparazione</option><option>Diagnosi</option></select></div>
         <div class="form-group"><label>Luogo di Esecuzione</label><select id="f_luogo"><option>Cantiere – Dal Cliente</option><option>In Officina</option></select></div>
-        <div class="form-group full">
-          <label>Lavori Eseguiti</label>
-          <div id="lavoriList" class="multi-list"></div>
-          <button type="button" onclick="addLavoro()" class="btn-add-row">＋ Aggiungi Lavoro Eseguito</button>
-        </div>
         <div class="form-group full"><label>Causa del Guasto</label><select id="f_causa"><option value="">Seleziona...</option><option>Difetto di Materiale</option><option>Usura Normale</option><option>Danno da Operatore</option><option>Mancata Manutenzione</option><option>Corpo Estraneo</option><option>Altro</option></select></div>
       </div>
       <div class="section-divider">Tecnici Incaricati</div>
@@ -1560,7 +1657,7 @@ const HEADER_B64="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1B
 /* ═══════════════════════════════════════════════════════════════
    MULTILINGUA INTERFACCIA + PDF
    ═══════════════════════════════════════════════════════════════ */
-const I18N={"en":{"Rapporto di intervento":"Service report","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Digital report","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Guided completion, automatic draft saving and final PDF generation. Data remains on the device used.","Genera PDF":"Generate PDF","💾 Salva bozza":"💾 Save draft","＋ Nuovo report":"＋ New report","Bozza pronta":"Draft ready","✓ Bozza salvata":"✓ Draft saved","Salvataggio…":"Saving…","Modifiche da salvare…":"Unsaved changes…","Salvataggio non riuscito":"Save failed","📷 Foto e firme incluse":"📷 Photos and signatures included","📄 PDF professionale":"📄 Professional PDF","Lingua del rapporto":"Report language","Fase":"Step","di":"of","Ordine":"Order","Macchina":"Machine","Intervento":"Work","Foto":"Photos","Ricambi e Tempi":"Parts and Time","Riepilogo":"Summary","Dati Ordine e Cliente":"Order and Customer Data","Numero Attività":"Work Order Number","Data Intervento":"Service Date","Numero Cliente":"Customer Number","Nome Cliente":"Customer Name","Destinazione Cantiere":"Jobsite Destination","Partenza fissa":"Fixed Departure","📍 Usa posizione attuale":"📍 Use Current Location","🧭 Calcola percorso":"🧭 Calculate Route","Partenza":"Departure","Destinazione":"Destination","Distanza":"Distance","Tempo stimato":"Estimated Time","↗ Apri navigazione in Google Maps":"↗ Open Navigation in Google Maps","Tipo Ordine":"Order Type","Cliente presente in loco?":"Customer Present On Site?","Sì":"Yes","No":"No","Avanti →":"Next →","← Indietro":"← Back","← Modifica":"← Edit","Riepilogo →":"Summary →","Scarica PDF":"Download PDF","Dati Macchina / Machine Data":"Machine Data","Costruttore":"Manufacturer","Tipo":"Model","Numero di Serie":"Serial Number","Anno di Fabbricazione":"Year of Manufacture","Ore di Lavoro":"Operating Hours","Dati Intervento / Work Order Details":"Work Order Details","Problema Segnalato":"Reported Problem","＋ Aggiungi Problema":"＋ Add Problem","Codice Errore":"Error Code","Caso di Garanzia?":"Warranty Case?","Tipo di Lavori":"Work Type","Luogo di Esecuzione":"Work Location","Lavori Eseguiti":"Work Performed","＋ Aggiungi Lavoro Eseguito":"＋ Add Work Performed","Descrizione del Difetto":"Fault Description","Causa del Guasto":"Failure Cause","Componente Difettoso":"Faulty Component","Tecnici Incaricati":"Assigned Technicians","＋ Aggiungi Tecnico":"＋ Add Technician","Collaudo Finale":"Final Test","Collaudo Eseguito?":"Test Performed?","Macchina Ingrassata?":"Machine Greased?","Livelli Fluidi Verificati?":"Fluid Levels Checked?","Esito Collaudo":"Test Result","Documentazione Fotografica / Photo Documentation":"Photo Documentation","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Tap a slot to choose one or multiple photos. Tap a photo to view it full screen.","💡 Tocca uno slot per scattare una foto oppure selezionare più immagini dal dispositivo. Clicca su una foto per vederla a schermo intero.":"💡 Tap a slot to take a photo or select multiple images from the device. Tap a photo to view it full screen.","Scatta Foto":"Take Photo","📁 Carica più Foto":"📁 Upload Multiple Photos","Carica dal Dispositivo":"Upload from Device","Carica più Foto":"Upload Multiple Photos","Annulla":"Cancel","📷 Prima dell'Intervento / Before Work":"📷 Before Work","🔧 Componente Difettoso / Faulty Part":"🔧 Faulty Component","✅ Dopo l'Intervento / After Work":"✅ After Work","Ricambi Utilizzati / Parts Used":"Parts Used","+ Aggiungi riga":"+ Add Row","Rilevazione Tempi":"Time Tracking","＋ Aggiungi Giorno":"＋ Add Day","Firme":"Signatures","✍️ Firma del Tecnico":"✍️ Technician Signature","Cancella":"Clear","Mouse o dito":"Mouse or finger","Nome tecnico:":"Technician name:","✍️ Firma del Cliente":"✍️ Customer Signature","Nome cliente / rappresentante:":"Customer / representative name:","Riepilogo Report / Report Summary":"Report Summary","Seleziona...":"Select...","Intervento in Garanzia":"Warranty Service","Intervento a Pagamento":"Paid Service","Tagliando":"Maintenance Service","Riparazione":"Repair","Diagnosi":"Diagnostics","Cantiere – Dal Cliente":"Jobsite – Customer Premises","In Officina":"Workshop","Difetto di Materiale":"Material Defect","Usura Normale":"Normal Wear","Danno da Operatore":"Operator Damage","Mancata Manutenzione":"Lack of Maintenance","Corpo Estraneo":"Foreign Object","Altro":"Other","Nessuno":"None","Tutto in ordine":"All OK","pz":"pcs","Foto della macchina":"Machine Photo","Targhetta identificativa":"Identification Plate","Targhetta cabina":"Cab Plate","Interno cabina":"Cab Interior","Contaore / ore di lavoro":"Hour Meter / Operating Hours","Posto di lavoro":"Work Area","Componente difettoso – Vista generale":"Faulty Component – General View","Componente difettoso – Dettaglio montato":"Faulty Component – Installed Detail","Componente difettoso – Dettaglio smontato":"Faulty Component – Removed Detail","Condizioni di lavoro difficili":"Difficult Working Conditions","Macchina dopo intervento":"Machine After Work","Parte riparata – Dettaglio":"Repaired Part – Detail","Posto di lavoro dopo intervento":"Work Area After Work","Nome Tecnico":"Technician Name","Giorno":"Day","Ora Partenza":"Departure Time","Arrivo Cantiere":"Jobsite Arrival","Km Andata":"Outbound Km","Inizio Lavoro":"Work Start","Fine Lavoro":"Work End","Ore Lavoro":"Work Hours","Part. Rientro":"Return Departure","Ora Rientro":"Return Time","Km Ritorno":"Return Km","Ore Guida":"Driving Hours","Codice...":"Code...","Descrizione...":"Description...","Didascalia...":"Caption...","Nome Cognome":"First and Last Name","Inserisci indirizzo, comune oppure coordinate GPS":"Enter address, town or GPS coordinates","Componente difettoso, sintomi, causa guasto...":"Faulty component, symptoms, failure cause...","es. Tutto in ordine":"e.g. All OK","es. Leva del gas":"e.g. Throttle lever","Descrivi il problema segnalato...":"Describe the reported problem...","Descrivi il lavoro eseguito...":"Describe the work performed...","Ordine e Cliente":"Order and Customer","Dati Macchina":"Machine Data","Dati Intervento":"Work Details","Cliente / Azienda":"Customer / Company","Indirizzo Cantiere":"Jobsite Address","Cliente Presente":"Customer Present","N° Cliente":"Customer No.","N° Serie":"Serial No.","Anno":"Year","Modello":"Model","Garanzia":"Warranty","Tipo Lavori":"Work Type","Luogo":"Location","Descrizione Difetto":"Fault Description","Causa Guasto":"Failure Cause","Componente":"Component","TECNICI":"TECHNICIANS","Collaudo":"Test","Esito":"Result","Ingrassato":"Greased","Fluidi":"Fluids","Percorso Cantiere / Route":"Jobsite Route","Distanza Stradale":"Road Distance","Tempo Stimato":"Estimated Time","NAVIGAZIONE GOOGLE MAPS:":"GOOGLE MAPS NAVIGATION:","Apri il percorso sul navigatore":"Open route in navigator","TOT. Ore Lavoro":"TOTAL Work Hours","TOT. Ore Guida":"TOTAL Driving Hours","TOT. Km Andata":"TOTAL Outbound Km","TOT. Km Ritorno":"TOTAL Return Km","Ricambi Utilizzati":"Parts Used","CODICE":"CODE","DESCRIZIONE":"DESCRIPTION","QTÀ":"QTY","U.M.":"UNIT","Firme / Signatures":"Signatures","TECNICO / TECHNICIAN":"TECHNICIAN","CLIENTE / CUSTOMER":"CUSTOMER","RAPPORTO DI INTERVENTO":"SERVICE REPORT","Pag.":"Page ","PERCORSO STRADALE":"ROAD ROUTE","© OpenStreetMap contributors · percorso OSRM":"© OpenStreetMap contributors · OSRM route","Immagini © Google · percorso OSRM":"Imagery © Google · OSRM route","Bozza salvata sul dispositivo":"Draft saved on device","Impossibile salvare la bozza":"Unable to save draft","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"Do you want to clear all data and start a new report?","Bozza precedente ripristinata":"Previous draft restored","Compila rapidamente i controlli finali.":"Quickly complete the final checks.","Completezza del rapporto":"Report completeness","campi essenziali":"required fields","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Some required fields are missing; you can complete them later.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"required fields are incomplete. Generate the PDF anyway?","Destinazione inserita. Premi “Calcola percorso”.":"Destination entered. Press “Calculate Route”.","Inserisci prima un indirizzo o delle coordinate.":"Enter an address or coordinates first.","Rilevamento della posizione GPS in corso...":"Detecting GPS location...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS is not available on this device. Enter the destination manually.","Calcolo del percorso stradale...":"Calculating road route...","Percorso calcolato":"Route calculated","Impossibile calcolare il percorso":"Unable to calculate route","Verifica la destinazione e riprova.":"Check the destination and try again.","Libreria PDF non ancora caricata.":"PDF library is not loaded yet.","Codice / Part Number":"Code / Part Number","Descrizione / Description":"Description","Qtà":"Qty","N°":"No.","Imposta tutti su Sì":"Set all to Yes","Usa primo tecnico":"Use first technician","Usa nome cliente":"Use customer name","Nessun errore":"No error","Collaudo OK":"Test OK","✓ Bozza ripristinata":"✓ Draft restored","Ore lavoro":"Work hours","Ore guida":"Driving hours","Km A/R":"Outbound/return km"},"fr":{"Rapporto di intervento":"Rapport d’intervention","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Rapport numérique","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Saisie guidée, enregistrement automatique du brouillon et génération du PDF final. Les données restent sur l’appareil utilisé.","Genera PDF":"Générer le PDF","💾 Salva bozza":"💾 Enregistrer le brouillon","＋ Nuovo report":"＋ Nouveau rapport","Bozza pronta":"Brouillon prêt","✓ Bozza salvata":"✓ Brouillon enregistré","Salvataggio…":"Enregistrement…","Modifiche da salvare…":"Modifications non enregistrées…","Salvataggio non riuscito":"Échec de l’enregistrement","📷 Foto e firme incluse":"📷 Photos et signatures incluses","📄 PDF professionale":"📄 PDF professionnel","Lingua del rapporto":"Langue du rapport","Fase":"Étape","di":"sur","Ordine":"Commande","Macchina":"Machine","Intervento":"Intervention","Foto":"Photos","Ricambi e Tempi":"Pièces et temps","Riepilogo":"Résumé","Dati Ordine e Cliente":"Données commande et client","Numero Attività":"N° d’intervention","Data Intervento":"Date d’intervention","Numero Cliente":"N° client","Nome Cliente":"Nom du client","Destinazione Cantiere":"Destination du chantier","Partenza fissa":"Départ fixe","📍 Usa posizione attuale":"📍 Utiliser la position actuelle","🧭 Calcola percorso":"🧭 Calculer l’itinéraire","Partenza":"Départ","Destinazione":"Destination","Distanza":"Distance","Tempo stimato":"Durée estimée","↗ Apri navigazione in Google Maps":"↗ Ouvrir la navigation dans Google Maps","Tipo Ordine":"Type de commande","Cliente presente in loco?":"Client présent sur place ?","Sì":"Oui","No":"Non","Avanti →":"Suivant →","← Indietro":"← Retour","← Modifica":"← Modifier","Riepilogo →":"Résumé →","Scarica PDF":"Télécharger le PDF","Dati Macchina / Machine Data":"Données machine","Costruttore":"Constructeur","Tipo":"Modèle","Numero di Serie":"Numéro de série","Anno di Fabbricazione":"Année de fabrication","Ore di Lavoro":"Heures de fonctionnement","Dati Intervento / Work Order Details":"Détails de l’intervention","Problema Segnalato":"Problème signalé","＋ Aggiungi Problema":"＋ Ajouter un problème","Codice Errore":"Code erreur","Caso di Garanzia?":"Cas de garantie ?","Tipo di Lavori":"Type de travaux","Luogo di Esecuzione":"Lieu d’exécution","Lavori Eseguiti":"Travaux effectués","＋ Aggiungi Lavoro Eseguito":"＋ Ajouter un travail effectué","Descrizione del Difetto":"Description du défaut","Causa del Guasto":"Cause de la panne","Componente Difettoso":"Composant défectueux","Tecnici Incaricati":"Techniciens affectés","＋ Aggiungi Tecnico":"＋ Ajouter un technicien","Collaudo Finale":"Essai final","Collaudo Eseguito?":"Essai effectué ?","Macchina Ingrassata?":"Machine graissée ?","Livelli Fluidi Verificati?":"Niveaux de fluides vérifiés ?","Esito Collaudo":"Résultat de l’essai","Documentazione Fotografica / Photo Documentation":"Documentation photographique","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Touchez un emplacement pour choisir une ou plusieurs photos. Touchez une photo pour l’afficher en plein écran.","💡 Tocca uno slot per scattare una foto oppure selezionare più immagini dal dispositivo. Clicca su una foto per vederla a schermo intero.":"💡 Touchez un emplacement pour prendre une photo ou sélectionner plusieurs images sur l’appareil. Touchez une photo pour l’afficher en plein écran.","Scatta Foto":"Prendre une photo","📁 Carica più Foto":"📁 Charger plusieurs photos","Carica dal Dispositivo":"Charger depuis l’appareil","Carica più Foto":"Charger plusieurs photos","Annulla":"Annuler","📷 Prima dell'Intervento / Before Work":"📷 Avant l’intervention","🔧 Componente Difettoso / Faulty Part":"🔧 Composant défectueux","✅ Dopo l'Intervento / After Work":"✅ Après l’intervention","Ricambi Utilizzati / Parts Used":"Pièces utilisées","+ Aggiungi riga":"+ Ajouter une ligne","Rilevazione Tempi":"Relevé des temps","＋ Aggiungi Giorno":"＋ Ajouter un jour","Firme":"Signatures","✍️ Firma del Tecnico":"✍️ Signature du technicien","Cancella":"Effacer","Mouse o dito":"Souris ou doigt","Nome tecnico:":"Nom du technicien :","✍️ Firma del Cliente":"✍️ Signature du client","Nome cliente / rappresentante:":"Nom du client / représentant :","Riepilogo Report / Report Summary":"Résumé du rapport","Seleziona...":"Sélectionner...","Intervento in Garanzia":"Intervention sous garantie","Intervento a Pagamento":"Intervention payante","Tagliando":"Entretien","Riparazione":"Réparation","Diagnosi":"Diagnostic","Cantiere – Dal Cliente":"Chantier – Chez le client","In Officina":"Atelier","Difetto di Materiale":"Défaut de matériau","Usura Normale":"Usure normale","Danno da Operatore":"Dommage opérateur","Mancata Manutenzione":"Manque d’entretien","Corpo Estraneo":"Corps étranger","Altro":"Autre","Nessuno":"Aucun","Tutto in ordine":"Tout est en ordre","pz":"pcs","Foto della macchina":"Photo de la machine","Foto aggiuntiva":"Photo supplémentaire","Targhetta identificativa":"Plaque d’identification","Targhetta cabina":"Plaque cabine","Interno cabina":"Intérieur cabine","Contaore / ore di lavoro":"Compteur horaire / heures","Posto di lavoro":"Zone de travail","Componente difettoso – Vista generale":"Composant défectueux – Vue générale","Componente difettoso – Dettaglio montato":"Composant défectueux – Détail monté","Componente difettoso – Dettaglio smontato":"Composant défectueux – Détail démonté","Condizioni di lavoro difficili":"Conditions de travail difficiles","Macchina dopo intervento":"Machine après intervention","Parte riparata – Dettaglio":"Pièce réparée – Détail","Posto di lavoro dopo intervento":"Zone de travail après intervention","Nome Tecnico":"Nom du technicien","Giorno":"Jour","Ora Partenza":"Heure de départ","Arrivo Cantiere":"Arrivée chantier","Km Andata":"Km aller","Inizio Lavoro":"Début du travail","Fine Lavoro":"Fin du travail","Ore Lavoro":"Heures de travail","Part. Rientro":"Départ retour","Ora Rientro":"Heure de retour","Km Ritorno":"Km retour","Ore Guida":"Heures de conduite","Codice...":"Code...","Descrizione...":"Description...","Didascalia...":"Légende...","Nome Cognome":"Nom et prénom","Inserisci indirizzo, comune oppure coordinate GPS":"Saisir une adresse, une ville ou des coordonnées GPS","Componente difettoso, sintomi, causa guasto...":"Composant défectueux, symptômes, cause de la panne...","es. Tutto in ordine":"ex. Tout est en ordre","es. Leva del gas":"ex. Levier d’accélérateur","Descrivi il problema segnalato...":"Décrire le problème signalé...","Descrivi il lavoro eseguito...":"Décrire le travail effectué...","Ordine e Cliente":"Commande et client","Dati Macchina":"Données machine","Dati Intervento":"Données intervention","Cliente / Azienda":"Client / Société","Indirizzo Cantiere":"Adresse du chantier","Cliente Presente":"Client présent","N° Cliente":"N° client","N° Serie":"N° série","Anno":"Année","Modello":"Modèle","Garanzia":"Garantie","Tipo Lavori":"Type de travaux","Luogo":"Lieu","Descrizione Difetto":"Description du défaut","Causa Guasto":"Cause de la panne","Componente":"Composant","TECNICI":"TECHNICIENS","Collaudo":"Essai","Esito":"Résultat","Ingrassato":"Graissé","Fluidi":"Fluides","Percorso Cantiere / Route":"Itinéraire chantier","Distanza Stradale":"Distance routière","Tempo Stimato":"Durée estimée","NAVIGAZIONE GOOGLE MAPS:":"NAVIGATION GOOGLE MAPS :","Apri il percorso sul navigatore":"Ouvrir l’itinéraire dans le navigateur","TOT. Ore Lavoro":"TOTAL heures de travail","TOT. Ore Guida":"TOTAL heures de conduite","TOT. Km Andata":"TOTAL km aller","TOT. Km Ritorno":"TOTAL km retour","Ricambi Utilizzati":"Pièces utilisées","CODICE":"CODE","DESCRIZIONE":"DESCRIPTION","QTÀ":"QTÉ","U.M.":"U.M.","Firme / Signatures":"Signatures","TECNICO / TECHNICIAN":"TECHNICIEN","CLIENTE / CUSTOMER":"CLIENT","RAPPORTO DI INTERVENTO":"RAPPORT D’INTERVENTION","Pag.":"Page ","PERCORSO STRADALE":"ITINÉRAIRE ROUTIER","© OpenStreetMap contributors · percorso OSRM":"© contributeurs OpenStreetMap · itinéraire OSRM","Immagini © Google · percorso OSRM":"Images © Google · itinéraire OSRM","Bozza salvata sul dispositivo":"Brouillon enregistré sur l’appareil","Impossibile salvare la bozza":"Impossible d’enregistrer le brouillon","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"Voulez-vous effacer toutes les données et commencer un nouveau rapport ?","Bozza precedente ripristinata":"Brouillon précédent restauré","Compila rapidamente i controlli finali.":"Complétez rapidement les contrôles finaux.","Completezza del rapporto":"Complétude du rapport","campi essenziali":"champs requis","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Certains champs requis sont manquants ; vous pourrez les compléter plus tard.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"champs requis ne sont pas remplis. Générer quand même le PDF ?","Destinazione inserita. Premi “Calcola percorso”.":"Destination saisie. Appuyez sur « Calculer l’itinéraire ».","Inserisci prima un indirizzo o delle coordinate.":"Saisissez d’abord une adresse ou des coordonnées.","Rilevamento della posizione GPS in corso...":"Détection de la position GPS...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS indisponible sur cet appareil. Saisissez la destination manuellement.","Calcolo del percorso stradale...":"Calcul de l’itinéraire routier...","Percorso calcolato":"Itinéraire calculé","Impossibile calcolare il percorso":"Impossible de calculer l’itinéraire","Verifica la destinazione e riprova.":"Vérifiez la destination et réessayez.","Libreria PDF non ancora caricata.":"La bibliothèque PDF n’est pas encore chargée.","Codice / Part Number":"Code / Référence","Descrizione / Description":"Description","Qtà":"Qté","N°":"N°","Imposta tutti su Sì":"Tout régler sur Oui","Usa primo tecnico":"Utiliser le premier technicien","Usa nome cliente":"Utiliser le nom du client","Nessun errore":"Aucune erreur","Collaudo OK":"Essai OK","✓ Bozza ripristinata":"✓ Brouillon restauré","Ore lavoro":"Heures de travail","Ore guida":"Heures de conduite","Km A/R":"Km aller/retour"},"de":{"Rapporto di intervento":"Servicebericht","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Digitaler Bericht","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Geführte Eingabe, automatische Entwurfsspeicherung und Erstellung des finalen PDFs. Die Daten bleiben auf dem verwendeten Gerät.","Genera PDF":"PDF erstellen","💾 Salva bozza":"💾 Entwurf speichern","＋ Nuovo report":"＋ Neuer Bericht","Bozza pronta":"Entwurf bereit","✓ Bozza salvata":"✓ Entwurf gespeichert","Salvataggio…":"Speichern…","Modifiche da salvare…":"Ungespeicherte Änderungen…","Salvataggio non riuscito":"Speichern fehlgeschlagen","📷 Foto e firme incluse":"📷 Fotos und Unterschriften enthalten","📄 PDF professionale":"📄 Professionelles PDF","Lingua del rapporto":"Berichtssprache","Fase":"Schritt","di":"von","Ordine":"Auftrag","Macchina":"Maschine","Intervento":"Einsatz","Foto":"Fotos","Ricambi e Tempi":"Teile und Zeiten","Riepilogo":"Übersicht","Dati Ordine e Cliente":"Auftrags- und Kundendaten","Numero Attività":"Auftragsnummer","Data Intervento":"Einsatzdatum","Numero Cliente":"Kundennummer","Nome Cliente":"Kundenname","Destinazione Cantiere":"Zielort Baustelle","Partenza fissa":"Fester Startpunkt","📍 Usa posizione attuale":"📍 Aktuellen Standort verwenden","🧭 Calcola percorso":"🧭 Route berechnen","Partenza":"Start","Destinazione":"Ziel","Distanza":"Entfernung","Tempo stimato":"Geschätzte Dauer","↗ Apri navigazione in Google Maps":"↗ Navigation in Google Maps öffnen","Tipo Ordine":"Auftragsart","Cliente presente in loco?":"Kunde vor Ort?","Sì":"Ja","No":"Nein","Avanti →":"Weiter →","← Indietro":"← Zurück","← Modifica":"← Bearbeiten","Riepilogo →":"Übersicht →","Scarica PDF":"PDF herunterladen","Dati Macchina / Machine Data":"Maschinendaten","Costruttore":"Hersteller","Tipo":"Modell","Numero di Serie":"Seriennummer","Anno di Fabbricazione":"Baujahr","Ore di Lavoro":"Betriebsstunden","Dati Intervento / Work Order Details":"Einsatzdaten","Problema Segnalato":"Gemeldetes Problem","＋ Aggiungi Problema":"＋ Problem hinzufügen","Codice Errore":"Fehlercode","Caso di Garanzia?":"Garantiefall?","Tipo di Lavori":"Arbeitsart","Luogo di Esecuzione":"Ausführungsort","Lavori Eseguiti":"Ausgeführte Arbeiten","＋ Aggiungi Lavoro Eseguito":"＋ Ausgeführte Arbeit hinzufügen","Descrizione del Difetto":"Fehlerbeschreibung","Causa del Guasto":"Ausfallursache","Componente Difettoso":"Defektes Bauteil","Tecnici Incaricati":"Beauftragte Techniker","＋ Aggiungi Tecnico":"＋ Techniker hinzufügen","Collaudo Finale":"Abschlussprüfung","Collaudo Eseguito?":"Prüfung durchgeführt?","Macchina Ingrassata?":"Maschine geschmiert?","Livelli Fluidi Verificati?":"Flüssigkeitsstände geprüft?","Esito Collaudo":"Prüfergebnis","Documentazione Fotografica / Photo Documentation":"Fotodokumentation","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Tippen Sie auf ein Feld, um ein Foto auszuwählen. Tippen Sie auf ein Foto für die Vollbildansicht.","Scatta Foto":"Foto aufnehmen","📁 Carica più Foto":"📁 Mehrere Fotos hochladen","Carica dal Dispositivo":"Vom Gerät hochladen","Carica più Foto":"Mehrere Fotos hochladen","Annulla":"Abbrechen","📷 Prima dell'Intervento / Before Work":"📷 Vor dem Einsatz","🔧 Componente Difettoso / Faulty Part":"🔧 Defektes Bauteil","✅ Dopo l'Intervento / After Work":"✅ Nach dem Einsatz","Ricambi Utilizzati / Parts Used":"Verwendete Ersatzteile","+ Aggiungi riga":"+ Zeile hinzufügen","Rilevazione Tempi":"Zeiterfassung","＋ Aggiungi Giorno":"＋ Tag hinzufügen","Firme":"Unterschriften","✍️ Firma del Tecnico":"✍️ Unterschrift Techniker","Cancella":"Löschen","Mouse o dito":"Maus oder Finger","Nome tecnico:":"Name des Technikers:","✍️ Firma del Cliente":"✍️ Unterschrift Kunde","Nome cliente / rappresentante:":"Name Kunde / Vertreter:","Riepilogo Report / Report Summary":"Berichtsübersicht","Seleziona...":"Auswählen...","Intervento in Garanzia":"Garantieeinsatz","Intervento a Pagamento":"Kostenpflichtiger Einsatz","Tagliando":"Wartung","Riparazione":"Reparatur","Diagnosi":"Diagnose","Cantiere – Dal Cliente":"Baustelle – Beim Kunden","In Officina":"Werkstatt","Difetto di Materiale":"Materialfehler","Usura Normale":"Normaler Verschleiß","Danno da Operatore":"Bedienerschaden","Mancata Manutenzione":"Fehlende Wartung","Corpo Estraneo":"Fremdkörper","Altro":"Sonstiges","Nessuno":"Keiner","Tutto in ordine":"Alles in Ordnung","pz":"Stk.","Foto della macchina":"Maschinenfoto","Foto aggiuntiva":"Zusätzliches Foto","Targhetta identificativa":"Typenschild","Targhetta cabina":"Kabinen-Typenschild","Interno cabina":"Kabineninnenraum","Contaore / ore di lavoro":"Betriebsstundenzähler","Posto di lavoro":"Arbeitsbereich","Componente difettoso – Vista generale":"Defektes Bauteil – Gesamtansicht","Componente difettoso – Dettaglio montato":"Defektes Bauteil – Eingebautes Detail","Componente difettoso – Dettaglio smontato":"Defektes Bauteil – Ausgebautes Detail","Condizioni di lavoro difficili":"Schwierige Arbeitsbedingungen","Macchina dopo intervento":"Maschine nach Einsatz","Parte riparata – Dettaglio":"Repariertes Teil – Detail","Posto di lavoro dopo intervento":"Arbeitsbereich nach Einsatz","Nome Tecnico":"Technikername","Giorno":"Tag","Ora Partenza":"Abfahrtszeit","Arrivo Cantiere":"Ankunft Baustelle","Km Andata":"Hinfahrt km","Inizio Lavoro":"Arbeitsbeginn","Fine Lavoro":"Arbeitsende","Ore Lavoro":"Arbeitsstunden","Part. Rientro":"Abfahrt Rückfahrt","Ora Rientro":"Rückkehrzeit","Km Ritorno":"Rückfahrt km","Ore Guida":"Fahrstunden","Codice...":"Code...","Descrizione...":"Beschreibung...","Didascalia...":"Bildunterschrift...","Nome Cognome":"Vor- und Nachname","Inserisci indirizzo, comune oppure coordinate GPS":"Adresse, Ort oder GPS-Koordinaten eingeben","Componente difettoso, sintomi, causa guasto...":"Defektes Bauteil, Symptome, Ausfallursache...","es. Tutto in ordine":"z. B. Alles in Ordnung","es. Leva del gas":"z. B. Gashebel","Descrivi il problema segnalato...":"Gemeldetes Problem beschreiben...","Descrivi il lavoro eseguito...":"Ausgeführte Arbeit beschreiben...","Ordine e Cliente":"Auftrag und Kunde","Dati Macchina":"Maschinendaten","Dati Intervento":"Einsatzdaten","Cliente / Azienda":"Kunde / Firma","Indirizzo Cantiere":"Baustellenadresse","Cliente Presente":"Kunde anwesend","N° Cliente":"Kunden-Nr.","N° Serie":"Serien-Nr.","Anno":"Jahr","Modello":"Modell","Garanzia":"Garantie","Tipo Lavori":"Arbeitsart","Luogo":"Ort","Descrizione Difetto":"Fehlerbeschreibung","Causa Guasto":"Ausfallursache","Componente":"Bauteil","TECNICI":"TECHNIKER","Collaudo":"Prüfung","Esito":"Ergebnis","Ingrassato":"Geschmiert","Fluidi":"Flüssigkeiten","Percorso Cantiere / Route":"Route zur Baustelle","Distanza Stradale":"Straßenentfernung","Tempo Stimato":"Geschätzte Dauer","NAVIGAZIONE GOOGLE MAPS:":"GOOGLE-MAPS-NAVIGATION:","Apri il percorso sul navigatore":"Route im Navigator öffnen","TOT. Ore Lavoro":"GESAMT Arbeitsstunden","TOT. Ore Guida":"GESAMT Fahrstunden","TOT. Km Andata":"GESAMT Hinfahrt km","TOT. Km Ritorno":"GESAMT Rückfahrt km","Ricambi Utilizzati":"Verwendete Ersatzteile","CODICE":"CODE","DESCRIZIONE":"BESCHREIBUNG","QTÀ":"MENGE","U.M.":"EINH.","Firme / Signatures":"Unterschriften","TECNICO / TECHNICIAN":"TECHNIKER","CLIENTE / CUSTOMER":"KUNDE","RAPPORTO DI INTERVENTO":"SERVICEBERICHT","Pag.":"Seite ","PERCORSO STRADALE":"STRASSENROUTE","© OpenStreetMap contributors · percorso OSRM":"© OpenStreetMap-Mitwirkende · OSRM-Route","Immagini © Google · percorso OSRM":"Bilder © Google · OSRM-Route","Bozza salvata sul dispositivo":"Entwurf auf dem Gerät gespeichert","Impossibile salvare la bozza":"Entwurf konnte nicht gespeichert werden","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"Möchten Sie alle Daten löschen und einen neuen Bericht beginnen?","Bozza precedente ripristinata":"Vorheriger Entwurf wiederhergestellt","Compila rapidamente i controlli finali.":"Abschlusskontrollen schnell ausfüllen.","Completezza del rapporto":"Vollständigkeit des Berichts","campi essenziali":"Pflichtfelder","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Einige Pflichtfelder fehlen; Sie können sie später ergänzen.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"Pflichtfelder sind nicht ausgefüllt. PDF trotzdem erstellen?","Destinazione inserita. Premi “Calcola percorso”.":"Ziel eingegeben. Drücken Sie „Route berechnen“.","Inserisci prima un indirizzo o delle coordinate.":"Geben Sie zuerst eine Adresse oder Koordinaten ein.","Rilevamento della posizione GPS in corso...":"GPS-Standort wird ermittelt...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS ist auf diesem Gerät nicht verfügbar. Geben Sie das Ziel manuell ein.","Calcolo del percorso stradale...":"Straßenroute wird berechnet...","Percorso calcolato":"Route berechnet","Impossibile calcolare il percorso":"Route konnte nicht berechnet werden","Verifica la destinazione e riprova.":"Prüfen Sie das Ziel und versuchen Sie es erneut.","Libreria PDF non ancora caricata.":"PDF-Bibliothek ist noch nicht geladen.","Codice / Part Number":"Code / Teilenummer","Descrizione / Description":"Beschreibung","Qtà":"Menge","N°":"Nr.","Imposta tutti su Sì":"Alle auf Ja setzen","Usa primo tecnico":"Ersten Techniker verwenden","Usa nome cliente":"Kundennamen verwenden","Nessun errore":"Kein Fehler","Collaudo OK":"Prüfung OK","✓ Bozza ripristinata":"✓ Entwurf wiederhergestellt","Ore lavoro":"Arbeitsstunden","Ore guida":"Fahrstunden","Km A/R":"Km Hin-/Rückfahrt"},"es":{"Rapporto di intervento":"Informe de intervención","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Informe digital","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Cumplimentación guiada, guardado automático del borrador y generación del PDF final. Los datos permanecen en el dispositivo utilizado.","Genera PDF":"Generar PDF","💾 Salva bozza":"💾 Guardar borrador","＋ Nuovo report":"＋ Nuevo informe","Bozza pronta":"Borrador listo","✓ Bozza salvata":"✓ Borrador guardado","Salvataggio…":"Guardando…","Modifiche da salvare…":"Cambios sin guardar…","Salvataggio non riuscito":"Error al guardar","📷 Foto e firme incluse":"📷 Fotos y firmas incluidas","📄 PDF professionale":"📄 PDF profesional","Lingua del rapporto":"Idioma del informe","Fase":"Paso","di":"de","Ordine":"Orden","Macchina":"Máquina","Intervento":"Intervención","Foto":"Fotos","Ricambi e Tempi":"Repuestos y tiempos","Riepilogo":"Resumen","Dati Ordine e Cliente":"Datos de orden y cliente","Numero Attività":"Número de actividad","Data Intervento":"Fecha de intervención","Numero Cliente":"Número de cliente","Nome Cliente":"Nombre del cliente","Destinazione Cantiere":"Destino de obra","Partenza fissa":"Salida fija","📍 Usa posizione attuale":"📍 Usar ubicación actual","🧭 Calcola percorso":"🧭 Calcular ruta","Partenza":"Salida","Destinazione":"Destino","Distanza":"Distancia","Tempo stimato":"Tiempo estimado","↗ Apri navigazione in Google Maps":"↗ Abrir navegación en Google Maps","Tipo Ordine":"Tipo de orden","Cliente presente in loco?":"¿Cliente presente en el lugar?","Sì":"Sí","No":"No","Avanti →":"Siguiente →","← Indietro":"← Atrás","← Modifica":"← Editar","Riepilogo →":"Resumen →","Scarica PDF":"Descargar PDF","Dati Macchina / Machine Data":"Datos de la máquina","Costruttore":"Fabricante","Tipo":"Modelo","Numero di Serie":"Número de serie","Anno di Fabbricazione":"Año de fabricación","Ore di Lavoro":"Horas de trabajo","Dati Intervento / Work Order Details":"Datos de la intervención","Problema Segnalato":"Problema indicado","＋ Aggiungi Problema":"＋ Añadir problema","Codice Errore":"Código de error","Caso di Garanzia?":"¿Caso de garantía?","Tipo di Lavori":"Tipo de trabajo","Luogo di Esecuzione":"Lugar de ejecución","Lavori Eseguiti":"Trabajos realizados","＋ Aggiungi Lavoro Eseguito":"＋ Añadir trabajo realizado","Descrizione del Difetto":"Descripción del defecto","Causa del Guasto":"Causa de la avería","Componente Difettoso":"Componente defectuoso","Tecnici Incaricati":"Técnicos asignados","＋ Aggiungi Tecnico":"＋ Añadir técnico","Collaudo Finale":"Prueba final","Collaudo Eseguito?":"¿Prueba realizada?","Macchina Ingrassata?":"¿Máquina engrasada?","Livelli Fluidi Verificati?":"¿Niveles de fluidos verificados?","Esito Collaudo":"Resultado de la prueba","Documentazione Fotografica / Photo Documentation":"Documentación fotográfica","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Toca un espacio para elegir una o varias fotos. Toca una foto para verla a pantalla completa.","💡 Tocca uno slot per scattare una foto oppure selezionare più immagini dal dispositivo. Clicca su una foto per vederla a schermo intero.":"💡 Toca un espacio para tomar una foto o seleccionar varias imágenes del dispositivo. Toca una foto para verla a pantalla completa.","Scatta Foto":"Tomar foto","📁 Carica più Foto":"📁 Cargar varias fotos","Carica dal Dispositivo":"Cargar desde el dispositivo","Carica più Foto":"Cargar varias fotos","Annulla":"Cancelar","📷 Prima dell'Intervento / Before Work":"📷 Antes de la intervención","🔧 Componente Difettoso / Faulty Part":"🔧 Componente defectuoso","✅ Dopo l'Intervento / After Work":"✅ Después de la intervención","Ricambi Utilizzati / Parts Used":"Repuestos utilizados","+ Aggiungi riga":"+ Añadir fila","Rilevazione Tempi":"Registro de tiempos","＋ Aggiungi Giorno":"＋ Añadir día","Firme":"Firmas","✍️ Firma del Tecnico":"✍️ Firma del técnico","Cancella":"Borrar","Mouse o dito":"Ratón o dedo","Nome tecnico:":"Nombre del técnico:","✍️ Firma del Cliente":"✍️ Firma del cliente","Nome cliente / rappresentante:":"Nombre del cliente / representante:","Riepilogo Report / Report Summary":"Resumen del informe","Seleziona...":"Seleccionar...","Intervento in Garanzia":"Intervención en garantía","Intervento a Pagamento":"Intervención de pago","Tagliando":"Mantenimiento","Riparazione":"Reparación","Diagnosi":"Diagnóstico","Cantiere – Dal Cliente":"Obra – En el cliente","In Officina":"Taller","Difetto di Materiale":"Defecto de material","Usura Normale":"Desgaste normal","Danno da Operatore":"Daño del operador","Mancata Manutenzione":"Falta de mantenimiento","Corpo Estraneo":"Cuerpo extraño","Altro":"Otro","Nessuno":"Ninguno","Tutto in ordine":"Todo en orden","pz":"uds.","Foto della macchina":"Foto de la máquina","Foto aggiuntiva":"Foto adicional","Targhetta identificativa":"Placa de identificación","Targhetta cabina":"Placa de cabina","Interno cabina":"Interior de cabina","Contaore / ore di lavoro":"Horómetro / horas de trabajo","Posto di lavoro":"Zona de trabajo","Componente difettoso – Vista generale":"Componente defectuoso – Vista general","Componente difettoso – Dettaglio montato":"Componente defectuoso – Detalle montado","Componente difettoso – Dettaglio smontato":"Componente defectuoso – Detalle desmontado","Condizioni di lavoro difficili":"Condiciones de trabajo difíciles","Macchina dopo intervento":"Máquina después de la intervención","Parte riparata – Dettaglio":"Pieza reparada – Detalle","Posto di lavoro dopo intervento":"Zona de trabajo después de la intervención","Nome Tecnico":"Nombre del técnico","Giorno":"Día","Ora Partenza":"Hora de salida","Arrivo Cantiere":"Llegada a obra","Km Andata":"Km ida","Inizio Lavoro":"Inicio del trabajo","Fine Lavoro":"Fin del trabajo","Ore Lavoro":"Horas de trabajo","Part. Rientro":"Salida de regreso","Ora Rientro":"Hora de regreso","Km Ritorno":"Km vuelta","Ore Guida":"Horas de conducción","Codice...":"Código...","Descrizione...":"Descripción...","Didascalia...":"Leyenda...","Nome Cognome":"Nombre y apellidos","Inserisci indirizzo, comune oppure coordinate GPS":"Introduce dirección, municipio o coordenadas GPS","Componente difettoso, sintomi, causa guasto...":"Componente defectuoso, síntomas, causa de avería...","es. Tutto in ordine":"ej. Todo en orden","es. Leva del gas":"ej. Palanca del acelerador","Descrivi il problema segnalato...":"Describe el problema indicado...","Descrivi il lavoro eseguito...":"Describe el trabajo realizado...","Ordine e Cliente":"Orden y cliente","Dati Macchina":"Datos de la máquina","Dati Intervento":"Datos de intervención","Cliente / Azienda":"Cliente / Empresa","Indirizzo Cantiere":"Dirección de obra","Cliente Presente":"Cliente presente","N° Cliente":"N.º cliente","N° Serie":"N.º serie","Anno":"Año","Modello":"Modelo","Garanzia":"Garantía","Tipo Lavori":"Tipo de trabajo","Luogo":"Lugar","Descrizione Difetto":"Descripción del defecto","Causa Guasto":"Causa de avería","Componente":"Componente","TECNICI":"TÉCNICOS","Collaudo":"Prueba","Esito":"Resultado","Ingrassato":"Engrasada","Fluidi":"Fluidos","Percorso Cantiere / Route":"Ruta a la obra","Distanza Stradale":"Distancia por carretera","Tempo Stimato":"Tiempo estimado","NAVIGAZIONE GOOGLE MAPS:":"NAVEGACIÓN GOOGLE MAPS:","Apri il percorso sul navigatore":"Abrir la ruta en el navegador","TOT. Ore Lavoro":"TOTAL horas de trabajo","TOT. Ore Guida":"TOTAL horas de conducción","TOT. Km Andata":"TOTAL km ida","TOT. Km Ritorno":"TOTAL km vuelta","Ricambi Utilizzati":"Repuestos utilizados","CODICE":"CÓDIGO","DESCRIZIONE":"DESCRIPCIÓN","QTÀ":"CANT.","U.M.":"U.M.","Firme / Signatures":"Firmas","TECNICO / TECHNICIAN":"TÉCNICO","CLIENTE / CUSTOMER":"CLIENTE","RAPPORTO DI INTERVENTO":"INFORME DE INTERVENCIÓN","Pag.":"Pág. ","PERCORSO STRADALE":"RUTA POR CARRETERA","© OpenStreetMap contributors · percorso OSRM":"© colaboradores de OpenStreetMap · ruta OSRM","Immagini © Google · percorso OSRM":"Imágenes © Google · ruta OSRM","Bozza salvata sul dispositivo":"Borrador guardado en el dispositivo","Impossibile salvare la bozza":"No se pudo guardar el borrador","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"¿Quieres borrar todos los datos e iniciar un nuevo informe?","Bozza precedente ripristinata":"Borrador anterior restaurado","Compila rapidamente i controlli finali.":"Completa rápidamente los controles finales.","Completezza del rapporto":"Integridad del informe","campi essenziali":"campos obligatorios","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Faltan algunos campos obligatorios; podrás completarlos después.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"campos obligatorios no están completos. ¿Generar el PDF de todos modos?","Destinazione inserita. Premi “Calcola percorso”.":"Destino introducido. Pulsa «Calcular ruta».","Inserisci prima un indirizzo o delle coordinate.":"Introduce primero una dirección o coordenadas.","Rilevamento della posizione GPS in corso...":"Detectando la ubicación GPS...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS no disponible en este dispositivo. Introduce el destino manualmente.","Calcolo del percorso stradale...":"Calculando la ruta por carretera...","Percorso calcolato":"Ruta calculada","Impossibile calcolare il percorso":"No se pudo calcular la ruta","Verifica la destinazione e riprova.":"Comprueba el destino e inténtalo de nuevo.","Libreria PDF non ancora caricata.":"La biblioteca PDF todavía no está cargada.","Codice / Part Number":"Código / Referencia","Descrizione / Description":"Descripción","Qtà":"Cant.","N°":"N.º","Imposta tutti su Sì":"Establecer todo en Sí","Usa primo tecnico":"Usar primer técnico","Usa nome cliente":"Usar nombre del cliente","Nessun errore":"Sin errores","Collaudo OK":"Prueba OK","✓ Bozza ripristinata":"✓ Borrador restaurado","Ore lavoro":"Horas de trabajo","Ore guida":"Horas de conducción","Km A/R":"Km ida/vuelta"}};
+const I18N={"en":{"Rapporto di intervento":"Service report","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Digital report","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Guided completion, automatic draft saving and final PDF generation. Data remains on the device used.","Genera PDF":"Generate PDF","💾 Salva bozza":"💾 Save draft","＋ Nuovo report":"＋ New report","Bozza pronta":"Draft ready","✓ Bozza salvata":"✓ Draft saved","Salvataggio…":"Saving…","Modifiche da salvare…":"Unsaved changes…","Salvataggio non riuscito":"Save failed","📷 Foto e firme incluse":"📷 Photos and signatures included","📄 PDF professionale":"📄 Professional PDF","Lingua del rapporto":"Report language","Fase":"Step","di":"of","Ordine":"Order","Macchina":"Machine","Intervento":"Work","Foto":"Photos","Ricambi e Tempi":"Parts and Time","Riepilogo":"Summary","Dati Ordine e Cliente":"Order and Customer Data","Numero Attività":"Work Order Number","Data Intervento":"Service Date","Numero Cliente":"Customer Number","Nome Cliente":"Customer Name","Destinazione Cantiere":"Jobsite Destination","Partenza fissa":"Fixed Departure","📍 Usa posizione attuale":"📍 Use Current Location","🧭 Calcola percorso":"🧭 Calculate Route","Partenza":"Departure","Destinazione":"Destination","Distanza":"Distance","Tempo stimato":"Estimated Time","↗ Apri navigazione in Google Maps":"↗ Open Navigation in Google Maps","Tipo Ordine":"Order Type","Cliente presente in loco?":"Customer Present On Site?","Sì":"Yes","No":"No","Avanti →":"Next →","← Indietro":"← Back","← Modifica":"← Edit","Riepilogo →":"Summary →","Scarica PDF":"Download PDF","Dati Macchina / Machine Data":"Machine Data","Costruttore":"Manufacturer","Tipo":"Model","Numero di Serie":"Serial Number","Anno di Fabbricazione":"Year of Manufacture","Ore di Lavoro":"Operating Hours","Dati Intervento / Work Order Details":"Work Order Details","Problema Segnalato":"Reported Problem","＋ Aggiungi Problema":"＋ Add Problem","Codice Errore":"Error Code","Caso di Garanzia?":"Warranty Case?","Tipo di Lavori":"Work Type","Luogo di Esecuzione":"Work Location","Lavori Eseguiti":"Work Performed","＋ Aggiungi Lavoro Eseguito":"＋ Add Work Performed","Descrizione del Difetto":"Fault Description","Causa del Guasto":"Failure Cause","Componente Difettoso":"Faulty Component","Tecnici Incaricati":"Assigned Technicians","＋ Aggiungi Tecnico":"＋ Add Technician","Collaudo Finale":"Final Test","Collaudo Eseguito?":"Test Performed?","Macchina Ingrassata?":"Machine Greased?","Livelli Fluidi Verificati?":"Fluid Levels Checked?","Esito Collaudo":"Test Result","Documentazione Fotografica / Photo Documentation":"Photo Documentation","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Tap a slot to choose one or multiple photos. Tap a photo to view it full screen.","💡 Tocca uno slot per scattare una foto oppure selezionare più immagini dal dispositivo. Clicca su una foto per vederla a schermo intero.":"💡 Tap a slot to take a photo or select multiple images from the device. Tap a photo to view it full screen.","Scatta Foto":"Take Photo","📁 Carica più Foto":"📁 Upload Multiple Photos","Carica dal Dispositivo":"Upload from Device","Carica più Foto":"Upload Multiple Photos","Annulla":"Cancel","📷 Prima dell'Intervento / Before Work":"📷 Before Work","🔧 Componente Difettoso / Faulty Part":"🔧 Faulty Component","✅ Dopo l'Intervento / After Work":"✅ After Work","Ricambi Utilizzati / Parts Used":"Parts Used","+ Aggiungi riga":"+ Add Row","Rilevazione Tempi":"Time Tracking","＋ Aggiungi Giorno":"＋ Add Day","Firme":"Signatures","✍️ Firma del Tecnico":"✍️ Technician Signature","Cancella":"Clear","Mouse o dito":"Mouse or finger","Nome tecnico:":"Technician name:","✍️ Firma del Cliente":"✍️ Customer Signature","Nome cliente / rappresentante:":"Customer / representative name:","Riepilogo Report / Report Summary":"Report Summary","Seleziona...":"Select...","Intervento in Garanzia":"Warranty Service","Intervento a Pagamento":"Paid Service","Tagliando":"Maintenance Service","Riparazione":"Repair","Diagnosi":"Diagnostics","Cantiere – Dal Cliente":"Jobsite – Customer Premises","In Officina":"Workshop","Difetto di Materiale":"Material Defect","Usura Normale":"Normal Wear","Danno da Operatore":"Operator Damage","Mancata Manutenzione":"Lack of Maintenance","Corpo Estraneo":"Foreign Object","Altro":"Other","Nessuno":"None","Tutto in ordine":"All OK","pz":"pcs","Foto della macchina":"Machine Photo","Targhetta identificativa":"Identification Plate","Targhetta cabina":"Cab Plate","Interno cabina":"Cab Interior","Contaore / ore di lavoro":"Hour Meter / Operating Hours","Posto di lavoro":"Work Area","Componente difettoso – Vista generale":"Faulty Component – General View","Componente difettoso – Dettaglio montato":"Faulty Component – Installed Detail","Componente difettoso – Dettaglio smontato":"Faulty Component – Removed Detail","Condizioni di lavoro difficili":"Difficult Working Conditions","Macchina dopo intervento":"Machine After Work","Parte riparata – Dettaglio":"Repaired Part – Detail","Posto di lavoro dopo intervento":"Work Area After Work","Nome Tecnico":"Technician Name","Giorno":"Day","Ora Partenza":"Departure Time","Arrivo Cantiere":"Jobsite Arrival","Km Andata":"Outbound Km","Inizio Lavoro":"Work Start","Fine Lavoro":"Work End","Ore Lavoro":"Work Hours","Part. Rientro":"Return Departure","Ora Rientro":"Return Time","Km Ritorno":"Return Km","Ore Guida":"Driving Hours","Codice...":"Code...","Descrizione...":"Description...","Didascalia...":"Caption...","Nome Cognome":"First and Last Name","Inserisci indirizzo, comune oppure coordinate GPS":"Enter address, town or GPS coordinates","Componente difettoso, sintomi, causa guasto...":"Faulty component, symptoms, failure cause...","es. Tutto in ordine":"e.g. All OK","es. Leva del gas":"e.g. Throttle lever","Descrivi il problema segnalato...":"Describe the reported problem...","Descrivi il lavoro eseguito...":"Describe the work performed...","Ordine e Cliente":"Order and Customer","Dati Macchina":"Machine Data","Dati Intervento":"Work Details","Cliente / Azienda":"Customer / Company","Indirizzo Cantiere":"Jobsite Address","Cliente Presente":"Customer Present","N° Cliente":"Customer No.","N° Serie":"Serial No.","Anno":"Year","Modello":"Model","Garanzia":"Warranty","Tipo Lavori":"Work Type","Luogo":"Location","Descrizione Difetto":"Fault Description","Causa Guasto":"Failure Cause","Componente":"Component","TECNICI":"TECHNICIANS","Collaudo":"Test","Esito":"Result","Ingrassato":"Greased","Fluidi":"Fluids","Percorso Cantiere / Route":"Jobsite Route","Distanza Stradale":"Road Distance","Tempo Stimato":"Estimated Time","NAVIGAZIONE GOOGLE MAPS:":"GOOGLE MAPS NAVIGATION:","Apri il percorso sul navigatore":"Open route in navigator","TOT. Ore Lavoro":"TOTAL Work Hours","TOT. Ore Guida":"TOTAL Driving Hours","TOT. Km Andata":"TOTAL Outbound Km","TOT. Km Ritorno":"TOTAL Return Km","Ricambi Utilizzati":"Parts Used","CODICE":"CODE","DESCRIZIONE":"DESCRIPTION","QTÀ":"QTY","U.M.":"UNIT","Firme / Signatures":"Signatures","TECNICO / TECHNICIAN":"TECHNICIAN","CLIENTE / CUSTOMER":"CUSTOMER","RAPPORTO DI INTERVENTO":"SERVICE REPORT","Pag.":"Page ","PERCORSO STRADALE":"ROAD ROUTE","© OpenStreetMap contributors · percorso OSRM":"© OpenStreetMap contributors · OSRM route","Immagini © Google · percorso OSRM":"Imagery © Google · OSRM route","Bozza salvata sul dispositivo":"Draft saved on device","Impossibile salvare la bozza":"Unable to save draft","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"Do you want to clear all data and start a new report?","Bozza precedente ripristinata":"Previous draft restored","Compila rapidamente i controlli finali.":"Quickly complete the final checks.","Completezza del rapporto":"Report completeness","campi essenziali":"required fields","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Some required fields are missing; you can complete them later.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"required fields are incomplete. Generate the PDF anyway?","Destinazione inserita. Premi “Calcola percorso”.":"Destination entered. Press “Calculate Route”.","Inserisci prima un indirizzo o delle coordinate.":"Enter an address or coordinates first.","Rilevamento della posizione GPS in corso...":"Detecting GPS location...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS is not available on this device. Enter the destination manually.","Calcolo del percorso stradale...":"Calculating road route...","Percorso calcolato":"Route calculated","Impossibile calcolare il percorso":"Unable to calculate route","Verifica la destinazione e riprova.":"Check the destination and try again.","Libreria PDF non ancora caricata.":"PDF library is not loaded yet.","Codice / Part Number":"Code / Part Number","Descrizione / Description":"Description","Qtà":"Qty","N°":"No.","Imposta tutti su Sì":"Set all to Yes","Usa primo tecnico":"Use first technician","Usa nome cliente":"Use customer name","Nessun errore":"No error","Collaudo OK":"Test OK","✓ Bozza ripristinata":"✓ Draft restored","Ore lavoro":"Work hours","Ore guida":"Driving hours","Km A/R":"Outbound/return km","Posizione attuale (GPS)":"Current location (GPS)","Inserimento manuale":"Manual entry","Posizione attuale":"Current location","Inserisci l'indirizzo di partenza manuale.":"Enter the manual departure address first.","Indirizzo, città oppure coordinate GPS di partenza":"Departure address, city or GPS coordinates","Tappa aggiuntiva: indirizzo, città oppure coordinate GPS":"Additional stop: address, city or GPS coordinates","➕ Aggiungi tappa":"➕ Add Stop","Rimuovi tappa":"Remove stop","Tappa":"Stop","tappe":"stops","Da dove parti?":"Where are you departing from?","Arrivo":"Arrival","Sede":"HQ","GPS attuale":"Current GPS","Manuale":"Manual","La posizione GPS verrà rilevata quando premi «Calcola percorso».":"Your GPS location will be detected when you press “Calculate Route”."},"fr":{"Rapporto di intervento":"Rapport d’intervention","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Rapport numérique","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Saisie guidée, enregistrement automatique du brouillon et génération du PDF final. Les données restent sur l’appareil utilisé.","Genera PDF":"Générer le PDF","💾 Salva bozza":"💾 Enregistrer le brouillon","＋ Nuovo report":"＋ Nouveau rapport","Bozza pronta":"Brouillon prêt","✓ Bozza salvata":"✓ Brouillon enregistré","Salvataggio…":"Enregistrement…","Modifiche da salvare…":"Modifications non enregistrées…","Salvataggio non riuscito":"Échec de l’enregistrement","📷 Foto e firme incluse":"📷 Photos et signatures incluses","📄 PDF professionale":"📄 PDF professionnel","Lingua del rapporto":"Langue du rapport","Fase":"Étape","di":"sur","Ordine":"Commande","Macchina":"Machine","Intervento":"Intervention","Foto":"Photos","Ricambi e Tempi":"Pièces et temps","Riepilogo":"Résumé","Dati Ordine e Cliente":"Données commande et client","Numero Attività":"N° d’intervention","Data Intervento":"Date d’intervention","Numero Cliente":"N° client","Nome Cliente":"Nom du client","Destinazione Cantiere":"Destination du chantier","Partenza fissa":"Départ fixe","📍 Usa posizione attuale":"📍 Utiliser la position actuelle","🧭 Calcola percorso":"🧭 Calculer l’itinéraire","Partenza":"Départ","Destinazione":"Destination","Distanza":"Distance","Tempo stimato":"Durée estimée","↗ Apri navigazione in Google Maps":"↗ Ouvrir la navigation dans Google Maps","Tipo Ordine":"Type de commande","Cliente presente in loco?":"Client présent sur place ?","Sì":"Oui","No":"Non","Avanti →":"Suivant →","← Indietro":"← Retour","← Modifica":"← Modifier","Riepilogo →":"Résumé →","Scarica PDF":"Télécharger le PDF","Dati Macchina / Machine Data":"Données machine","Costruttore":"Constructeur","Tipo":"Modèle","Numero di Serie":"Numéro de série","Anno di Fabbricazione":"Année de fabrication","Ore di Lavoro":"Heures de fonctionnement","Dati Intervento / Work Order Details":"Détails de l’intervention","Problema Segnalato":"Problème signalé","＋ Aggiungi Problema":"＋ Ajouter un problème","Codice Errore":"Code erreur","Caso di Garanzia?":"Cas de garantie ?","Tipo di Lavori":"Type de travaux","Luogo di Esecuzione":"Lieu d’exécution","Lavori Eseguiti":"Travaux effectués","＋ Aggiungi Lavoro Eseguito":"＋ Ajouter un travail effectué","Descrizione del Difetto":"Description du défaut","Causa del Guasto":"Cause de la panne","Componente Difettoso":"Composant défectueux","Tecnici Incaricati":"Techniciens affectés","＋ Aggiungi Tecnico":"＋ Ajouter un technicien","Collaudo Finale":"Essai final","Collaudo Eseguito?":"Essai effectué ?","Macchina Ingrassata?":"Machine graissée ?","Livelli Fluidi Verificati?":"Niveaux de fluides vérifiés ?","Esito Collaudo":"Résultat de l’essai","Documentazione Fotografica / Photo Documentation":"Documentation photographique","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Touchez un emplacement pour choisir une ou plusieurs photos. Touchez une photo pour l’afficher en plein écran.","💡 Tocca uno slot per scattare una foto oppure selezionare più immagini dal dispositivo. Clicca su una foto per vederla a schermo intero.":"💡 Touchez un emplacement pour prendre une photo ou sélectionner plusieurs images sur l’appareil. Touchez une photo pour l’afficher en plein écran.","Scatta Foto":"Prendre une photo","📁 Carica più Foto":"📁 Charger plusieurs photos","Carica dal Dispositivo":"Charger depuis l’appareil","Carica più Foto":"Charger plusieurs photos","Annulla":"Annuler","📷 Prima dell'Intervento / Before Work":"📷 Avant l’intervention","🔧 Componente Difettoso / Faulty Part":"🔧 Composant défectueux","✅ Dopo l'Intervento / After Work":"✅ Après l’intervention","Ricambi Utilizzati / Parts Used":"Pièces utilisées","+ Aggiungi riga":"+ Ajouter une ligne","Rilevazione Tempi":"Relevé des temps","＋ Aggiungi Giorno":"＋ Ajouter un jour","Firme":"Signatures","✍️ Firma del Tecnico":"✍️ Signature du technicien","Cancella":"Effacer","Mouse o dito":"Souris ou doigt","Nome tecnico:":"Nom du technicien :","✍️ Firma del Cliente":"✍️ Signature du client","Nome cliente / rappresentante:":"Nom du client / représentant :","Riepilogo Report / Report Summary":"Résumé du rapport","Seleziona...":"Sélectionner...","Intervento in Garanzia":"Intervention sous garantie","Intervento a Pagamento":"Intervention payante","Tagliando":"Entretien","Riparazione":"Réparation","Diagnosi":"Diagnostic","Cantiere – Dal Cliente":"Chantier – Chez le client","In Officina":"Atelier","Difetto di Materiale":"Défaut de matériau","Usura Normale":"Usure normale","Danno da Operatore":"Dommage opérateur","Mancata Manutenzione":"Manque d’entretien","Corpo Estraneo":"Corps étranger","Altro":"Autre","Nessuno":"Aucun","Tutto in ordine":"Tout est en ordre","pz":"pcs","Foto della macchina":"Photo de la machine","Foto aggiuntiva":"Photo supplémentaire","Targhetta identificativa":"Plaque d’identification","Targhetta cabina":"Plaque cabine","Interno cabina":"Intérieur cabine","Contaore / ore di lavoro":"Compteur horaire / heures","Posto di lavoro":"Zone de travail","Componente difettoso – Vista generale":"Composant défectueux – Vue générale","Componente difettoso – Dettaglio montato":"Composant défectueux – Détail monté","Componente difettoso – Dettaglio smontato":"Composant défectueux – Détail démonté","Condizioni di lavoro difficili":"Conditions de travail difficiles","Macchina dopo intervento":"Machine après intervention","Parte riparata – Dettaglio":"Pièce réparée – Détail","Posto di lavoro dopo intervento":"Zone de travail après intervention","Nome Tecnico":"Nom du technicien","Giorno":"Jour","Ora Partenza":"Heure de départ","Arrivo Cantiere":"Arrivée chantier","Km Andata":"Km aller","Inizio Lavoro":"Début du travail","Fine Lavoro":"Fin du travail","Ore Lavoro":"Heures de travail","Part. Rientro":"Départ retour","Ora Rientro":"Heure de retour","Km Ritorno":"Km retour","Ore Guida":"Heures de conduite","Codice...":"Code...","Descrizione...":"Description...","Didascalia...":"Légende...","Nome Cognome":"Nom et prénom","Inserisci indirizzo, comune oppure coordinate GPS":"Saisir une adresse, une ville ou des coordonnées GPS","Componente difettoso, sintomi, causa guasto...":"Composant défectueux, symptômes, cause de la panne...","es. Tutto in ordine":"ex. Tout est en ordre","es. Leva del gas":"ex. Levier d’accélérateur","Descrivi il problema segnalato...":"Décrire le problème signalé...","Descrivi il lavoro eseguito...":"Décrire le travail effectué...","Ordine e Cliente":"Commande et client","Dati Macchina":"Données machine","Dati Intervento":"Données intervention","Cliente / Azienda":"Client / Société","Indirizzo Cantiere":"Adresse du chantier","Cliente Presente":"Client présent","N° Cliente":"N° client","N° Serie":"N° série","Anno":"Année","Modello":"Modèle","Garanzia":"Garantie","Tipo Lavori":"Type de travaux","Luogo":"Lieu","Descrizione Difetto":"Description du défaut","Causa Guasto":"Cause de la panne","Componente":"Composant","TECNICI":"TECHNICIENS","Collaudo":"Essai","Esito":"Résultat","Ingrassato":"Graissé","Fluidi":"Fluides","Percorso Cantiere / Route":"Itinéraire chantier","Distanza Stradale":"Distance routière","Tempo Stimato":"Durée estimée","NAVIGAZIONE GOOGLE MAPS:":"NAVIGATION GOOGLE MAPS :","Apri il percorso sul navigatore":"Ouvrir l’itinéraire dans le navigateur","TOT. Ore Lavoro":"TOTAL heures de travail","TOT. Ore Guida":"TOTAL heures de conduite","TOT. Km Andata":"TOTAL km aller","TOT. Km Ritorno":"TOTAL km retour","Ricambi Utilizzati":"Pièces utilisées","CODICE":"CODE","DESCRIZIONE":"DESCRIPTION","QTÀ":"QTÉ","U.M.":"U.M.","Firme / Signatures":"Signatures","TECNICO / TECHNICIAN":"TECHNICIEN","CLIENTE / CUSTOMER":"CLIENT","RAPPORTO DI INTERVENTO":"RAPPORT D’INTERVENTION","Pag.":"Page ","PERCORSO STRADALE":"ITINÉRAIRE ROUTIER","© OpenStreetMap contributors · percorso OSRM":"© contributeurs OpenStreetMap · itinéraire OSRM","Immagini © Google · percorso OSRM":"Images © Google · itinéraire OSRM","Bozza salvata sul dispositivo":"Brouillon enregistré sur l’appareil","Impossibile salvare la bozza":"Impossible d’enregistrer le brouillon","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"Voulez-vous effacer toutes les données et commencer un nouveau rapport ?","Bozza precedente ripristinata":"Brouillon précédent restauré","Compila rapidamente i controlli finali.":"Complétez rapidement les contrôles finaux.","Completezza del rapporto":"Complétude du rapport","campi essenziali":"champs requis","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Certains champs requis sont manquants ; vous pourrez les compléter plus tard.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"champs requis ne sont pas remplis. Générer quand même le PDF ?","Destinazione inserita. Premi “Calcola percorso”.":"Destination saisie. Appuyez sur « Calculer l’itinéraire ».","Inserisci prima un indirizzo o delle coordinate.":"Saisissez d’abord une adresse ou des coordonnées.","Rilevamento della posizione GPS in corso...":"Détection de la position GPS...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS indisponible sur cet appareil. Saisissez la destination manuellement.","Calcolo del percorso stradale...":"Calcul de l’itinéraire routier...","Percorso calcolato":"Itinéraire calculé","Impossibile calcolare il percorso":"Impossible de calculer l’itinéraire","Verifica la destinazione e riprova.":"Vérifiez la destination et réessayez.","Libreria PDF non ancora caricata.":"La bibliothèque PDF n’est pas encore chargée.","Codice / Part Number":"Code / Référence","Descrizione / Description":"Description","Qtà":"Qté","N°":"N°","Imposta tutti su Sì":"Tout régler sur Oui","Usa primo tecnico":"Utiliser le premier technicien","Usa nome cliente":"Utiliser le nom du client","Nessun errore":"Aucune erreur","Collaudo OK":"Essai OK","✓ Bozza ripristinata":"✓ Brouillon restauré","Ore lavoro":"Heures de travail","Ore guida":"Heures de conduite","Km A/R":"Km aller/retour","Posizione attuale (GPS)":"Position actuelle (GPS)","Inserimento manuale":"Saisie manuelle","Posizione attuale":"Position actuelle","Inserisci l'indirizzo di partenza manuale.":"Saisissez d'abord l'adresse de départ manuelle.","Indirizzo, città oppure coordinate GPS di partenza":"Adresse de départ, ville ou coordonnées GPS","Tappa aggiuntiva: indirizzo, città oppure coordinate GPS":"Étape supplémentaire : adresse, ville ou coordonnées GPS","➕ Aggiungi tappa":"➕ Ajouter une étape","Rimuovi tappa":"Supprimer l'étape","Tappa":"Étape","tappe":"étapes","Da dove parti?":"D'où partez-vous ?","Arrivo":"Arrivée","Sede":"Siège","GPS attuale":"GPS actuel","Manuale":"Manuel","La posizione GPS verrà rilevata quando premi «Calcola percorso».":"Votre position GPS sera détectée lorsque vous appuierez sur « Calculer l'itinéraire »."},"de":{"Rapporto di intervento":"Servicebericht","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Digitaler Bericht","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Geführte Eingabe, automatische Entwurfsspeicherung und Erstellung des finalen PDFs. Die Daten bleiben auf dem verwendeten Gerät.","Genera PDF":"PDF erstellen","💾 Salva bozza":"💾 Entwurf speichern","＋ Nuovo report":"＋ Neuer Bericht","Bozza pronta":"Entwurf bereit","✓ Bozza salvata":"✓ Entwurf gespeichert","Salvataggio…":"Speichern…","Modifiche da salvare…":"Ungespeicherte Änderungen…","Salvataggio non riuscito":"Speichern fehlgeschlagen","📷 Foto e firme incluse":"📷 Fotos und Unterschriften enthalten","📄 PDF professionale":"📄 Professionelles PDF","Lingua del rapporto":"Berichtssprache","Fase":"Schritt","di":"von","Ordine":"Auftrag","Macchina":"Maschine","Intervento":"Einsatz","Foto":"Fotos","Ricambi e Tempi":"Teile und Zeiten","Riepilogo":"Übersicht","Dati Ordine e Cliente":"Auftrags- und Kundendaten","Numero Attività":"Auftragsnummer","Data Intervento":"Einsatzdatum","Numero Cliente":"Kundennummer","Nome Cliente":"Kundenname","Destinazione Cantiere":"Zielort Baustelle","Partenza fissa":"Fester Startpunkt","📍 Usa posizione attuale":"📍 Aktuellen Standort verwenden","🧭 Calcola percorso":"🧭 Route berechnen","Partenza":"Start","Destinazione":"Ziel","Distanza":"Entfernung","Tempo stimato":"Geschätzte Dauer","↗ Apri navigazione in Google Maps":"↗ Navigation in Google Maps öffnen","Tipo Ordine":"Auftragsart","Cliente presente in loco?":"Kunde vor Ort?","Sì":"Ja","No":"Nein","Avanti →":"Weiter →","← Indietro":"← Zurück","← Modifica":"← Bearbeiten","Riepilogo →":"Übersicht →","Scarica PDF":"PDF herunterladen","Dati Macchina / Machine Data":"Maschinendaten","Costruttore":"Hersteller","Tipo":"Modell","Numero di Serie":"Seriennummer","Anno di Fabbricazione":"Baujahr","Ore di Lavoro":"Betriebsstunden","Dati Intervento / Work Order Details":"Einsatzdaten","Problema Segnalato":"Gemeldetes Problem","＋ Aggiungi Problema":"＋ Problem hinzufügen","Codice Errore":"Fehlercode","Caso di Garanzia?":"Garantiefall?","Tipo di Lavori":"Arbeitsart","Luogo di Esecuzione":"Ausführungsort","Lavori Eseguiti":"Ausgeführte Arbeiten","＋ Aggiungi Lavoro Eseguito":"＋ Ausgeführte Arbeit hinzufügen","Descrizione del Difetto":"Fehlerbeschreibung","Causa del Guasto":"Ausfallursache","Componente Difettoso":"Defektes Bauteil","Tecnici Incaricati":"Beauftragte Techniker","＋ Aggiungi Tecnico":"＋ Techniker hinzufügen","Collaudo Finale":"Abschlussprüfung","Collaudo Eseguito?":"Prüfung durchgeführt?","Macchina Ingrassata?":"Maschine geschmiert?","Livelli Fluidi Verificati?":"Flüssigkeitsstände geprüft?","Esito Collaudo":"Prüfergebnis","Documentazione Fotografica / Photo Documentation":"Fotodokumentation","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Tippen Sie auf ein Feld, um ein Foto auszuwählen. Tippen Sie auf ein Foto für die Vollbildansicht.","Scatta Foto":"Foto aufnehmen","📁 Carica più Foto":"📁 Mehrere Fotos hochladen","Carica dal Dispositivo":"Vom Gerät hochladen","Carica più Foto":"Mehrere Fotos hochladen","Annulla":"Abbrechen","📷 Prima dell'Intervento / Before Work":"📷 Vor dem Einsatz","🔧 Componente Difettoso / Faulty Part":"🔧 Defektes Bauteil","✅ Dopo l'Intervento / After Work":"✅ Nach dem Einsatz","Ricambi Utilizzati / Parts Used":"Verwendete Ersatzteile","+ Aggiungi riga":"+ Zeile hinzufügen","Rilevazione Tempi":"Zeiterfassung","＋ Aggiungi Giorno":"＋ Tag hinzufügen","Firme":"Unterschriften","✍️ Firma del Tecnico":"✍️ Unterschrift Techniker","Cancella":"Löschen","Mouse o dito":"Maus oder Finger","Nome tecnico:":"Name des Technikers:","✍️ Firma del Cliente":"✍️ Unterschrift Kunde","Nome cliente / rappresentante:":"Name Kunde / Vertreter:","Riepilogo Report / Report Summary":"Berichtsübersicht","Seleziona...":"Auswählen...","Intervento in Garanzia":"Garantieeinsatz","Intervento a Pagamento":"Kostenpflichtiger Einsatz","Tagliando":"Wartung","Riparazione":"Reparatur","Diagnosi":"Diagnose","Cantiere – Dal Cliente":"Baustelle – Beim Kunden","In Officina":"Werkstatt","Difetto di Materiale":"Materialfehler","Usura Normale":"Normaler Verschleiß","Danno da Operatore":"Bedienerschaden","Mancata Manutenzione":"Fehlende Wartung","Corpo Estraneo":"Fremdkörper","Altro":"Sonstiges","Nessuno":"Keiner","Tutto in ordine":"Alles in Ordnung","pz":"Stk.","Foto della macchina":"Maschinenfoto","Foto aggiuntiva":"Zusätzliches Foto","Targhetta identificativa":"Typenschild","Targhetta cabina":"Kabinen-Typenschild","Interno cabina":"Kabineninnenraum","Contaore / ore di lavoro":"Betriebsstundenzähler","Posto di lavoro":"Arbeitsbereich","Componente difettoso – Vista generale":"Defektes Bauteil – Gesamtansicht","Componente difettoso – Dettaglio montato":"Defektes Bauteil – Eingebautes Detail","Componente difettoso – Dettaglio smontato":"Defektes Bauteil – Ausgebautes Detail","Condizioni di lavoro difficili":"Schwierige Arbeitsbedingungen","Macchina dopo intervento":"Maschine nach Einsatz","Parte riparata – Dettaglio":"Repariertes Teil – Detail","Posto di lavoro dopo intervento":"Arbeitsbereich nach Einsatz","Nome Tecnico":"Technikername","Giorno":"Tag","Ora Partenza":"Abfahrtszeit","Arrivo Cantiere":"Ankunft Baustelle","Km Andata":"Hinfahrt km","Inizio Lavoro":"Arbeitsbeginn","Fine Lavoro":"Arbeitsende","Ore Lavoro":"Arbeitsstunden","Part. Rientro":"Abfahrt Rückfahrt","Ora Rientro":"Rückkehrzeit","Km Ritorno":"Rückfahrt km","Ore Guida":"Fahrstunden","Codice...":"Code...","Descrizione...":"Beschreibung...","Didascalia...":"Bildunterschrift...","Nome Cognome":"Vor- und Nachname","Inserisci indirizzo, comune oppure coordinate GPS":"Adresse, Ort oder GPS-Koordinaten eingeben","Componente difettoso, sintomi, causa guasto...":"Defektes Bauteil, Symptome, Ausfallursache...","es. Tutto in ordine":"z. B. Alles in Ordnung","es. Leva del gas":"z. B. Gashebel","Descrivi il problema segnalato...":"Gemeldetes Problem beschreiben...","Descrivi il lavoro eseguito...":"Ausgeführte Arbeit beschreiben...","Ordine e Cliente":"Auftrag und Kunde","Dati Macchina":"Maschinendaten","Dati Intervento":"Einsatzdaten","Cliente / Azienda":"Kunde / Firma","Indirizzo Cantiere":"Baustellenadresse","Cliente Presente":"Kunde anwesend","N° Cliente":"Kunden-Nr.","N° Serie":"Serien-Nr.","Anno":"Jahr","Modello":"Modell","Garanzia":"Garantie","Tipo Lavori":"Arbeitsart","Luogo":"Ort","Descrizione Difetto":"Fehlerbeschreibung","Causa Guasto":"Ausfallursache","Componente":"Bauteil","TECNICI":"TECHNIKER","Collaudo":"Prüfung","Esito":"Ergebnis","Ingrassato":"Geschmiert","Fluidi":"Flüssigkeiten","Percorso Cantiere / Route":"Route zur Baustelle","Distanza Stradale":"Straßenentfernung","Tempo Stimato":"Geschätzte Dauer","NAVIGAZIONE GOOGLE MAPS:":"GOOGLE-MAPS-NAVIGATION:","Apri il percorso sul navigatore":"Route im Navigator öffnen","TOT. Ore Lavoro":"GESAMT Arbeitsstunden","TOT. Ore Guida":"GESAMT Fahrstunden","TOT. Km Andata":"GESAMT Hinfahrt km","TOT. Km Ritorno":"GESAMT Rückfahrt km","Ricambi Utilizzati":"Verwendete Ersatzteile","CODICE":"CODE","DESCRIZIONE":"BESCHREIBUNG","QTÀ":"MENGE","U.M.":"EINH.","Firme / Signatures":"Unterschriften","TECNICO / TECHNICIAN":"TECHNIKER","CLIENTE / CUSTOMER":"KUNDE","RAPPORTO DI INTERVENTO":"SERVICEBERICHT","Pag.":"Seite ","PERCORSO STRADALE":"STRASSENROUTE","© OpenStreetMap contributors · percorso OSRM":"© OpenStreetMap-Mitwirkende · OSRM-Route","Immagini © Google · percorso OSRM":"Bilder © Google · OSRM-Route","Bozza salvata sul dispositivo":"Entwurf auf dem Gerät gespeichert","Impossibile salvare la bozza":"Entwurf konnte nicht gespeichert werden","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"Möchten Sie alle Daten löschen und einen neuen Bericht beginnen?","Bozza precedente ripristinata":"Vorheriger Entwurf wiederhergestellt","Compila rapidamente i controlli finali.":"Abschlusskontrollen schnell ausfüllen.","Completezza del rapporto":"Vollständigkeit des Berichts","campi essenziali":"Pflichtfelder","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Einige Pflichtfelder fehlen; Sie können sie später ergänzen.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"Pflichtfelder sind nicht ausgefüllt. PDF trotzdem erstellen?","Destinazione inserita. Premi “Calcola percorso”.":"Ziel eingegeben. Drücken Sie „Route berechnen“.","Inserisci prima un indirizzo o delle coordinate.":"Geben Sie zuerst eine Adresse oder Koordinaten ein.","Rilevamento della posizione GPS in corso...":"GPS-Standort wird ermittelt...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS ist auf diesem Gerät nicht verfügbar. Geben Sie das Ziel manuell ein.","Calcolo del percorso stradale...":"Straßenroute wird berechnet...","Percorso calcolato":"Route berechnet","Impossibile calcolare il percorso":"Route konnte nicht berechnet werden","Verifica la destinazione e riprova.":"Prüfen Sie das Ziel und versuchen Sie es erneut.","Libreria PDF non ancora caricata.":"PDF-Bibliothek ist noch nicht geladen.","Codice / Part Number":"Code / Teilenummer","Descrizione / Description":"Beschreibung","Qtà":"Menge","N°":"Nr.","Imposta tutti su Sì":"Alle auf Ja setzen","Usa primo tecnico":"Ersten Techniker verwenden","Usa nome cliente":"Kundennamen verwenden","Nessun errore":"Kein Fehler","Collaudo OK":"Prüfung OK","✓ Bozza ripristinata":"✓ Entwurf wiederhergestellt","Ore lavoro":"Arbeitsstunden","Ore guida":"Fahrstunden","Km A/R":"Km Hin-/Rückfahrt","Posizione attuale (GPS)":"Aktueller Standort (GPS)","Inserimento manuale":"Manuelle Eingabe","Posizione attuale":"Aktueller Standort","Inserisci l'indirizzo di partenza manuale.":"Geben Sie zuerst die manuelle Startadresse ein.","Indirizzo, città oppure coordinate GPS di partenza":"Startadresse, Ort oder GPS-Koordinaten","Tappa aggiuntiva: indirizzo, città oppure coordinate GPS":"Zusätzlicher Halt: Adresse, Ort oder GPS-Koordinaten","➕ Aggiungi tappa":"➕ Halt hinzufügen","Rimuovi tappa":"Halt entfernen","Tappa":"Halt","tappe":"Halte","Da dove parti?":"Von wo starten Sie?","Arrivo":"Ankunft","Sede":"Firmensitz","GPS attuale":"Aktuelles GPS","Manuale":"Manuell","La posizione GPS verrà rilevata quando premi «Calcola percorso».":"Ihr GPS-Standort wird ermittelt, wenn Sie auf „Route berechnen“ drücken."},"es":{"Rapporto di intervento":"Informe de intervención","Eurocomach Service · Rapporto digitale":"Eurocomach Service · Informe digital","Compilazione guidata, salvataggio automatico della bozza e generazione del PDF finale. I dati rimangono sul dispositivo utilizzato.":"Cumplimentación guiada, guardado automático del borrador y generación del PDF final. Los datos permanecen en el dispositivo utilizado.","Genera PDF":"Generar PDF","💾 Salva bozza":"💾 Guardar borrador","＋ Nuovo report":"＋ Nuevo informe","Bozza pronta":"Borrador listo","✓ Bozza salvata":"✓ Borrador guardado","Salvataggio…":"Guardando…","Modifiche da salvare…":"Cambios sin guardar…","Salvataggio non riuscito":"Error al guardar","📷 Foto e firme incluse":"📷 Fotos y firmas incluidas","📄 PDF professionale":"📄 PDF profesional","Lingua del rapporto":"Idioma del informe","Fase":"Paso","di":"de","Ordine":"Orden","Macchina":"Máquina","Intervento":"Intervención","Foto":"Fotos","Ricambi e Tempi":"Repuestos y tiempos","Riepilogo":"Resumen","Dati Ordine e Cliente":"Datos de orden y cliente","Numero Attività":"Número de actividad","Data Intervento":"Fecha de intervención","Numero Cliente":"Número de cliente","Nome Cliente":"Nombre del cliente","Destinazione Cantiere":"Destino de obra","Partenza fissa":"Salida fija","📍 Usa posizione attuale":"📍 Usar ubicación actual","🧭 Calcola percorso":"🧭 Calcular ruta","Partenza":"Salida","Destinazione":"Destino","Distanza":"Distancia","Tempo stimato":"Tiempo estimado","↗ Apri navigazione in Google Maps":"↗ Abrir navegación en Google Maps","Tipo Ordine":"Tipo de orden","Cliente presente in loco?":"¿Cliente presente en el lugar?","Sì":"Sí","No":"No","Avanti →":"Siguiente →","← Indietro":"← Atrás","← Modifica":"← Editar","Riepilogo →":"Resumen →","Scarica PDF":"Descargar PDF","Dati Macchina / Machine Data":"Datos de la máquina","Costruttore":"Fabricante","Tipo":"Modelo","Numero di Serie":"Número de serie","Anno di Fabbricazione":"Año de fabricación","Ore di Lavoro":"Horas de trabajo","Dati Intervento / Work Order Details":"Datos de la intervención","Problema Segnalato":"Problema indicado","＋ Aggiungi Problema":"＋ Añadir problema","Codice Errore":"Código de error","Caso di Garanzia?":"¿Caso de garantía?","Tipo di Lavori":"Tipo de trabajo","Luogo di Esecuzione":"Lugar de ejecución","Lavori Eseguiti":"Trabajos realizados","＋ Aggiungi Lavoro Eseguito":"＋ Añadir trabajo realizado","Descrizione del Difetto":"Descripción del defecto","Causa del Guasto":"Causa de la avería","Componente Difettoso":"Componente defectuoso","Tecnici Incaricati":"Técnicos asignados","＋ Aggiungi Tecnico":"＋ Añadir técnico","Collaudo Finale":"Prueba final","Collaudo Eseguito?":"¿Prueba realizada?","Macchina Ingrassata?":"¿Máquina engrasada?","Livelli Fluidi Verificati?":"¿Niveles de fluidos verificados?","Esito Collaudo":"Resultado de la prueba","Documentazione Fotografica / Photo Documentation":"Documentación fotográfica","💡 Tocca uno slot per scegliere o . Clicca su una foto per vederla a schermo intero.":"💡 Toca un espacio para elegir una o varias fotos. Toca una foto para verla a pantalla completa.","💡 Tocca uno slot per scattare una foto oppure selezionare più immagini dal dispositivo. Clicca su una foto per vederla a schermo intero.":"💡 Toca un espacio para tomar una foto o seleccionar varias imágenes del dispositivo. Toca una foto para verla a pantalla completa.","Scatta Foto":"Tomar foto","📁 Carica più Foto":"📁 Cargar varias fotos","Carica dal Dispositivo":"Cargar desde el dispositivo","Carica più Foto":"Cargar varias fotos","Annulla":"Cancelar","📷 Prima dell'Intervento / Before Work":"📷 Antes de la intervención","🔧 Componente Difettoso / Faulty Part":"🔧 Componente defectuoso","✅ Dopo l'Intervento / After Work":"✅ Después de la intervención","Ricambi Utilizzati / Parts Used":"Repuestos utilizados","+ Aggiungi riga":"+ Añadir fila","Rilevazione Tempi":"Registro de tiempos","＋ Aggiungi Giorno":"＋ Añadir día","Firme":"Firmas","✍️ Firma del Tecnico":"✍️ Firma del técnico","Cancella":"Borrar","Mouse o dito":"Ratón o dedo","Nome tecnico:":"Nombre del técnico:","✍️ Firma del Cliente":"✍️ Firma del cliente","Nome cliente / rappresentante:":"Nombre del cliente / representante:","Riepilogo Report / Report Summary":"Resumen del informe","Seleziona...":"Seleccionar...","Intervento in Garanzia":"Intervención en garantía","Intervento a Pagamento":"Intervención de pago","Tagliando":"Mantenimiento","Riparazione":"Reparación","Diagnosi":"Diagnóstico","Cantiere – Dal Cliente":"Obra – En el cliente","In Officina":"Taller","Difetto di Materiale":"Defecto de material","Usura Normale":"Desgaste normal","Danno da Operatore":"Daño del operador","Mancata Manutenzione":"Falta de mantenimiento","Corpo Estraneo":"Cuerpo extraño","Altro":"Otro","Nessuno":"Ninguno","Tutto in ordine":"Todo en orden","pz":"uds.","Foto della macchina":"Foto de la máquina","Foto aggiuntiva":"Foto adicional","Targhetta identificativa":"Placa de identificación","Targhetta cabina":"Placa de cabina","Interno cabina":"Interior de cabina","Contaore / ore di lavoro":"Horómetro / horas de trabajo","Posto di lavoro":"Zona de trabajo","Componente difettoso – Vista generale":"Componente defectuoso – Vista general","Componente difettoso – Dettaglio montato":"Componente defectuoso – Detalle montado","Componente difettoso – Dettaglio smontato":"Componente defectuoso – Detalle desmontado","Condizioni di lavoro difficili":"Condiciones de trabajo difíciles","Macchina dopo intervento":"Máquina después de la intervención","Parte riparata – Dettaglio":"Pieza reparada – Detalle","Posto di lavoro dopo intervento":"Zona de trabajo después de la intervención","Nome Tecnico":"Nombre del técnico","Giorno":"Día","Ora Partenza":"Hora de salida","Arrivo Cantiere":"Llegada a obra","Km Andata":"Km ida","Inizio Lavoro":"Inicio del trabajo","Fine Lavoro":"Fin del trabajo","Ore Lavoro":"Horas de trabajo","Part. Rientro":"Salida de regreso","Ora Rientro":"Hora de regreso","Km Ritorno":"Km vuelta","Ore Guida":"Horas de conducción","Codice...":"Código...","Descrizione...":"Descripción...","Didascalia...":"Leyenda...","Nome Cognome":"Nombre y apellidos","Inserisci indirizzo, comune oppure coordinate GPS":"Introduce dirección, municipio o coordenadas GPS","Componente difettoso, sintomi, causa guasto...":"Componente defectuoso, síntomas, causa de avería...","es. Tutto in ordine":"ej. Todo en orden","es. Leva del gas":"ej. Palanca del acelerador","Descrivi il problema segnalato...":"Describe el problema indicado...","Descrivi il lavoro eseguito...":"Describe el trabajo realizado...","Ordine e Cliente":"Orden y cliente","Dati Macchina":"Datos de la máquina","Dati Intervento":"Datos de intervención","Cliente / Azienda":"Cliente / Empresa","Indirizzo Cantiere":"Dirección de obra","Cliente Presente":"Cliente presente","N° Cliente":"N.º cliente","N° Serie":"N.º serie","Anno":"Año","Modello":"Modelo","Garanzia":"Garantía","Tipo Lavori":"Tipo de trabajo","Luogo":"Lugar","Descrizione Difetto":"Descripción del defecto","Causa Guasto":"Causa de avería","Componente":"Componente","TECNICI":"TÉCNICOS","Collaudo":"Prueba","Esito":"Resultado","Ingrassato":"Engrasada","Fluidi":"Fluidos","Percorso Cantiere / Route":"Ruta a la obra","Distanza Stradale":"Distancia por carretera","Tempo Stimato":"Tiempo estimado","NAVIGAZIONE GOOGLE MAPS:":"NAVEGACIÓN GOOGLE MAPS:","Apri il percorso sul navigatore":"Abrir la ruta en el navegador","TOT. Ore Lavoro":"TOTAL horas de trabajo","TOT. Ore Guida":"TOTAL horas de conducción","TOT. Km Andata":"TOTAL km ida","TOT. Km Ritorno":"TOTAL km vuelta","Ricambi Utilizzati":"Repuestos utilizados","CODICE":"CÓDIGO","DESCRIZIONE":"DESCRIPCIÓN","QTÀ":"CANT.","U.M.":"U.M.","Firme / Signatures":"Firmas","TECNICO / TECHNICIAN":"TÉCNICO","CLIENTE / CUSTOMER":"CLIENTE","RAPPORTO DI INTERVENTO":"INFORME DE INTERVENCIÓN","Pag.":"Pág. ","PERCORSO STRADALE":"RUTA POR CARRETERA","© OpenStreetMap contributors · percorso OSRM":"© colaboradores de OpenStreetMap · ruta OSRM","Immagini © Google · percorso OSRM":"Imágenes © Google · ruta OSRM","Bozza salvata sul dispositivo":"Borrador guardado en el dispositivo","Impossibile salvare la bozza":"No se pudo guardar el borrador","Vuoi cancellare tutti i dati e iniziare un nuovo rapporto?":"¿Quieres borrar todos los datos e iniciar un nuevo informe?","Bozza precedente ripristinata":"Borrador anterior restaurado","Compila rapidamente i controlli finali.":"Completa rápidamente los controles finales.","Completezza del rapporto":"Integridad del informe","campi essenziali":"campos obligatorios","Mancano alcuni campi essenziali: potrai completarli anche dopo.":"Faltan algunos campos obligatorios; podrás completarlos después.","campi essenziali non compilati. Vuoi generare comunque il PDF?":"campos obligatorios no están completos. ¿Generar el PDF de todos modos?","Destinazione inserita. Premi “Calcola percorso”.":"Destino introducido. Pulsa «Calcular ruta».","Inserisci prima un indirizzo o delle coordinate.":"Introduce primero una dirección o coordenadas.","Rilevamento della posizione GPS in corso...":"Detectando la ubicación GPS...","GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.":"GPS no disponible en este dispositivo. Introduce el destino manualmente.","Calcolo del percorso stradale...":"Calculando la ruta por carretera...","Percorso calcolato":"Ruta calculada","Impossibile calcolare il percorso":"No se pudo calcular la ruta","Verifica la destinazione e riprova.":"Comprueba el destino e inténtalo de nuevo.","Libreria PDF non ancora caricata.":"La biblioteca PDF todavía no está cargada.","Codice / Part Number":"Código / Referencia","Descrizione / Description":"Descripción","Qtà":"Cant.","N°":"N.º","Imposta tutti su Sì":"Establecer todo en Sí","Usa primo tecnico":"Usar primer técnico","Usa nome cliente":"Usar nombre del cliente","Nessun errore":"Sin errores","Collaudo OK":"Prueba OK","✓ Bozza ripristinata":"✓ Borrador restaurado","Ore lavoro":"Horas de trabajo","Ore guida":"Horas de conducción","Km A/R":"Km ida/vuelta","Posizione attuale (GPS)":"Ubicación actual (GPS)","Inserimento manuale":"Introducción manual","Posizione attuale":"Ubicación actual","Inserisci l'indirizzo di partenza manuale.":"Introduce primero la dirección de salida manual.","Indirizzo, città oppure coordinate GPS di partenza":"Dirección de salida, ciudad o coordenadas GPS","Tappa aggiuntiva: indirizzo, città oppure coordinate GPS":"Parada adicional: dirección, ciudad o coordenadas GPS","➕ Aggiungi tappa":"➕ Añadir parada","Rimuovi tappa":"Eliminar parada","Tappa":"Parada","tappe":"paradas","Da dove parti?":"¿Desde dónde sales?","Arrivo":"Llegada","Sede":"Sede","GPS attuale":"GPS actual","Manuale":"Manual","La posizione GPS verrà rilevata quando premi «Calcola percorso».":"Tu ubicación GPS se detectará cuando pulses «Calcular ruta»."}};
 let currentLanguage='it';
 try{currentLanguage=localStorage.getItem('eurocomach_report_language')||'it';}catch(e){}
 const _i18nTextOriginal=new WeakMap();
@@ -1576,6 +1673,12 @@ Object.assign(I18N.en,{"Descrizione difetto da parte del cliente":"Fault Descrip
 Object.assign(I18N.fr,{"Descrizione difetto da parte del cliente":"Description du défaut par le client","Problema Riscontrato":"Problème constaté","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Décrivez ce que le client a signalé, les symptômes et les conditions dans lesquelles ils apparaissent...","Descrivi il problema riscontrato...":"Décrivez le problème constaté..."});
 Object.assign(I18N.de,{"Descrizione difetto da parte del cliente":"Fehlerbeschreibung durch den Kunden","Problema Riscontrato":"Festgestelltes Problem","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Beschreiben Sie die Kundenangabe, die Symptome und die Bedingungen, unter denen sie auftreten...","Descrivi il problema riscontrato...":"Beschreiben Sie das festgestellte Problem..."});
 Object.assign(I18N.es,{"Descrizione difetto da parte del cliente":"Descripción del defecto por parte del cliente","Problema Riscontrato":"Problema detectado","Descrivi quanto segnalato dal cliente, i sintomi e le condizioni in cui si presenta...":"Describe lo indicado por el cliente, los síntomas y las condiciones en las que se presentan...","Descrivi il problema riscontrato...":"Describe el problema detectado..."});
+
+Object.assign(I18N.en,{"Macchine, Seriali e Attività":"Machines, Serials and Work","Un report, più macchine.":"One report, multiple machines.","Inserisci una scheda per ogni seriale e associa direttamente problemi riscontrati e lavori eseguiti. Puoi indicare anche la tappa o il cantiere di riferimento.":"Add one card for each serial number and link the problems found and work performed directly to it. You can also specify the related stop or jobsite.","＋ Aggiungi Macchina / Seriale":"＋ Add Machine / Serial","Tappa / Cantiere di Riferimento":"Related Stop / Jobsite","es. Tappa 2 – Cliente Rossi":"e.g. Stop 2 – Rossi Customer","Problemi Riscontrati per questo Seriale":"Problems Found for this Serial","Ogni problema resterà associato alla macchina corretta.":"Each problem will remain linked to the correct machine.","Lavori Eseguiti su questo Seriale":"Work Performed on this Serial","Descrivi separatamente le attività svolte su questa macchina.":"Describe separately the work performed on this machine.","Rimuovi macchina":"Remove machine","Dati Macchine":"Machine Data","Seriale non inserito":"Serial not entered","Macchine":"Machines","Problemi Riscontrati":"Problems Found","Attività per Macchina":"Work by Machine"});
+Object.assign(I18N.fr,{"Macchine, Seriali e Attività":"Machines, numéros de série et travaux","Un report, più macchine.":"Un rapport, plusieurs machines.","Inserisci una scheda per ogni seriale e associa direttamente problemi riscontrati e lavori eseguiti. Puoi indicare anche la tappa o il cantiere di riferimento.":"Ajoutez une fiche pour chaque numéro de série et associez directement les problèmes constatés et les travaux effectués. Vous pouvez également indiquer l’étape ou le chantier concerné.","＋ Aggiungi Macchina / Seriale":"＋ Ajouter une machine / un numéro de série","Tappa / Cantiere di Riferimento":"Étape / chantier de référence","es. Tappa 2 – Cliente Rossi":"ex. Étape 2 – Client Rossi","Problemi Riscontrati per questo Seriale":"Problèmes constatés pour ce numéro de série","Ogni problema resterà associato alla macchina corretta.":"Chaque problème restera associé à la bonne machine.","Lavori Eseguiti su questo Seriale":"Travaux effectués sur ce numéro de série","Descrivi separatamente le attività svolte su questa macchina.":"Décrivez séparément les travaux effectués sur cette machine.","Rimuovi macchina":"Supprimer la machine","Dati Macchine":"Données des machines","Seriale non inserito":"Numéro de série non renseigné","Macchine":"Machines","Problemi Riscontrati":"Problèmes constatés","Attività per Macchina":"Travaux par machine"});
+Object.assign(I18N.de,{"Macchine, Seriali e Attività":"Maschinen, Seriennummern und Arbeiten","Un report, più macchine.":"Ein Bericht, mehrere Maschinen.","Inserisci una scheda per ogni seriale e associa direttamente problemi riscontrati e lavori eseguiti. Puoi indicare anche la tappa o il cantiere di riferimento.":"Fügen Sie für jede Seriennummer eine Karte hinzu und ordnen Sie festgestellte Probleme und ausgeführte Arbeiten direkt zu. Sie können auch den zugehörigen Stopp oder Einsatzort angeben.","＋ Aggiungi Macchina / Seriale":"＋ Maschine / Seriennummer hinzufügen","Tappa / Cantiere di Riferimento":"Zugehöriger Stopp / Einsatzort","es. Tappa 2 – Cliente Rossi":"z. B. Stopp 2 – Kunde Rossi","Problemi Riscontrati per questo Seriale":"Festgestellte Probleme für diese Seriennummer","Ogni problema resterà associato alla macchina corretta.":"Jedes Problem bleibt der richtigen Maschine zugeordnet.","Lavori Eseguiti su questo Seriale":"Ausgeführte Arbeiten an dieser Seriennummer","Descrivi separatamente le attività svolte su questa macchina.":"Beschreiben Sie die an dieser Maschine ausgeführten Arbeiten getrennt.","Rimuovi macchina":"Maschine entfernen","Dati Macchine":"Maschinendaten","Seriale non inserito":"Seriennummer nicht eingegeben","Macchine":"Maschinen","Problemi Riscontrati":"Festgestellte Probleme","Attività per Macchina":"Arbeiten je Maschine"});
+Object.assign(I18N.es,{"Macchine, Seriali e Attività":"Máquinas, números de serie y trabajos","Un report, più macchine.":"Un informe, varias máquinas.","Inserisci una scheda per ogni seriale e associa direttamente problemi riscontrati e lavori eseguiti. Puoi indicare anche la tappa o il cantiere di riferimento.":"Añade una ficha para cada número de serie y asocia directamente los problemas detectados y los trabajos realizados. También puedes indicar la parada u obra de referencia.","＋ Aggiungi Macchina / Seriale":"＋ Añadir máquina / número de serie","Tappa / Cantiere di Riferimento":"Parada / obra de referencia","es. Tappa 2 – Cliente Rossi":"ej. Parada 2 – Cliente Rossi","Problemi Riscontrati per questo Seriale":"Problemas detectados para este número de serie","Ogni problema resterà associato alla macchina corretta.":"Cada problema permanecerá asociado a la máquina correcta.","Lavori Eseguiti su questo Seriale":"Trabajos realizados en este número de serie","Descrivi separatamente le attività svolte su questa macchina.":"Describe por separado los trabajos realizados en esta máquina.","Rimuovi macchina":"Eliminar máquina","Dati Macchine":"Datos de las máquinas","Seriale non inserito":"Número de serie no indicado","Macchine":"Máquinas","Problemi Riscontrati":"Problemas detectados","Attività per Macchina":"Trabajos por máquina"});
+
 
 function tr(key){
   if(key===undefined||key===null)return '';
@@ -1825,10 +1928,15 @@ function radio(name){const el=document.querySelector(`input[name="${name}"]:chec
 
 function buildSummary(){
   const allPh=[...photoData.pre,...photoData.fault,...photoData.post].filter(Boolean);
+  const machine=(typeof getMachines==='function'?getMachines():[])[0]||{};
+  const probs=machine.problemi&&machine.problemi.length?'<div class="summary-machine-list"><strong>'+escHtml(tr('Problemi Riscontrati'))+'</strong><ol>'+machine.problemi.map(function(p){return '<li>'+escHtml(p)+'</li>';}).join('')+'</ol></div>':'';
+  const works=machine.lavori&&machine.lavori.length?'<div class="summary-machine-list"><strong>'+escHtml(tr('Lavori Eseguiti'))+'</strong><ol>'+machine.lavori.map(function(w){return '<li>'+escHtml(w)+'</li>';}).join('')+'</ol></div>':'';
+  const machineHtml='<div class="summary-machine-card"><div class="summary-machine-head"><div><b>'+escHtml(machine.modello||tr('Macchina'))+'</b><small>'+escHtml(machine.seriale||tr('Seriale non inserito'))+'</small></div></div>'+
+    '<div class="summary-row"><div class="summary-field"><div class="summary-label">'+escHtml(tr('Costruttore'))+'</div><div class="summary-val">'+escHtml(machine.costruttore||'–')+'</div></div><div class="summary-field"><div class="summary-label">'+escHtml(tr('Anno'))+' / '+escHtml(tr('Ore di Lavoro'))+'</div><div class="summary-val">'+escHtml((machine.anno||'–')+' / '+(machine.ore||'–')+' h')+'</div></div></div>'+probs+works+'</div>';
   document.getElementById('summaryContent').innerHTML=`
-    <div class="summary-block"><h3>📋 Ordine e Cliente</h3><div class="summary-row"><div class="summary-field"><div class="summary-label">Ordine</div><div class="summary-val">${val('f_ordine')||'–'}</div></div><div class="summary-field"><div class="summary-label">Data</div><div class="summary-val">${val('f_data')||'–'}</div></div><div class="summary-field"><div class="summary-label">Cliente</div><div class="summary-val">${val('f_cliente')||'–'}</div></div></div></div>
-    <div class="summary-block"><h3>⚙️ Macchina</h3><div class="summary-row"><div class="summary-field"><div class="summary-label">Modello</div><div class="summary-val">${val('f_modello')||'–'}</div></div><div class="summary-field"><div class="summary-label">Seriale</div><div class="summary-val">${val('f_seriale')||'–'}</div></div><div class="summary-field"><div class="summary-label">Anno/Ore</div><div class="summary-val">${val('f_anno')}/${val('f_ore')}h</div></div></div></div>
-    ${allPh.length?`<div class="summary-block"><h3>📷 Foto (${allPh.length})</h3><div class="photo-preview-mini">${allPh.map(p=>`<img src="${p.src}" alt="${tv(p.caption)}" loading="lazy" onclick="openLightbox('${p.src}','${tv(p.caption)}');">`).join('')}</div></div>`:''}
+    <div class="summary-block"><h3>📋 ${escHtml(tr('Ordine e Cliente'))}</h3><div class="summary-row"><div class="summary-field"><div class="summary-label">${escHtml(tr('Ordine'))}</div><div class="summary-val">${escHtml(val('f_ordine')||'–')}</div></div><div class="summary-field"><div class="summary-label">${escHtml(tr('Data'))}</div><div class="summary-val">${escHtml(val('f_data')||'–')}</div></div><div class="summary-field"><div class="summary-label">${escHtml(tr('Cliente'))}</div><div class="summary-val">${escHtml(val('f_cliente')||'–')}</div></div></div></div>
+    <div class="summary-block"><h3>⚙️ ${escHtml(tr('Dati Macchina'))}</h3><div class="summary-machines">${machineHtml}</div></div>
+    ${allPh.length?`<div class="summary-block"><h3>📷 ${escHtml(tr('Foto'))} (${allPh.length})</h3><div class="photo-preview-mini">${allPh.map(p=>`<img src="${p.src}" alt="${escAttr(tv(p.caption))}" loading="lazy" onclick="openLightbox('${p.src}','${escAttr(tv(p.caption))}');">`).join('')}</div></div>`:''}
   `;
 }
 
@@ -1852,34 +1960,63 @@ async function generatePDF(mode){
 
   let y=0;
 
-  function newPage(){
-    doc.addPage();
-    y=8;
-    // header compatto nelle pagine successive: solo linea + numero pagina
-    doc.setDrawColor(220,220,220);
-    doc.setLineWidth(0.3);
-    doc.line(14,6,W-14,6);
-    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(180,180,180);
-    doc.text(tr('RAPPORTO DI INTERVENTO')+'  –  '+tr('Pag.')+doc.internal.getCurrentPageInfo().pageNumber, W/2, 4, {align:'center'});
-    doc.setTextColor(45,47,51);
+  const PDF_EURO_LOGO=(document.querySelector('.app-header .brand-euro')||{}).src||'';
+  const PDF_CNH_LOGO=(document.querySelector('.app-header .brand-cnh')||{}).src||'';
+  const PDF_SAMPIERANA_FOOTER_LOGO='data:image/png;base64,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';
+  function addLogoImage(src,x,yy,w,h){
+    if(!src)return false;
+    var fmt=src.indexOf('image/jpeg')>-1||src.indexOf('image/jpg')>-1?'JPEG':'PNG';
+    try{doc.addImage(src,fmt,x,yy,w,h,undefined,'FAST');return true;}catch(e){try{doc.addImage(src,fmt==='PNG'?'JPEG':'PNG',x,yy,w,h,undefined,'FAST');return true;}catch(e2){return false;}}
   }
-  function checkY(h){if(y+h>278)newPage();}
-
-  // ── INTESTAZIONE: immagine Sampierana full-width ──
-  function drawHeader(){
-    const ratio=1890/347;
-    const hH=Math.round(W/ratio); // ≈ 38-39mm, proporzioni esatte
+  function addLogoImageFit(src,x,yy,maxW,maxH,align){
+    if(!src)return false;
     try{
-      doc.addImage(HEADER_B64,'JPEG',0,0,W,hH);
+      var p=doc.getImageProperties(src);
+      if(!p||!p.width||!p.height)return addLogoImage(src,x,yy,maxW,maxH);
+      var ratio=Math.min(maxW/p.width,maxH/p.height);
+      var drawW=p.width*ratio, drawH=p.height*ratio;
+      var drawX=x;
+      if(align==='center') drawX=x+(maxW-drawW)/2;
+      else if(align==='right') drawX=x+(maxW-drawW);
+      var drawY=yy+(maxH-drawH)/2;
+      return addLogoImage(src,drawX,drawY,drawW,drawH);
     }catch(e){
-      doc.setFillColor(...DARK);doc.rect(0,0,W,hH,'F');
-      doc.setFontSize(12);doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);
-      doc.text('SAMPIERANA / EUROCOMACH',W/2,hH/2+2,{align:'center'});
+      return addLogoImage(src,x,yy,maxW,maxH);
     }
-    y=hH+4;
   }
+  function drawBrandHeader(compact,showLogos){
+    if(showLogos===undefined)showLogos=true;
+    var hh=compact?23:44;
+    doc.setFillColor(...WHITE);doc.rect(0,0,W,hh,'F');
+    doc.setFillColor(...ORANGE);doc.rect(0,hh-1.4,W,1.4,'F');
+    var titleX=compact?16:18;
+    if(showLogos){
+      var bx=compact?10.5:11.5, by=compact?3.8:6.2;
+      var ok1=addLogoImageFit(PDF_EURO_LOGO,bx,by,compact?62:88,compact?8.6:14.2,'left');
+      var ok2=addLogoImageFit(PDF_CNH_LOGO,bx,by+(compact?9.8:18.6),compact?24:34,compact?4.3:7.1,'left');
+      if(!ok1){doc.setFontSize(compact?9:13);doc.setFont('helvetica','bold');doc.setTextColor(...ORANGE);doc.text('EUROCOMACH',bx,by+(compact?7.7:12.8));}
+      if(!ok2){doc.setFontSize(compact?5:7);doc.setTextColor(...DARK);doc.text('CNH',bx,by+(compact?13.6:25.4));}
+      titleX=compact?106:134;
+    }
+    doc.setTextColor(...DARKER);doc.setFont('helvetica','bold');doc.setFontSize(compact?9:14);
+    doc.text(tr('RAPPORTO DI INTERVENTO'),titleX,compact?10:16);
+    doc.setFont('helvetica','normal');doc.setTextColor(...TEXTGREY);doc.setFontSize(compact?6.5:8);
+    if(compact){
+      doc.text((val('f_ordine')||'')+(val('f_data')?' · '+val('f_data'):''),titleX,16);
+      doc.text(tr('Pag.')+doc.internal.getCurrentPageInfo().pageNumber,W-11,16,{align:'right'});
+    }else{
+      doc.text((tr('Ordine')+': '+(val('f_ordine')||'–')).toUpperCase(),titleX,23);
+      doc.text((tr('Data')+': '+(val('f_data')||'–')).toUpperCase(),titleX,29);
+    }
+    doc.setDrawColor(...LGREY);doc.setLineWidth(0.2);doc.line(0,hh-1.4,W,hh-1.4);
+    doc.setTextColor(...DARK);
+    y=hh+4;
+  }
+  function newPage(){doc.addPage();drawBrandHeader(true,false);}
+  function checkY(h){if(y+h>278)newPage();}
+  function drawHeader(showLogos){drawBrandHeader(false,showLogos!==false);}
 
-  drawHeader();
+  drawHeader(true);
 
   // ── FUNZIONI HELPER ──
   function secTitle(t){
@@ -1931,13 +2068,14 @@ async function generatePDF(mode){
   fieldRow([{label:'Cliente / Azienda',value:val('f_cliente')},{label:'Indirizzo Cantiere',value:val('f_indirizzo')},{label:'Cliente Presente',value:radio('clientepresente')}]);
 
   secTitle('Dati Macchina');
-  fieldRow([{label:'Costruttore',value:val('f_costruttore')},{label:'Modello',value:val('f_modello')},{label:'N° Serie',value:val('f_seriale')},{label:'Anno',value:val('f_anno')},{label:'Ore Lavoro',value:val('f_ore')+' h'}]);
+  var _machine=(typeof getMachines==='function'?getMachines():[])[0]||{};
+  fieldRow([{label:'Costruttore',value:_machine.costruttore},{label:'Modello',value:_machine.modello},{label:'N° Serie',value:_machine.seriale},{label:'Anno',value:_machine.anno},{label:'Ore Lavoro',value:(_machine.ore||'–')+' h'}]);
+  if(_machine.problemi&&_machine.problemi.length)textBlock('Problemi Riscontrati',_machine.problemi.map(function(v,i){return(i+1)+'. '+v;}).join('\n'));
+  if(_machine.lavori&&_machine.lavori.length)textBlock('Lavori Eseguiti',_machine.lavori.map(function(v,i){return(i+1)+'. '+v;}).join('\n'));
 
   secTitle('Dati Intervento');
   textBlock('Descrizione difetto da parte del cliente',val('f_difetto'));
-  textBlock('Problema Riscontrato',getMultiText('problemiList'));
   fieldRow([{label:'Tipo Lavori',value:val('f_tipolavoro')},{label:'Luogo',value:val('f_luogo')}]);
-  textBlock('Lavori Eseguiti',getMultiText('lavoriList'));
   fieldRow([{label:'Causa Guasto',value:val('f_causa')}]);
   // Lista tecnici su righe separate
   var _tec=getTecnici();
@@ -1958,7 +2096,7 @@ async function generatePDF(mode){
   if(gmapsLink || val('f_indirizzo') || mapsImgData){
     secTitle('Percorso Cantiere / Route');
     fieldRow([
-      {label:'Partenza',value:ROUTE_ORIGIN_LABEL},
+      {label:'Partenza',value:(routeSummary&&routeSummary.originLabel)||ROUTE_ORIGIN_LABEL},
       {label:'Destinazione',value:(routeSummary&&routeSummary.destinationLabel)||val('f_indirizzo')||'–'}
     ]);
     if(routeSummary){
@@ -2071,15 +2209,23 @@ async function generatePDF(mode){
   doc.text(val('f_data')||new Date().toLocaleDateString('it-IT'),cx+4,sigY+37);
   y=sigY+42;
 
-  // ── FOTO ──
+  // ── DOCUMENTAZIONE FOTOGRAFICA CON FOTO ORIGINALI INCORPORATE ──
+  // Nel report sono visibili solo le miniature. Le immagini originali vengono
+  // incorporate come allegati interni e richiamate cliccando la miniatura.
   const allPh=pdfPhotos;
+  const photoThumbLinks=[];
   if(allPh.length){
-    doc.addPage();y=0;drawHeader();
+    doc.addPage();y=0;drawHeader(false);
     secTitle('Documentazione Fotografica / Photo Documentation');
+    doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(...TEXTGREY);
+    doc.text('PASSA IL PUNTATORE SULLA FOTO E CLICCA PER APRIRE L’IMMAGINE ORIGINALE',14,y);
+    y+=6;
+
     const maxW=(W-14*2-8)/2;
-    const maxH=90;
+    const maxH=82;
     let col=0;let rowH=0;
-    for(const ph of allPh){
+    for(let photoIndex=0;photoIndex<allPh.length;photoIndex++){
+      const ph=allPh[photoIndex];
       const nw=ph.width||1200,nh=ph.height||900;
       const ratio=nw/nh;
       let fw=maxW,fh=maxW/ratio;
@@ -2087,39 +2233,290 @@ async function generatePDF(mode){
       if(fw>maxW){fw=maxW;fh=maxW/ratio;}
       if(col===0)rowH=0;
       rowH=Math.max(rowH,fh);
-      if(col===0)checkY(rowH+16);
+      if(col===0)checkY(rowH+22);
       const xP=14+col*(maxW+8);
-      doc.setFillColor(...OFFWHITE);doc.rect(xP,y,fw,fh,'F');
-      doc.setDrawColor(...LGREY);doc.rect(xP,y,fw,fh,'S');
-      try{doc.addImage(ph.src,'JPEG',xP,y,fw,fh,undefined,'FAST');}
+      const thumbY=y;
+      const thumbPage=doc.internal.getCurrentPageInfo().pageNumber;
+
+      doc.setFillColor(...OFFWHITE);doc.roundedRect(xP,thumbY,fw,fh+11,1.5,1.5,'F');
+      doc.setDrawColor(...LGREY);doc.roundedRect(xP,thumbY,fw,fh+11,1.5,1.5,'S');
+      try{doc.addImage(ph.src,'JPEG',xP,thumbY,fw,fh,undefined,'FAST');}
       catch(e){console.error('Immagine non inserita nel PDF',e);}
-      doc.setFillColor(...OFFWHITE);doc.rect(xP,y+fh,fw,7,'F');
-      doc.setFontSize(6);doc.setFont('helvetica','normal');doc.setTextColor(...TEXTGREY);
-      doc.text(String(tv(ph.caption||'')).toUpperCase().substring(0,34),xP+fw/2,y+fh+4.5,{align:'center',maxWidth:fw-2});
+
+      const caption=String(tv(ph.caption||('Foto '+(photoIndex+1)))).toUpperCase();
+      doc.setFontSize(5.8);doc.setFont('helvetica','normal');doc.setTextColor(...TEXTGREY);
+      doc.text(caption.substring(0,34),xP+2,thumbY+fh+6.6,{maxWidth:fw-4});
+
+      // L'area cliccabile coincide direttamente con la foto,
+      // senza pulsanti o elementi aggiuntivi visibili.
+      photoThumbLinks.push({
+        page:thumbPage,
+        x:xP,
+        y:thumbY,
+        w:fw,
+        h:fh,
+        index:photoIndex
+      });
+
       col++;
-      if(col===2){col=0;y+=rowH+11;}
+      if(col===2){col=0;y+=rowH+16;}
     }
-    if(col>0)y+=rowH+11;
+    if(col>0)y+=rowH+16;
   }
 
-  // ── FOOTER ──
+  // ── CARTIGLIO AZIENDALE SULL'ULTIMA PAGINA ──
+  const corporateFooterH=58;
+  const corporateFooterY=H-corporateFooterH;
+
+  // Se il contenuto dell'ultima pagina occupa l'area destinata al cartiglio,
+  // crea una nuova ultima pagina mantenendo l'intestazione del rapporto.
+  if(y>corporateFooterY-5){
+    doc.addPage();
+    drawBrandHeader(true,false);
+  }
+
+  function drawSmallIcon(type,x,yy){
+    doc.setLineWidth(.55);
+    if(type==='location'){
+      doc.setDrawColor(...ORANGE);doc.circle(x,yy,1.8,'S');doc.circle(x,yy,0.65,'S');
+      doc.line(x-1.15,yy+1.35,x,yy+3.1);doc.line(x+1.15,yy+1.35,x,yy+3.1);
+    }else if(type==='mail'){
+      doc.setDrawColor(...ORANGE);doc.roundedRect(x-2.3,yy-1.5,4.6,3.2,.35,.35,'S');
+      doc.line(x-2.1,yy-1.2,x,yy+.25);doc.line(x+2.1,yy-1.2,x,yy+.25);
+    }else if(type==='phone'){
+      doc.setDrawColor(...ORANGE);
+      doc.line(x-1.9,yy-1.8,x-1.1,yy-1.0);
+      doc.line(x-1.1,yy-1.0,x-.45,yy-.45);
+      doc.line(x-.45,yy-.45,x+.2,yy+.25);
+      doc.line(x+.2,yy+.25,x+.9,yy+.95);
+      doc.line(x+.9,yy+.95,x+1.75,yy+1.75);
+      doc.circle(x-1.95,yy-1.85,.38,'S');
+      doc.circle(x+1.8,yy+1.8,.38,'S');
+    }
+  }
+
+  function drawCorporateCartiglio(pageNum,totalPages){
+    const fy=corporateFooterY;
+    const FOOT_BG=[46,50,53];
+    const MUTED=[158,164,169];
+    const BLUE=[41,139,196];
+    const RED=[232,72,26];
+
+    doc.setFillColor(...FOOT_BG);doc.rect(0,fy,W,corporateFooterH,'F');
+    doc.setFillColor(...ORANGE);doc.rect(0,fy,W,1.4,'F');
+
+    // Logo Sampierana
+    try{doc.addImage(PDF_SAMPIERANA_FOOTER_LOGO,'PNG',14,fy+6.2,72,13.65,undefined,'FAST');}
+    catch(e){
+      doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(...WHITE);
+      doc.text('SAMPIERANA',14,fy+15);
+      doc.setFillColor(...ORANGE);doc.rect(14,fy+17,70,1.2,'F');
+    }
+
+    // Dati di contatto a destra
+    drawSmallIcon('location',112,fy+9.2);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...WHITE);
+    doc.text('Via Leonardo da Vinci, 40',120,fy+8.8);
+    doc.text('47021 San Piero in Bagno (FC)',120,fy+14.8);
+
+    drawSmallIcon('mail',112,fy+26.6);
+    doc.setFontSize(7);doc.text('info@sampierana.com',120,fy+27.2);
+
+    drawSmallIcon('phone',112,fy+38.0);
+    doc.text('+39 0543 904211',120,fy+38.6);
+
+    // Canali social a sinistra
+    doc.setFont('helvetica','bold');doc.setFontSize(7);
+    doc.setTextColor(...BLUE);doc.text('f',14.4,fy+29.2);
+    doc.setTextColor(...WHITE);doc.text('Facebook',21,fy+29.2);
+
+    doc.setTextColor(...BLUE);doc.setFontSize(6.5);doc.text('in',61,fy+29.2);
+    doc.setTextColor(...WHITE);doc.setFontSize(7);doc.text('LinkedIn',69,fy+29.2);
+
+    doc.setDrawColor(...RED);doc.setLineWidth(.65);
+    doc.line(14.2,fy+37.1,14.2,fy+42.1);doc.line(14.2,fy+37.1,18.2,fy+39.6);doc.line(18.2,fy+39.6,14.2,fy+42.1);
+    doc.setTextColor(...WHITE);doc.text('YouTube',21,fy+40.7);
+
+    // Dati societari
+    doc.setFont('helvetica','normal');doc.setFontSize(5.9);doc.setTextColor(...MUTED);
+    doc.text('©2019 - SAMPIERANA Spa Cap. Soc. int. ver. 1.100.000 € - P.IVA 02712200407',14,fy+49.0);
+    doc.text('Direzione e coordinamento ex art. 2497 c.c. CNH Industrial N.V.',14,fy+54.5);
+
+    // Numerazione pagina integrata nel cartiglio
+    doc.setFont('helvetica','bold');doc.setFontSize(6.2);doc.setTextColor(...ORANGE);
+    doc.text(tr('Pag.')+pageNum+'/'+totalPages,W-12,fy+54.5,{align:'right'});
+  }
+
+  // Footer compatto sulle pagine precedenti; cartiglio completo solo sull'ultima.
   const pc=doc.internal.getNumberOfPages();
   for(let i=1;i<=pc;i++){
     doc.setPage(i);
-    doc.setFillColor(...DARKER);doc.rect(0,H-9,W,9,'F');
-    // linea arancio sopra il footer
-    doc.setFillColor(...ORANGE);doc.rect(0,H-10,W,1,'F');
-    doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(...LGREY);
-    doc.text('SAMPIERANA SpA – Via Leonardo da Vinci 40, 47021 San Piero in Bagno (FC) – P.IVA 02712200407',W/2,H-4,{align:'center'});
-    doc.setTextColor(...ORANGE);doc.text(tr('Pag.')+i+'/'+pc,W-14,H-4,{align:'right'});
+    if(i===pc){
+      drawCorporateCartiglio(i,pc);
+    }else{
+      doc.setFillColor(...DARKER);doc.rect(0,H-9,W,9,'F');
+      doc.setFillColor(...ORANGE);doc.rect(0,H-10,W,1,'F');
+      doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(...LGREY);
+      doc.text('SAMPIERANA SpA – Via Leonardo da Vinci 40, 47021 San Piero in Bagno (FC) – P.IVA 02712200407',W/2,H-4,{align:'center'});
+      doc.setTextColor(...ORANGE);doc.text(tr('Pag.')+i+'/'+pc,W-14,H-4,{align:'right'});
+    }
   }
 
-  const fname=`Report_${val('f_modello')||'Macchina'}_${val('f_seriale')||'SN'}_${val('f_data')||'data'}.pdf`.replace(/[^a-zA-Z0-9_\-\.]/g,'_');
+  async function buildFinalPdfBlob(){
+    const baseBytes=doc.output('arraybuffer');
+    if(!allPh.length || !photoThumbLinks.length || !window.PDFLib){
+      return new Blob([baseBytes],{type:'application/pdf'});
+    }
+
+    const {
+      PDFDocument,PDFName,PDFDict,PDFArray,PDFHexString
+    }=window.PDFLib;
+    const finalDoc=await PDFDocument.load(baseBytes);
+    const attachmentNames=[];
+
+    function dataUrlToBytes(dataUrl){
+      const parts=String(dataUrl||'').split(',');
+      if(parts.length<2)throw new Error('Formato immagine non valido');
+      const meta=parts[0];
+      const payload=parts.slice(1).join(',');
+      if(/;base64/i.test(meta)){
+        const binary=atob(payload);
+        const bytes=new Uint8Array(binary.length);
+        for(let j=0;j<binary.length;j++)bytes[j]=binary.charCodeAt(j);
+        return bytes;
+      }
+      return new TextEncoder().encode(decodeURIComponent(payload));
+    }
+
+    for(let i=0;i<allPh.length;i++){
+      const ph=allPh[i];
+      const isPng=String(ph.src||'').toLowerCase().startsWith('data:image/png');
+      const ext=isPng?'png':'jpg';
+      const mime=isPng?'image/png':'image/jpeg';
+      const serial=String((typeof getMachines==='function'&&getMachines()[0]&&getMachines()[0].seriale)||val('f_seriale')||'SN').replace(/[^a-zA-Z0-9_-]/g,'_');
+      const name='Foto_'+serial+'_'+String(i+1).padStart(2,'0')+'.'+ext;
+      attachmentNames.push(name);
+      const imageBytes=dataUrlToBytes(ph.src);
+      await finalDoc.attach(imageBytes,name,{
+        mimeType:mime,
+        description:String(tv(ph.caption||('Foto '+(i+1)))),
+        creationDate:new Date(),
+        modificationDate:new Date()
+      });
+    }
+
+    function decodePdfText(obj){
+      try{return obj&&typeof obj.decodeText==='function'?obj.decodeText():String(obj||'');}
+      catch(e){return String(obj||'');}
+    }
+
+    function collectEmbeddedFileRefs(){
+      const refs={};
+      const namesDict=finalDoc.catalog.lookupMaybe(PDFName.of('Names'),PDFDict);
+      if(!namesDict)return refs;
+      const embeddedRoot=namesDict.lookupMaybe(PDFName.of('EmbeddedFiles'),PDFDict);
+      if(!embeddedRoot)return refs;
+      const visit=function(node){
+        if(!node)return;
+        const names=node.lookupMaybe(PDFName.of('Names'),PDFArray);
+        if(names){
+          for(let i=0;i<names.size();i+=2){
+            refs[decodePdfText(names.get(i))]=names.get(i+1);
+          }
+        }
+        const kids=node.lookupMaybe(PDFName.of('Kids'),PDFArray);
+        if(kids){
+          for(let i=0;i<kids.size();i++){
+            visit(finalDoc.context.lookup(kids.get(i),PDFDict));
+          }
+        }
+      };
+      visit(embeddedRoot);
+      return refs;
+    }
+
+    // I collegamenti alle miniature non dipendono dal riferimento Cos
+    // dell'allegato: l'azione Acrobat richiama direttamente il data object
+    // tramite il nome assegnato durante finalDoc.attach().
+    const pages=finalDoc.getPages();
+    const context=finalDoc.context;
+
+    function ensureAnnots(page){
+      let annots=page.node.lookupMaybe(PDFName.of('Annots'),PDFArray);
+      if(!annots){
+        annots=context.obj([]);
+        page.node.set(PDFName.of('Annots'),annots);
+      }
+      return annots;
+    }
+
+    function toPdfRect(page,link){
+      const sx=page.getWidth()/W;
+      const sy=page.getHeight()/H;
+      const x1=link.x*sx;
+      const y1=page.getHeight()-(link.y+link.h)*sy;
+      const x2=(link.x+link.w)*sx;
+      const y2=page.getHeight()-link.y*sy;
+      return [x1,y1,x2,y2];
+    }
+
+    photoThumbLinks.forEach(function(link){
+      const fileName=attachmentNames[link.index];
+      const page=pages[link.page-1];
+      if(!fileName||!page)return;
+
+      const annots=ensureAnnots(page);
+      const rect=toPdfRect(page,link);
+
+      // Vera annotazione Link sopra l'intera superficie della fotografia.
+      // Acrobat la riconosce come collegamento (cursore a forma di mano).
+      const safeName=fileName.replace(/"/g,'');
+      const jsCode='try{this.exportDataObject({cName:"'+safeName+'",nLaunch:2});}catch(e){app.alert("Impossibile aprire la foto incorporata. Abilitare JavaScript in Acrobat Reader e riprovare.");}';
+      const jsAction=context.obj({
+        S:PDFName.of('JavaScript'),
+        JS:PDFHexString.fromText(jsCode)
+      });
+      const jsActionRef=context.register(jsAction);
+      const additionalActions=context.obj({U:jsActionRef});
+      const linkAnnot=context.obj({
+        Type:PDFName.of('Annot'),
+        Subtype:PDFName.of('Link'),
+        Rect:context.obj(rect),
+        Border:context.obj([0,0,0]),
+        H:PDFName.of('I'),
+        A:jsActionRef,
+        AA:additionalActions,
+        Contents:PDFHexString.fromText('Clicca per aprire '+fileName)
+      });
+      annots.push(context.register(linkAnnot));
+    });
+
+    const finalBytes=await finalDoc.save({useObjectStreams:false,addDefaultPage:false});
+    return new Blob([finalBytes],{type:'application/pdf'});
+  }
+
+  function downloadPdfBlob(blob,name){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=name;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  }
+
+  const _fileMachines=typeof getMachines==='function'?getMachines():[];
+  const fname=`Report_${(_fileMachines[0]&&_fileMachines[0].modello)||val('f_modello')||'Macchina'}_${(_fileMachines[0]&&_fileMachines[0].seriale)||val('f_seriale')||'SN'}_${val('f_data')||'data'}.pdf`.replace(/[^a-zA-Z0-9_\-\.]/g,'_');
+
+  let finalBlob;
+  try{
+    finalBlob=await buildFinalPdfBlob();
+  }catch(embedErr){
+    console.error('Impossibile incorporare le fotografie nel PDF',embedErr);
+    finalBlob=doc.output('blob');
+  }
 
   if(mode==='share'){
     try{
-      const blob=doc.output('blob');
-      const file=new File([blob],fname,{type:'application/pdf'});
+      const file=new File([finalBlob],fname,{type:'application/pdf'});
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
         await navigator.share({
           files:[file],
@@ -2128,18 +2525,18 @@ async function generatePDF(mode){
         });
         return;
       }
-      doc.save(fname);
+      downloadPdfBlob(finalBlob,fname);
       alert(tr('Il dispositivo non supporta la condivisione diretta dei file. Il PDF è stato scaricato.'));
       return;
     }catch(err){
       if(err && err.name==='AbortError') return;
-      try{doc.save(fname);}catch(e){}
+      try{downloadPdfBlob(finalBlob,fname);}catch(e){}
       alert(tr('Condivisione annullata o non riuscita.'));
       return;
     }
   }
 
-  doc.save(fname);
+  downloadPdfBlob(finalBlob,fname);
 }
 
 function shareReport(){
@@ -2169,7 +2566,7 @@ function setRouteStatus(message, type){
 function onAddrInput(){
   routeSummary=null;
   routeDestinationCoords=null;
-  const raw=(document.getElementById('f_indirizzo')?.value||'').trim();
+  const raw=(typeof collectStops==='function'&&collectStops().length)?'x':'';
   if(raw){
     setRouteStatus(tr("Destinazione inserita. Premi “Calcola percorso”."),'');
   }else{
@@ -2203,26 +2600,52 @@ function parseCoordinates(text){
   return null;
 }
 
-async function geocodeAddress(query){
+function extractCity(addr){
+  if(!addr||typeof addr!=='object') return '';
+  return addr.city||addr.town||addr.village||addr.hamlet||addr.municipality||addr.county||addr.state||addr.country||'';
+}
+
+async function nominatimThrottle(){
   const elapsed=Date.now()-lastGeocodeAt;
   if(elapsed<1100) await sleep(1100-elapsed);
   lastGeocodeAt=Date.now();
-  const url='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&q='+encodeURIComponent(query);
+}
+
+// Ricerca mondiale (nessuna restrizione di Paese): indirizzi in Italia, Europa e nel mondo
+async function geocodeAddress(query){
+  await nominatimThrottle();
+  const gLang=({it:'it',en:'en',fr:'fr',de:'de',es:'es'}[currentLanguage]||'it');
+  const url='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&accept-language='+gLang+'&q='+encodeURIComponent(query);
   const res=await fetch(url,{headers:{'Accept':'application/json'}});
   if(!res.ok) throw new Error('Servizio di ricerca indirizzo non disponibile');
   const data=await res.json();
-  if(!Array.isArray(data)||!data.length) throw new Error('Indirizzo non trovato');
+  if(!Array.isArray(data)||!data.length) throw new Error('Indirizzo non trovato: '+query);
   return {
     lat:parseFloat(data[0].lat),
     lon:parseFloat(data[0].lon),
-    label:data[0].display_name||query
+    label:data[0].display_name||query,
+    city:extractCity(data[0].address)||String(query)
   };
 }
 
-async function getOriginCoords(){
-  if(routeOriginCoords) return routeOriginCoords;
+// Geocoding inverso: da coordinate GPS al nome della città (best effort)
+async function reverseGeocode(lat,lon){
   try{
-    const cached=localStorage.getItem('sampierana_route_origin_v1');
+    await nominatimThrottle();
+    const gLang=({it:'it',en:'en',fr:'fr',de:'de',es:'es'}[currentLanguage]||'it');
+    const url='https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language='+gLang+'&lat='+lat+'&lon='+lon;
+    const res=await fetch(url,{headers:{'Accept':'application/json'}});
+    if(!res.ok) return null;
+    const data=await res.json();
+    if(!data||!data.address) return null;
+    return {label:data.display_name||'',city:extractCity(data.address)};
+  }catch(e){ return null; }
+}
+
+async function getOriginCoords(){
+  if(routeOriginCoords && routeOriginCoords.city) return routeOriginCoords;
+  try{
+    const cached=localStorage.getItem('sampierana_route_origin_v2');
     if(cached){
       const p=JSON.parse(cached);
       if(Number.isFinite(p.lat)&&Number.isFinite(p.lon)){
@@ -2232,15 +2655,134 @@ async function getOriginCoords(){
     }
   }catch(e){}
   const origin=await geocodeAddress(ROUTE_ORIGIN_QUERY);
-  routeOriginCoords={lat:origin.lat,lon:origin.lon,label:ROUTE_ORIGIN_LABEL};
-  try{localStorage.setItem('sampierana_route_origin_v1',JSON.stringify(routeOriginCoords));}catch(e){}
+  routeOriginCoords={lat:origin.lat,lon:origin.lon,label:ROUTE_ORIGIN_LABEL,city:'San Piero in Bagno'};
+  try{localStorage.setItem('sampierana_route_origin_v2',JSON.stringify(routeOriginCoords));}catch(e){}
   return routeOriginCoords;
 }
 
+// ── SELEZIONE PARTENZA: sede fissa / manuale ──
+const ORIGIN_HINTS={
+  sede:'🏭 Sampierana – Via Leonardo da Vinci 40, 47021 San Piero in Bagno (FC)',
+  manual:''
+};
+function setOriginMode(mode){
+  const field=document.getElementById('f_origine_mode');
+  if(field) field.value=mode;
+  onOriginModeChange();
+  routeSummary=null;
+}
+window.setOriginMode=setOriginMode;
+
+function onOriginModeChange(){
+  const mode=document.getElementById('f_origine_mode')?.value||'sede';
+  document.querySelectorAll('.origin-mode').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.mode===mode);
+  });
+  const manual=document.getElementById('f_origine_manuale');
+  if(manual) manual.style.display=(mode==='manual')?'block':'none';
+  const hint=document.getElementById('originModeHint');
+  if(hint){
+    const txt=ORIGIN_HINTS[mode]||'';
+    if(txt){
+      const parts=txt.split(' ');
+      hint.textContent='';
+      const emoji=document.createElement('span');emoji.setAttribute('aria-hidden','true');emoji.textContent=parts[0];
+      hint.appendChild(emoji);
+      hint.appendChild(document.createTextNode(tr(parts.slice(1).join(' '))));
+      hint.style.display='flex';
+    }else{
+      hint.style.display='none';
+    }
+  }
+}
+window.onOriginModeChange=onOriginModeChange;
+
+function onOriginManualInput(){ routeSummary=null; }
+window.onOriginManualInput=onOriginManualInput;
+
+function getGpsPosition(){
+  return new Promise((resolve,reject)=>{
+    if(!navigator.geolocation){ reject(new Error(tr('GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente.'))); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos=>resolve({lat:pos.coords.latitude,lon:pos.coords.longitude}),
+      err=>{
+        let msg='Impossibile rilevare la posizione GPS.';
+        if(err&&err.code===1) msg='Permesso GPS negato. Abilita la localizzazione oppure inserisci la destinazione manualmente.';
+        if(err&&err.code===3) msg='Tempo scaduto durante il rilevamento GPS. Riprova oppure inserisci la destinazione manualmente.';
+        reject(new Error(msg));
+      },
+      {enableHighAccuracy:true,timeout:15000,maximumAge:30000}
+    );
+  });
+}
+
+async function getOriginForRoute(){
+  const mode=document.getElementById('f_origine_mode')?.value||'sede';
+  if(mode==='manual'){
+    const raw=(document.getElementById('f_origine_manuale')?.value||'').trim();
+    if(!raw) throw new Error(tr("Inserisci l'indirizzo di partenza manuale."));
+    return await resolveDestination(raw);
+  }
+  return await getOriginCoords();
+}
+
+// ── DESTINAZIONE UNICA: manuale oppure posizione GPS attuale ──
+const GPS_DESTINATION_TOKEN='__CURRENT_GPS_DESTINATION__';
+function setDestinationMode(mode){
+  const field=document.getElementById('f_dest_mode');
+  if(field) field.value=(mode==='gps'?'gps':'manual');
+  onDestinationModeChange();
+  routeSummary=null;
+  routeDestinationCoords=null;
+  const wrap=document.getElementById('mapsPreviewWrap');
+  if(wrap) wrap.style.display='none';
+}
+window.setDestinationMode=setDestinationMode;
+
+function onDestinationModeChange(){
+  const mode=document.getElementById('f_dest_mode')?.value||'manual';
+  document.querySelectorAll('.destination-mode').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.mode===mode);
+  });
+  const input=document.getElementById('f_indirizzo');
+  if(input) input.style.display=(mode==='gps')?'none':'block';
+  const hint=document.getElementById('destinationModeHint');
+  if(hint) hint.style.display=(mode==='gps')?'flex':'none';
+  if(mode==='gps') setRouteStatus(tr('La posizione GPS di arrivo verrà rilevata quando premi «Calcola percorso».'),'');
+  else if(!(input&&input.value.trim())) setRouteStatus('','');
+}
+window.onDestinationModeChange=onDestinationModeChange;
+
+function collectStops(){
+  const mode=document.getElementById('f_dest_mode')?.value||'manual';
+  if(mode==='gps') return [GPS_DESTINATION_TOKEN];
+  const destination=(document.getElementById('f_indirizzo')?.value||'').trim();
+  return destination?[destination]:[];
+}
+
 async function resolveDestination(raw){
-  if(raw && typeof raw==='object' && Number.isFinite(raw.lat) && Number.isFinite(raw.lon)) return raw;
+  if(raw===GPS_DESTINATION_TOKEN){
+    setRouteStatus(tr("Rilevamento della posizione GPS di arrivo in corso..."),'busy');
+    const pos=await getGpsPosition();
+    const rev=await reverseGeocode(pos.lat,pos.lon);
+    return {
+      lat:pos.lat,lon:pos.lon,
+      label:(rev&&rev.label)||('Posizione GPS attuale ('+pos.lat.toFixed(5)+', '+pos.lon.toFixed(5)+')'),
+      city:(rev&&rev.city)||tr('Posizione attuale')
+    };
+  }
+  if(raw && typeof raw==='object' && Number.isFinite(raw.lat) && Number.isFinite(raw.lon)){
+    if(!raw.city){
+      const rev=await reverseGeocode(raw.lat,raw.lon);
+      if(rev){ raw.city=rev.city||''; if(!raw.label) raw.label=rev.label; }
+    }
+    return raw;
+  }
   const coords=parseCoordinates(raw);
-  if(coords) return {lat:coords.lat,lon:coords.lon,label:String(raw)};
+  if(coords){
+    const rev=await reverseGeocode(coords.lat,coords.lon);
+    return {lat:coords.lat,lon:coords.lon,label:(rev&&rev.label)||String(raw),city:(rev&&rev.city)||String(raw)};
+  }
   return await geocodeAddress(String(raw));
 }
 
@@ -2257,53 +2799,71 @@ function formatDuration(seconds){
   return h+' h '+(m?m+' min':'');
 }
 
-function buildGoogleNavigationUrl(origin,dest){
-  return 'https://www.google.com/maps/dir/?api=1&origin='+
+function buildGoogleNavigationUrl(origin,stops){
+  const dest=stops[stops.length-1];
+  let url='https://www.google.com/maps/dir/?api=1&origin='+
     encodeURIComponent(origin.lat+','+origin.lon)+'&destination='+
     encodeURIComponent(dest.lat+','+dest.lon)+'&travelmode=driving';
+  const mids=stops.slice(0,-1);
+  if(mids.length){
+    url+='&waypoints='+encodeURIComponent(mids.map(p=>p.lat+','+p.lon).join('|'));
+  }
+  return url;
 }
 
 async function calculateRouteFromManual(){
-  const raw=(document.getElementById('f_indirizzo')?.value||'').trim();
-  if(!raw){
+  const stops=collectStops();
+  if(!stops.length){
     setRouteStatus(tr("Inserisci prima un indirizzo o delle coordinate."),'err');
     return;
   }
-  await calculateRoute(raw);
+  await calculateRoute();
 }
 
 async function getCurrentPos(){
   if(routeBusy) return;
-  const status=document.getElementById('gpsStatus');
-  setRouteStatus(tr("Rilevamento della posizione GPS in corso..."),'busy');
-  if(!navigator.geolocation){
-    setRouteStatus(tr("GPS non disponibile su questo dispositivo. Inserisci la destinazione manualmente."),'err');
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    const lat=pos.coords.latitude, lon=pos.coords.longitude;
-    const field=document.getElementById('f_indirizzo');
-    if(field) field.value=lat.toFixed(6)+', '+lon.toFixed(6);
-    await calculateRoute({lat:lat,lon:lon,label:'Posizione GPS attuale'});
-  },err=>{
-    let msg='Impossibile rilevare la posizione GPS.';
-    if(err&&err.code===1) msg='Permesso GPS negato. Abilita la localizzazione oppure inserisci la destinazione manualmente.';
-    if(err&&err.code===3) msg='Tempo scaduto durante il rilevamento GPS. Riprova oppure inserisci la destinazione manualmente.';
-    setRouteStatus(msg,'err');
-  },{enableHighAccuracy:true,timeout:15000,maximumAge:30000});
+  setDestinationMode('gps');
+  await calculateRoute();
 }
 
-async function calculateRoute(destinationInput){
+function renderRoutePointsList(origin,stops){
+  const list=document.getElementById('routePointsList');
+  if(!list) return;
+  const logoSrc=getCompanyLogoSrc();
+  let html='<div class="route-point"><span class="route-pin logo"><img id="routeOriginLogo" alt="Logo aziendale"'+(logoSrc?' src="'+logoSrc+'"':'')+'></span><div><strong>'+tr('Partenza')+(origin.city?' · '+origin.city:'')+'</strong><span id="routeOriginLabel"></span></div></div>';
+  stops.forEach((s,i)=>{
+    const last=(i===stops.length-1);
+    const title=last?tr('Destinazione'):(tr('Tappa')+' '+(i+1));
+    html+='<div class="route-point"><span class="route-pin dest">'+(stops.length>1?(i+1):'B')+'</span><div><strong>'+title+(s.city?' · '+s.city:'')+'</strong><span'+(last?' id="routeDestinationLabel"':'')+'></span></div></div>';
+  });
+  list.innerHTML=html;
+  const originLbl=document.getElementById('routeOriginLabel');
+  if(originLbl) originLbl.textContent=origin.label||'';
+  const spans=list.querySelectorAll('.route-point div > span');
+  stops.forEach((s,i)=>{ if(spans[i+1]) spans[i+1].textContent=s.label||''; });
+}
+
+async function calculateRoute(){
   if(routeBusy) return;
   routeBusy=true;
-  setRouteStatus(tr("Calcolo del percorso stradale..."),'busy');
   try{
-    const origin=await getOriginCoords();
-    const dest=await resolveDestination(destinationInput);
+    // 1) Partenza (sede fissa oppure inserimento manuale)
+    const origin=await getOriginForRoute();
+
+    // 2) Destinazione unica (indirizzo manuale oppure posizione GPS attuale)
+    const rawStops=collectStops();
+    if(!rawStops.length) throw new Error(tr("Inserisci prima un indirizzo o delle coordinate."));
+    setRouteStatus(tr("Calcolo del percorso stradale..."),'busy');
+    const stops=[];
+    for(const raw of rawStops){
+      stops.push(await resolveDestination(raw));
+    }
+    const dest=stops[stops.length-1];
     routeDestinationCoords=dest;
 
-    const routeUrl='https://router.project-osrm.org/route/v1/driving/'+
-      origin.lon+','+origin.lat+';'+dest.lon+','+dest.lat+
+    // 3) Percorso OSRM dalla partenza alla destinazione
+    const coordStr=[origin,...stops].map(p=>p.lon+','+p.lat).join(';');
+    const routeUrl='https://router.project-osrm.org/route/v1/driving/'+coordStr+
       '?overview=full&geometries=geojson&steps=false';
     const res=await fetch(routeUrl,{headers:{'Accept':'application/json'}});
     if(!res.ok) throw new Error('Servizio di calcolo percorso non disponibile');
@@ -2313,35 +2873,35 @@ async function calculateRoute(destinationInput){
     const geometry=route.geometry&&route.geometry.coordinates;
     if(!Array.isArray(geometry)||geometry.length<2) throw new Error('Tracciato del percorso non disponibile');
 
-    const destinationLabel=(dest.label&&dest.label!=='Posizione GPS attuale')?dest.label:
-      ((document.getElementById('f_indirizzo')?.value||'').trim()||'Posizione GPS attuale');
+    const destinationLabel=dest.label||((document.getElementById('f_indirizzo')?.value||'').trim()||'Posizione GPS attuale');
     routeSummary={
       distance:route.distance,
       duration:route.duration,
       destinationLabel:destinationLabel,
+      originLabel:origin.label||ROUTE_ORIGIN_LABEL,
       origin:origin,
-      destination:dest
+      destination:dest,
+      stops:stops.map(s=>({lat:s.lat,lon:s.lon,label:s.label||'',city:s.city||''}))
     };
 
-    const navUrl=buildGoogleNavigationUrl(origin,dest);
+    const navUrl=buildGoogleNavigationUrl(origin,stops);
     const linkField=document.getElementById('f_gmaps_link');
     if(linkField) linkField.value=navUrl;
     const openLink=document.getElementById('mapsOpenLink');
     if(openLink) openLink.href=navUrl;
 
-    const img=await renderRouteMap(geometry,origin,dest,route.distance,route.duration);
+    const img=await renderRouteMap(geometry,origin,stops,route.distance,route.duration);
     if(img){
       mapsImgData=img;
       const preview=document.getElementById('routePreviewImg');
       if(preview) preview.src=img;
     }
 
-    const destLabelEl=document.getElementById('routeDestinationLabel');
+    renderRoutePointsList(origin,stops);
     const distEl=document.getElementById('routeDistance');
     const durEl=document.getElementById('routeDuration');
     hydrateRouteOriginLogo();
     const wrap=document.getElementById('mapsPreviewWrap');
-    if(destLabelEl) destLabelEl.textContent=destinationLabel;
     if(distEl) distEl.textContent=formatDistance(route.distance);
     if(durEl) durEl.textContent=formatDuration(route.duration);
     if(wrap) wrap.style.display='block';
@@ -2396,7 +2956,7 @@ function loadDataImage(src){
   });
 }
 
-async function renderRouteMap(coords,origin,dest,distance,duration){
+async function renderRouteMap(coords,origin,stops,distance,duration){
   const width=900,height=520,pad=70;
   let zoom=6,points=[];
   for(let z=17;z>=5;z--){
@@ -2458,6 +3018,25 @@ async function renderRouteMap(coords,origin,dest,distance,duration){
     ctx.closePath();
   }
 
+  // Etichetta con il nome della città accanto al segnaposto
+  function cityLabel(x,y,text){
+    if(!text) return;
+    let t=String(text);
+    if(t.length>26) t=t.slice(0,24)+'…';
+    ctx.font='bold 13px Arial';
+    const tw=ctx.measureText(t).width;
+    const bw=tw+16,bh=22,r=8;
+    let bx=x-bw/2,by=y+12;
+    if(bx<4) bx=4;
+    if(bx+bw>width-4) bx=width-4-bw;
+    if(by+bh>height-28) by=y-bh-30;
+    roundedRectPath(bx,by,bw,bh,r);
+    ctx.fillStyle='rgba(255,255,255,.95)';ctx.fill();
+    ctx.strokeStyle='rgba(45,47,51,.22)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#2d2f33';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t,bx+bw/2,by+bh/2+1);
+  }
+
   function marker(point,label,color,logoImg){
     const p=mercatorWorldPoint(point.lon,point.lat,zoom);
     const x=p.x-left,y=p.y-top;
@@ -2483,8 +3062,20 @@ async function renderRouteMap(coords,origin,dest,distance,duration){
     ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.stroke();
     ctx.fillStyle='#fff';ctx.font='bold 16px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,x,y+1);
   }
+  const stopList=Array.isArray(stops)?stops:[stops];
   marker(origin,'A','#2d2f33',originLogoImg);
-  marker(dest,'B','#bf876e',null);
+  stopList.forEach((s,i)=>{
+    marker(s,String(stopList.length>1?(i+1):'B'),'#bf876e',null);
+  });
+  // Nomi delle città: prima le tappe, poi la partenza (disegnata sopra)
+  stopList.forEach(s=>{
+    const p=mercatorWorldPoint(s.lon,s.lat,zoom);
+    cityLabel(p.x-left,p.y-top+6,s.city||s.label||'');
+  });
+  {
+    const p=mercatorWorldPoint(origin.lon,origin.lat,zoom);
+    cityLabel(p.x-left,p.y-top+6,origin.city||'');
+  }
 
   // Pannello riepilogo in stile navigatore
   ctx.fillStyle='rgba(255,255,255,.94)';
@@ -2501,6 +3092,8 @@ async function renderRouteMap(coords,origin,dest,distance,duration){
 
 document.addEventListener('DOMContentLoaded',()=>{
   hydrateRouteOriginLogo();
+  if(typeof onOriginModeChange==='function') onOriginModeChange();
+  if(typeof onDestinationModeChange==='function') onDestinationModeChange();
   buildPhotoGrid('photoGridPre',slotDefs.pre,'pre');
   buildPhotoGrid('photoGridFault',slotDefs.fault,'fault');
   buildPhotoGrid('photoGridPost',slotDefs.post,'post');
@@ -2508,8 +3101,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   initSig('Tec');initSig('Cli');
   addGiorno();
   addTecnico();
-  addProblema();
-  addLavoro();
+  addMachine();
   // Forza uppercase su tutti i campi testo (inclusi quelli aggiunti dinamicamente)
   document.addEventListener('input', function(e){
     if((e.target.tagName==='INPUT' && e.target.type==='text') || e.target.tagName==='TEXTAREA'){
@@ -2522,46 +3114,123 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 // ═══════════════════════════════════════════════
-// CAMPI MULTIPLI: PROBLEMI E LAVORI ESEGUITI
+// SINGOLA MACCHINA + PROBLEMI E LAVORI ASSOCIATI
 // ═══════════════════════════════════════════════
-function addMultiItem(listId, prefix, placeholder, value) {
-  var list = document.getElementById(listId);
-  if(!list) return;
-  var idx = list.children.length + 1;
-  var uid = prefix + '_' + Date.now() + '_' + Math.floor(Math.random()*1000);
-  var row = document.createElement('div');
-  row.className = 'multi-row';
-  row.id = uid + '_row';
-  row.innerHTML =
-    '<span class="multi-index">' + idx + '</span>' +
-    '<input type="text" id="' + uid + '" placeholder="' + placeholder + '" value="' + ((value||'').replace(/"/g,'&quot;')) + '">' +
-    '<button type="button" class="multi-del" onclick="delMultiItem(this)">&#x2715;</button>';
+var _mCnt = 0;
+
+function escAttr(value){
+  return String(value == null ? '' : value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escHtml(value){
+  return String(value == null ? '' : value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function machineFieldId(i,key){
+  var legacy={costruttore:'f_costruttore',modello:'f_modello',seriale:'f_seriale',anno:'f_anno',ore:'f_ore',tappa:'f_machine_site'};
+  return i===1 ? legacy[key] : 'm'+i+'_'+key;
+}
+function machineListId(i,kind){
+  if(i===1) return kind==='problemi' ? 'problemiList' : 'lavoriList';
+  return 'm'+i+'_'+kind+'List';
+}
+function manufacturerOptions(selected){
+  var values=['Eurocomach','Case Construction','New Holland','Ammann','Coltrax','Tonti Trading','Geax','Marini','IMT','Altro'];
+  return values.map(function(v){return '<option'+(v===selected?' selected':'')+'>'+escHtml(v)+'</option>';}).join('');
+}
+function addMachine(data){
+  _mCnt++;
+  var i=_mCnt;
+  data=data||{};
+  var card=document.createElement('div');
+  card.className='machine-card';
+  card.dataset.machineId=String(i);
+  card.id='machineCard_'+i;
+  var cId=machineFieldId(i,'costruttore'),mId=machineFieldId(i,'modello'),sId=machineFieldId(i,'seriale'),yId=machineFieldId(i,'anno'),hId=machineFieldId(i,'ore'),siteId=machineFieldId(i,'tappa');
+  var pList=machineListId(i,'problemi'),wList=machineListId(i,'lavori');
+  card.innerHTML=''
+    +'<div class="machine-card-head">'
+      +'<div class="machine-head-copy"><div class="machine-title">'+tr('Dati Macchina')+'</div><div class="machine-serial-preview" id="machinePreview_'+i+'">'+tr('Seriale non inserito')+'</div></div>'
+    +'</div>'
+    +'<div class="machine-card-body">'
+      +'<div class="machine-fields">'
+        +'<div class="form-group"><label>'+tr('Costruttore')+'</label><select id="'+cId+'">'+manufacturerOptions(data.costruttore||'Eurocomach')+'</select></div>'
+        +'<div class="form-group"><label>'+tr('Tipo')+'</label><input type="text" id="'+mId+'" placeholder="es. X24D" value="'+escAttr(data.modello||'')+'" oninput="updateMachineCardHeader('+i+')"></div>'
+        +'<div class="form-group"><label>'+tr('Numero di Serie')+'</label><input type="text" id="'+sId+'" placeholder="es. MM00052" value="'+escAttr(data.seriale||'')+'" oninput="updateMachineCardHeader('+i+')"></div>'
+        +'<div class="form-group"><label>'+tr('Anno di Fabbricazione')+'</label><input type="number" id="'+yId+'" placeholder="es. 2025" min="1990" max="2035" value="'+escAttr(data.anno||'')+'"></div>'
+        +'<div class="form-group"><label>'+tr('Ore di Lavoro')+'</label><input type="number" id="'+hId+'" placeholder="es. 44" min="0" step="0.1" value="'+escAttr(data.ore||'')+'"></div>'
+      +'</div>'
+      +'<div class="machine-subsection">'
+        +'<div class="machine-subsection-head"><div class="machine-subsection-icon">⚠</div><div><strong>'+tr('Problemi Riscontrati')+'</strong></div></div>'
+        +'<div id="'+pList+'" class="multi-list machine-problems-list"></div>'
+        +'<button type="button" onclick="addMachineProblema('+i+')" class="btn-add-row">＋ '+tr('Aggiungi Problema')+'</button>'
+      +'</div>'
+      +'<div class="machine-subsection">'
+        +'<div class="machine-subsection-head"><div class="machine-subsection-icon">🔧</div><div><strong>'+tr('Lavori Eseguiti')+'</strong></div></div>'
+        +'<div id="'+wList+'" class="multi-list machine-works-list"></div>'
+        +'<button type="button" onclick="addMachineLavoro('+i+')" class="btn-add-row">＋ '+tr('Aggiungi Lavoro Eseguito')+'</button>'
+      +'</div>'
+    +'</div>';
+  document.getElementById('machinesList').appendChild(card);
+  var problems=Array.isArray(data.problemi)?data.problemi:[];
+  var works=Array.isArray(data.lavori)?data.lavori:[];
+  if(problems.length) problems.forEach(function(v){addMachineProblema(i,v);}); else addMachineProblema(i);
+  if(works.length) works.forEach(function(v){addMachineLavoro(i,v);}); else addMachineLavoro(i);
+  updateMachineCardHeader(i);
+  renumberMachines();
+  if(typeof translateElement==='function') translateElement(card);
+  return card;
+}
+function removeMachine(i){
+  if(i===1) return;
+  var card=document.getElementById('machineCard_'+i);
+  if(!card) return;
+  card.style.opacity='0';card.style.transform='translateX(12px)';card.style.transition='.2s';
+  setTimeout(function(){card.remove();renumberMachines();},210);
+}
+function renumberMachines(){
+  var title=document.querySelector('#machinesList .machine-title');
+  if(title) title.textContent=tr('Dati Macchina');
+}
+function updateMachineCardHeader(i){
+  var serial=(document.getElementById(machineFieldId(i,'seriale'))||{}).value||'';
+  var model=(document.getElementById(machineFieldId(i,'modello'))||{}).value||'';
+  var preview=document.getElementById('machinePreview_'+i);
+  if(preview) preview.textContent=[model.trim(),serial.trim()].filter(Boolean).join(' · ')||tr('Seriale non inserito');
+}
+function addMultiItem(listId,prefix,placeholder,value){
+  var list=document.getElementById(listId);if(!list)return;
+  var idx=list.children.length+1;
+  var uid=prefix+'_'+Date.now()+'_'+Math.floor(Math.random()*1000);
+  var row=document.createElement('div');row.className='multi-row';row.id=uid+'_row';
+  row.innerHTML='<span class="multi-index">'+idx+'</span>'+
+    '<input type="text" id="'+uid+'" placeholder="'+escAttr(placeholder)+'" value="'+escAttr(value||'')+'">'+
+    '<button type="button" class="multi-del" onclick="delMultiItem(this)">✕</button>';
   list.appendChild(row);
 }
-function delMultiItem(btn) {
-  var row = btn && btn.closest ? btn.closest('.multi-row') : null;
-  if(row){ row.remove(); renumberMultiRows(); }
+function delMultiItem(btn){
+  var row=btn&&btn.closest?btn.closest('.multi-row'):null;
+  if(row){var list=row.parentElement;row.remove();renumberMultiList(list);}
 }
-function renumberMultiRows() {
-  ['problemiList','lavoriList'].forEach(function(id){
-    document.querySelectorAll('#'+id+' .multi-row').forEach(function(r,i){
-      var b = r.querySelector('.multi-index');
-      if(b) b.textContent = i + 1;
-    });
-  });
+function renumberMultiList(list){
+  if(!list)return;
+  list.querySelectorAll(':scope > .multi-row').forEach(function(r,i){var b=r.querySelector('.multi-index');if(b)b.textContent=i+1;});
 }
-function addProblema(value) { addMultiItem('problemiList', 'problema', 'Descrivi il problema riscontrato...', value); }
-function addLavoro(value) { addMultiItem('lavoriList', 'lavoro', 'Descrivi il lavoro eseguito...', value); }
-function getMultiValues(listId) {
-  var vals = [];
-  document.querySelectorAll('#'+listId+' input').forEach(function(inp){
-    if(inp.value && inp.value.trim()) vals.push(inp.value.trim());
-  });
-  return vals;
+function renumberMultiRows(){document.querySelectorAll('.multi-list').forEach(renumberMultiList);}
+function addMachineProblema(i,value){addMultiItem(machineListId(i,'problemi'),'problema','Descrivi il problema riscontrato...',value);}
+function addMachineLavoro(i,value){addMultiItem(machineListId(i,'lavori'),'lavoro','Descrivi il lavoro eseguito...',value);}
+function addProblema(value){addMachineProblema(1,value);}
+function addLavoro(value){addMachineLavoro(1,value);}
+function getMultiValues(listId){
+  var vals=[];document.querySelectorAll('#'+CSS.escape(listId)+' input').forEach(function(inp){if(inp.value&&inp.value.trim())vals.push(inp.value.trim());});return vals;
 }
-function getMultiText(listId) {
-  var vals = getMultiValues(listId);
-  return vals.length ? vals.map(function(v,i){ return (i+1)+'. '+v; }).join('\n') : '';
+function getMultiText(listId){
+  var vals=getMultiValues(listId);return vals.length?vals.map(function(v,i){return(i+1)+'. '+v;}).join('\n'):'';
+}
+function getMachines(){
+  var card=document.querySelector('#machinesList .machine-card');
+  if(!card)return [];
+  var i=parseInt(card.dataset.machineId,10);
+  function fv(key){var el=document.getElementById(machineFieldId(i,key));return el?String(el.value||'').trim():'';}
+  return [{id:i,costruttore:fv('costruttore'),modello:fv('modello'),seriale:fv('seriale'),anno:fv('anno'),ore:fv('ore'),problemi:getMultiValues(machineListId(i,'problemi')),lavori:getMultiValues(machineListId(i,'lavori'))}];
 }
 
 
@@ -2775,7 +3444,7 @@ function getTecnici() {
   function collectBasic(){
     var data={};
     document.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(el){
-      if(el.type==='file'||/^g\d+_|^t\d+_/.test(el.id))return;
+      if(el.type==='file'||/^g\d+_|^t\d+_/.test(el.id)||el.closest('.multi-row'))return;
       data[el.id]=fieldValue(el);
     });
     var radios={};
@@ -2788,7 +3457,7 @@ function getTecnici() {
     try{signatures.Tec=hasSig('Tec')?sigState.Tec.canvas.toDataURL('image/png'):null;}catch(e){signatures.Tec=null;}
     try{signatures.Cli=hasSig('Cli')?sigState.Cli.canvas.toDataURL('image/png'):null;}catch(e){signatures.Cli=null;}
     return {
-      version:2,
+      version:3,
       updatedAt:new Date().toISOString(),
       step:uiStep,
       language:currentLanguage,
@@ -2797,6 +3466,7 @@ function getTecnici() {
       parts:collectParts(),
       giorni:typeof getGiorni==='function'?getGiorni():[],
       tecnici:typeof getTecnici==='function'?getTecnici():[],
+      machines:typeof getMachines==='function'?getMachines():[],
       photos:includeMedia?{pre:photoData.pre,fault:photoData.fault,post:photoData.post}:undefined,
       signatures:includeMedia?signatures:undefined,
       route:includeMedia?{summary:routeSummary,mapImage:mapsImgData,origin:routeOriginCoords,destination:routeDestinationCoords}:undefined
@@ -2827,6 +3497,10 @@ function getTecnici() {
   }
   function openDraftPicker(){var input=document.getElementById('draftFileInput');if(input){input.value='';input.click();}}
   function restoreRows(draft){
+    if(Array.isArray(draft.machines)&&draft.machines.length){
+      var ml=document.getElementById('machinesList');
+      if(ml){ml.innerHTML='';window._mCnt=0;addMachine(draft.machines[0]);}
+    }
     if(Array.isArray(draft.tecnici)&&draft.tecnici.length){
       var tl=document.getElementById('tecniciList');if(tl){tl.innerHTML='';window._tCnt=0;draft.tecnici.forEach(function(t){addTecnico(t);});}
     }
@@ -2842,6 +3516,8 @@ function getTecnici() {
     isRestoring=true;
     restoreRows(d);
     Object.keys(d.fields||{}).forEach(function(id){var el=document.getElementById(id);if(el&&el.type!=='file')el.value=d.fields[id];});
+    if(typeof onOriginModeChange==='function')onOriginModeChange();
+    if(typeof onDestinationModeChange==='function')onDestinationModeChange();
     if(d.language)setLanguage(d.language);else if(d.fields&&d.fields.languageSelector)setLanguage(d.fields.languageSelector);
     Object.keys(d.radios||{}).forEach(function(name){var el=document.querySelector('input[type="radio"][name="'+CSS.escape(name)+'"][value="'+CSS.escape(d.radios[name])+'"]');if(el)el.checked=true;});
     if(d.photos){
@@ -2862,6 +3538,9 @@ function getTecnici() {
       routeSummary=d.route.summary||null;mapsImgData=d.route.mapImage||null;routeOriginCoords=d.route.origin||routeOriginCoords;routeDestinationCoords=d.route.destination||null;
       if(mapsImgData){var prev=document.getElementById('routePreviewImg');if(prev)prev.src=mapsImgData;}
       if(routeSummary){
+        if(routeSummary.origin&&Array.isArray(routeSummary.stops)&&routeSummary.stops.length&&typeof renderRoutePointsList==='function'){
+          renderRoutePointsList(routeSummary.origin,routeSummary.stops);
+        }
         var destEl=document.getElementById('routeDestinationLabel'),distEl=document.getElementById('routeDistance'),durEl=document.getElementById('routeDuration'),wrap=document.getElementById('mapsPreviewWrap'),openLink=document.getElementById('mapsOpenLink');
         if(destEl)destEl.textContent=routeSummary.destinationLabel||'';
         if(distEl)distEl.textContent=formatDistance(routeSummary.distance||0);
